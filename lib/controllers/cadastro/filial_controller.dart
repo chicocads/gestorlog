@@ -1,9 +1,8 @@
-import 'package:gestorlog/services/cadastro/filial/response_filial.dart';
-
 import '../../core/controllers/base_controller.dart';
 import '../../models/cadastro/filial_model.dart';
 import '../../services/cadastro/filial/filial_service.dart';
 import '../../services/cadastro/filial/request_filial.dart';
+import '../../services/cadastro/filial/response_filial.dart';
 
 class FilialController extends BaseController {
   FilialController(this._service, this._getBaseUrl, this._getToken);

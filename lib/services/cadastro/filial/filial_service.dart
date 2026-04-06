@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:gestorlog/models/cadastro/filial_model.dart';
 
 import '../../../core/http/api_client.dart';
+import '../../../models/cadastro/filial_model.dart';
 import 'request_filial.dart';
 import 'response_filial.dart';
 
