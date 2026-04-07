@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/numero_formatar.dart';
 import '../../../models/prevenda/prevenda2_model.dart';
 
 class PvSeparacaoItemCard extends StatefulWidget {
@@ -139,7 +140,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                 Expanded(
                   child: _InfoRow(
                     label: 'Preço:',
-                    value: 'R\$ ${widget.item.preco.toStringAsFixed(2)}',
+                    value: NumeroFormatar.moeda(widget.item.preco.toString()),
                   ),
                 ),
                 Expanded(

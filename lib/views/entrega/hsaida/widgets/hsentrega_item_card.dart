@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gestorlog/core/utils/numero_formatar.dart';
+import '../../../../app/routes.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../models/hsaida/dsaida_model.dart';
 
@@ -81,7 +83,10 @@ class HsEntregaItemCard extends StatelessWidget {
 
   String _formatQtde(double value) {
     final hasDecimals = value.truncateToDouble() != value;
-    return value.toStringAsFixed(hasDecimals ? 2 : 0);
+    return NumeroFormatar.numero(
+      value.toString(),
+      hasDecimals ? AppRoutes.parametro.parametro.decQtde : 0,
+    );
   }
 }
 

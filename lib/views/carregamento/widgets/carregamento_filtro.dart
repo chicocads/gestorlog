@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/date_formatter.dart';
+import '../../../core/utils/data_formatar.dart';
 
 class CarregamentoFiltroBarra extends StatelessWidget {
   const CarregamentoFiltroBarra({
@@ -38,7 +38,7 @@ class CarregamentoFiltroBarra extends StatelessWidget {
                 children: [
                   Text(
                     data1 != null && data2 != null
-                        ? 'Período: ${DateFormatter.formatDate(data1!)}  →  ${DateFormatter.formatDate(data2!)}'
+                        ? 'Período: ${DataFormatar.formatDate(data1!)}  →  ${DataFormatar.formatDate(data2!)}'
                         : 'Período: todos',
                     style: const TextStyle(
                       fontSize: 13,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/numero_formatar.dart';
 import '../../../core/widgets/status_badge.dart';
 
 class EntregaResumoCard extends StatelessWidget {
@@ -130,7 +131,7 @@ class EntregaResumoCard extends StatelessWidget {
               ],
               const Spacer(),
               Text(
-                'R\$ ${valor.toStringAsFixed(2)}',
+                NumeroFormatar.moeda(valor.toString(), simbolo: 'R\$'),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,

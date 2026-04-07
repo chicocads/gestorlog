@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/utils/data_formatar.dart';
+import '../../../../core/utils/numero_formatar.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../../../models/hsaida/hsaida_model.dart';
 
@@ -122,7 +123,7 @@ class HsEntregaCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          DateFormatter.formatDate(DateTime.parse(hsaida.data)),
+                          DataFormatar.formatDate(DateTime.parse(hsaida.data)),
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,
@@ -150,7 +151,10 @@ class HsEntregaCard extends StatelessWidget {
                         ],
                         const Spacer(),
                         Text(
-                          'R\$ ${hsaida.vnota.toStringAsFixed(2)}',
+                          NumeroFormatar.moeda(
+                            hsaida.vnota.toString(),
+                            simbolo: 'R\$',
+                          ),
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,

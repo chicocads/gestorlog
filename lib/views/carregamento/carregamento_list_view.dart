@@ -3,7 +3,7 @@ import '../../app/routes.dart';
 import '../../controllers/carregamento/carregamento_controller.dart';
 import '../../controllers/hsaida/hsaida_controller.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/date_formatter.dart';
+import '../../core/utils/data_formatar.dart';
 import '../../core/widgets/list_state_builder.dart';
 import '../../services/carregamento/request_carregamento.dart';
 import '../../services/hsaida/request_hsaida.dart';
@@ -60,8 +60,8 @@ class _CarregamentoListViewState extends State<CarregamentoListView> {
     final d2 = _data2 ?? hoje;
     await widget.controller.buscar(
       RequestCarregamento.empty().copyWith(
-        data1: DateFormatter.toYmd(d1),
-        data2: DateFormatter.toYmd(d2),
+        data1: DataFormatar.toYmd(d1),
+        data2: DataFormatar.toYmd(d2),
         idFilial: AppRoutes.filial.selecionado.codigo != 0
             ? AppRoutes.filial.selecionado.codigo
             : AppRoutes.parametro.parametro.idFilial,

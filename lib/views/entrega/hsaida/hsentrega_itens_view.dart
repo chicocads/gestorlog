@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/date_formatter.dart';
+import '../../../core/utils/data_formatar.dart';
 import '../../../models/hsaida/hsaida_model.dart';
 import '../widgets/entrega_resumo_card.dart';
 import 'widgets/hsentrega_item_card.dart';
@@ -40,8 +40,8 @@ class HsEntregaItensView extends StatelessWidget {
             carregamento: hsaida.carregamento,
             rcaId: hsaida.idColabor,
             rcaNome: hsaida.colaborador.nome,
-            data: DateFormatter.formatDate(DateTime.parse(hsaida.data)),
-            dtEntrega: DateFormatter.format(DateTime.parse(hsaida.dtEntrega)),
+            data: DataFormatar.formatDate(DateTime.parse(hsaida.data)),
+            dtEntrega: DataFormatar.format(DateTime.parse(hsaida.dtEntrega)),
             valor: hsaida.vnota,
             itensCount: hsaida.dsaidaList.length,
             volume: hsaida.volume,

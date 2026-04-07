@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestorlog/core/utils/numero_formatar.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/status_badge.dart';
 import '../../../models/prevenda/prevenda_model.dart';
@@ -98,7 +99,10 @@ class PvSeparacaoCard extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          'R\$ ${prevenda.valor.toStringAsFixed(2)}',
+                          NumeroFormatar.moeda(
+                            prevenda.valor.toString(),
+                            simbolo: 'R\$',
+                          ),
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,

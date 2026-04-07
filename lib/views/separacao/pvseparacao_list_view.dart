@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../app/routes.dart';
 import '../../controllers/prevenda/prevenda_controller.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/date_formatter.dart';
+import '../../core/utils/data_formatar.dart';
 import '../../core/widgets/list_state_builder.dart';
 import '../../models/prevenda/prevenda_model.dart';
 import '../../services/prevenda/request_prevenda.dart';
@@ -55,8 +55,8 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
     final d2 = _data2 ?? hoje;
     await widget.controller.buscar(
       RequestPreVenda.empty().copyWith(
-        data1: DateFormatter.startOfDayIso(d1),
-        data2: DateFormatter.endOfDayIso(d2),
+        data1: DataFormatar.startOfDayIso(d1),
+        data2: DataFormatar.endOfDayIso(d2),
         idFilial: AppRoutes.filial.selecionado.codigo != 0
             ? AppRoutes.filial.selecionado.codigo
             : AppRoutes.parametro.parametro.idFilial,

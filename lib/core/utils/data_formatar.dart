@@ -1,5 +1,5 @@
-class DateFormatter {
-  DateFormatter._();
+class DataFormatar {
+  DataFormatar._();
 
   static String format(DateTime date) {
     final d = date.day.toString().padLeft(2, '0');

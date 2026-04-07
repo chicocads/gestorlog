@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gestorlog/core/utils/numero_formatar.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/date_formatter.dart';
+import '../../../core/utils/data_formatar.dart';
 import '../../../core/widgets/status_badge.dart';
 import '../../../models/carregamento/carregamento_model.dart';
 
@@ -82,7 +83,7 @@ class CarregamentoCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          DateFormatter.formatDate(
+                          DataFormatar.formatDate(
                             DateTime.parse(carregamento.data),
                           ),
                           style: const TextStyle(
@@ -92,7 +93,10 @@ class CarregamentoCard extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          'R\$ ${carregamento.vTotal.toStringAsFixed(2)}',
+                          NumeroFormatar.moeda(
+                            carregamento.vTotal.toString(),
+                            simbolo: 'R\$',
+                          ),
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
