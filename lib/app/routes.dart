@@ -26,8 +26,8 @@ import '../views/parametro/parametro_view.dart';
 class AppRoutes {
   AppRoutes._();
 
-  static const login = '/login';
-  static const home = '/';
+  static const login = '/';
+  static const home = '/home';
   static const parametros = '/parametros';
   static const preVendas = '/pre-vendas';
   static const entregaCarga = '/entrega-carga';

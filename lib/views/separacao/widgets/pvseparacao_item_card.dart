@@ -73,8 +73,8 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     final p = widget.item.produto;
     final partes = <String>[
       if (p.wmsrua != 0) 'Rua: ${p.wmsrua}',
-      if (p.wmsmod != 0) 'Mod: ${p.wmsmod}',
       if (p.wmsblc != 0) 'Blc: ${p.wmsblc}',
+      if (p.wmsmod != 0) 'Mod: ${p.wmsmod}',
       if (p.wmsniv != 0) 'Niv: ${p.wmsniv}',
       if (p.wmsapt != 0) 'Apt: ${p.wmsapt}',
       if (p.wmsgvt != 0) 'Gvt: ${p.wmsgvt}',

@@ -8,27 +8,31 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('pt', 'BR')],
-      scrollBehavior: const MaterialScrollBehavior().copyWith(
-        dragDevices: <PointerDeviceKind>{
-          PointerDeviceKind.mouse,
-          PointerDeviceKind.touch,
-          PointerDeviceKind.stylus,
-          PointerDeviceKind.trackpad,
-          PointerDeviceKind.unknown,
-        },
-      ),
-      title: 'GestorLog',
-      debugShowCheckedModeBanner: false,
-      theme: AppRoutes.theme,
-      initialRoute: AppRoutes.login,
-      onGenerateRoute: AppRoutes.onGenerateRoute,
+    return LayoutBuilder(
+      builder: (p0, p1) {
+        return MaterialApp(
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('pt', 'BR')],
+          scrollBehavior: const MaterialScrollBehavior().copyWith(
+            dragDevices: <PointerDeviceKind>{
+              PointerDeviceKind.mouse,
+              PointerDeviceKind.touch,
+              PointerDeviceKind.stylus,
+              PointerDeviceKind.trackpad,
+              PointerDeviceKind.unknown,
+            },
+          ),
+          title: 'GestorLog',
+          debugShowCheckedModeBanner: false,
+          theme: AppRoutes.theme,
+          initialRoute: AppRoutes.login,
+          onGenerateRoute: AppRoutes.onGenerateRoute,
+        );
+      },
     );
   }
 }
