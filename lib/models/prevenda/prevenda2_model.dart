@@ -66,8 +66,7 @@ class PreVenda2Model {
     required this.taraCxs,
     required this.pv2Ns,
     required this.produto,
-        required this.loteList,
-
+    required this.lotesaida,
   });
 
   // chave primária
@@ -114,41 +113,41 @@ class PreVenda2Model {
   final String pv2Ns;
 
   final ProdutoModel produto;
-  final List<LoteSaidaModel> loteList;
+  final List<LoteSaidaModel> lotesaida;
 
   factory PreVenda2Model.empty() => PreVenda2Model(
-    loja: 0,
-    numero: 0,
-    ordem: 0,
-    tipo: 0,
-    idproduto: 0,
-    lote: '',
-    validade: '',
-    nomeProduto: '',
-    und: '',
-    pecas: 0,
-    qtde: 0,
-    qtdesep: 0,
-    desconto: 0,
-    tabela: 0,
-    precoTabela: 0,
-    preco: 0,
-    tecnico: 0,
-    tipoComissao: 0,
-    comissao: 0,
-    status: 0,
-    requis: 0,
-    autUsuario: '',
-    xPedNfe: '',
-    xIPedNfe: '',
-    fatorVenda: 0,
-    vlDesc: 0,
-    qtdeCxs: 0,
-    taraCxs: 0,
-    pv2Ns: '',
-    produto: ProdutoModel.empty(),
-    loteList: [],
-  );
+        loja: 0,
+        numero: 0,
+        ordem: 0,
+        tipo: 0,
+        idproduto: 0,
+        lote: '',
+        validade: '',
+        nomeProduto: '',
+        und: '',
+        pecas: 0,
+        qtde: 0.0,
+        qtdesep: 0.0,
+        desconto: 0.0,
+        tabela: 0,
+        precoTabela: 0.0,
+        preco: 0.0,
+        tecnico: 0,
+        tipoComissao: 0,
+        comissao: 0.0,
+        status: 0,
+        requis: 0,
+        autUsuario: '',
+        xPedNfe: '',
+        xIPedNfe: '',
+        fatorVenda: 0.0,
+        vlDesc: 0.0,
+        qtdeCxs: 0,
+        taraCxs: 0.0,
+        pv2Ns: '',
+        produto: ProdutoModel.empty(),
+        lotesaida: const [],
+      );
 
   PreVenda2Model copyWith({
     int? loja,
@@ -181,7 +180,7 @@ class PreVenda2Model {
     double? taraCxs,
     String? pv2Ns,
     ProdutoModel? produto,
-    List<LoteSaidaModel>? loteList,
+    List<LoteSaidaModel>? lotesaida,
   }) {
     return PreVenda2Model(
       loja: loja ?? this.loja,
@@ -214,7 +213,7 @@ class PreVenda2Model {
       taraCxs: taraCxs ?? this.taraCxs,
       pv2Ns: pv2Ns ?? this.pv2Ns,
       produto: produto ?? this.produto,
-      loteList: loteList ?? this.loteList,
+      lotesaida: lotesaida ?? List.of(this.lotesaida),
     );
   }
 
@@ -231,32 +230,31 @@ class PreVenda2Model {
       nomeProduto: map[colNomeProduto] ?? '',
       und: map[colUnd] ?? '',
       pecas: map[colPecas] ?? 0,
-      qtde: map[colQtde] ?? 0,
-      qtdesep: map[colQtdeSep] ?? 0,
-      desconto: map[colDesconto] ?? 0,
+      qtde: (map[colQtde] as num?)?.toDouble() ?? 0.0,
+      qtdesep: (map[colQtdeSep] as num?)?.toDouble() ?? 0.0,
+      desconto: (map[colDesconto] as num?)?.toDouble() ?? 0.0,
       tabela: map[colTabela] ?? 0,
-      precoTabela: map[colPrecoTabela] ?? 0,
-      preco: map[colPreco] ?? 0,
+      precoTabela: (map[colPrecoTabela] as num?)?.toDouble() ?? 0.0,
+      preco: (map[colPreco] as num?)?.toDouble() ?? 0.0,
       tecnico: map[colTecnico] ?? 0,
       tipoComissao: map[colTipoComissao] ?? 0,
-      comissao: map[colComissao] ?? 0,
+      comissao: (map[colComissao] as num?)?.toDouble() ?? 0.0,
       status: map[colStatus] ?? 0,
       requis: map[colRequis] ?? 0,
       autUsuario: map[colAutUsuario] ?? '',
       xPedNfe: map[colXPedNfe] ?? '',
       xIPedNfe: map[colXIPedNfe] ?? '',
-      fatorVenda: map[colFatorVenda] ?? 0,
-      vlDesc: map[colVlDesc] ?? 0,
+      fatorVenda: (map[colFatorVenda] as num?)?.toDouble() ?? 0.0,
+      vlDesc: (map[colVlDesc] as num?)?.toDouble() ?? 0.0,
       qtdeCxs: map[colQtdeCxs] ?? 0,
-      taraCxs: map[colTaraCxs] ?? 0,
+      taraCxs: (map[colTaraCxs] as num?)?.toDouble() ?? 0.0,
       pv2Ns: map[colPv2Ns] ?? '',
       produto: map[colProduto] is Map<String, dynamic>
           ? ProdutoModel.fromMap(map[colProduto] as Map<String, dynamic>)
           : ProdutoModel.empty(),
-      loteList: (map['loteList'] as List<dynamic>? ?? [])
+      lotesaida: (map['lotesaida'] as List<dynamic>? ?? [])
           .map((e) => LoteSaidaModel.fromMap(e as Map<String, dynamic>))
           .toList(),
-
     );
   }
 
@@ -265,7 +263,7 @@ class PreVenda2Model {
     colNumero: numero,
     colOrdem: ordem,
     colTipo: tipo,
-    colIdProduto: produto,
+    colIdProduto: idproduto,
     colLote: lote,
     colValidade: validade,
     colNomeProduto: nomeProduto,
@@ -290,11 +288,11 @@ class PreVenda2Model {
     colQtdeCxs: qtdeCxs,
     colTaraCxs: taraCxs,
     colPv2Ns: pv2Ns,
-    colProduto: produto,
-    'loteList': loteList.map((e) => e.toMap()).toList(),
+    colProduto: produto.toMap(),
+    'loteList': lotesaida.map((e) => e.toMap()).toList(),
   };
 
   @override
   String toString() =>
-      'PreVenda2Model(loja: $loja, numero: $numero, ordem: $ordem, produto: $produto, qtde: $qtde, preco: $preco)';
+      'PreVenda2Model(loja: $loja, numero: $numero, ordem: $ordem, idproduto: $idproduto, qtde: $qtde, qtdesep: $qtdesep)';
 }

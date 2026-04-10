@@ -36,6 +36,7 @@ class ProdutoModel {
   static const colSituacao = 'situacao';
   static const colTabWeb = 'tabweb';
   static const colCst = 'cst';
+  static const colControleLote = 'controlelote';
   static const colImagem = 'imagem';
 
   ProdutoModel({
@@ -75,6 +76,7 @@ class ProdutoModel {
     required this.situacao,
     required this.tabweb,
     required this.cst,
+    required this.controlelote,
     required this.imagem,
   });
 
@@ -114,6 +116,7 @@ class ProdutoModel {
   final int situacao;
   final int tabweb;
   final String cst;
+  final int controlelote;
   final String imagem;
 
   factory ProdutoModel.empty() => ProdutoModel(
@@ -153,6 +156,7 @@ class ProdutoModel {
     situacao: 0,
     tabweb: 0,
     cst: '',
+    controlelote: 0,
     imagem: '',
   );
 
@@ -193,6 +197,7 @@ class ProdutoModel {
     int? situacao,
     int? tabweb,
     String? cst,
+    int? controlelote,
     String? imagem,
   }) {
     return ProdutoModel(
@@ -232,6 +237,7 @@ class ProdutoModel {
       situacao: situacao ?? this.situacao,
       tabweb: tabweb ?? this.tabweb,
       cst: cst ?? this.cst,
+      controlelote: controlelote ?? this.controlelote,
       imagem: imagem ?? this.imagem,
     );
   }
@@ -279,6 +285,7 @@ class ProdutoModel {
       situacao: map[colSituacao] as int? ?? 0,
       tabweb: map[colTabWeb] as int? ?? 0,
       cst: map[colCst] as String? ?? '000',
+      controlelote: map[colControleLote] as int? ?? 0,
       imagem: imagemRaw.replaceAll(imagemRaw.length < 100 ? 'MA==' : '', ''),
     );
   }
@@ -320,6 +327,7 @@ class ProdutoModel {
     colSituacao: situacao,
     colTabWeb: tabweb,
     colCst: cst,
+    colControleLote: controlelote,
     colImagem: imagem,
   };
 

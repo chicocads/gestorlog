@@ -1,6 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../models/Separacao/separacao_model.dart';
+import '../../models/lote_saida_model.dart';
 import '../../models/parametro_model.dart';
 
 class DatabaseHelper {
@@ -18,7 +19,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     return openDatabase(
       join(dbPath, 'gestorlog.db'),
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -38,6 +39,7 @@ class DatabaseHelper {
       )
     ''');
     await _createConferenciaTable(db);
+    await _createLoteSaidaTable(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -48,6 +50,9 @@ class DatabaseHelper {
       ''');
       await db.execute('DROP TABLE IF EXISTS ${SeparacaoModel.tblNome}');
       await _createConferenciaTable(db);
+    }
+    if (oldVersion < 3) {
+      await _createLoteSaidaTable(db);
     }
   }
 
@@ -64,6 +69,26 @@ class DatabaseHelper {
           ${SeparacaoModel.colNumero},
           ${SeparacaoModel.colOrdem},
           ${SeparacaoModel.colIdProduto}
+        )
+      )
+    ''');
+  }
+
+  Future<void> _createLoteSaidaTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE ${LoteSaidaModel.tblNome} (
+        ${LoteSaidaModel.colIdFilial}   INTEGER NOT NULL DEFAULT 0,
+        ${LoteSaidaModel.colIdPrevenda} INTEGER NOT NULL DEFAULT 0,
+        ${LoteSaidaModel.colIdProduto}  INTEGER NOT NULL DEFAULT 0,
+        ${LoteSaidaModel.colLote}       TEXT    NOT NULL DEFAULT '',
+        ${LoteSaidaModel.colValidade}   TEXT    NOT NULL DEFAULT '',
+        ${LoteSaidaModel.colQtde}       REAL    NOT NULL DEFAULT 0,
+        PRIMARY KEY (
+          ${LoteSaidaModel.colIdFilial},
+          ${LoteSaidaModel.colIdPrevenda},
+          ${LoteSaidaModel.colIdProduto},
+          ${LoteSaidaModel.colLote},
+          ${LoteSaidaModel.colValidade}
         )
       )
     ''');

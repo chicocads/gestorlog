@@ -25,13 +25,13 @@ class LoteSaidaModel {
   final double qtde;
 
   factory LoteSaidaModel.empty() => LoteSaidaModel(
-    idFilial: 0,
-    idPrevenda: 0,
-    idProduto: 0,
-    lote: '',
-    validade: '',
-    qtde: 0,
-  );
+        idFilial: 0,
+        idPrevenda: 0,
+        idProduto: 0,
+        lote: '',
+        validade: '',
+        qtde: 0.0,
+      );
 
   LoteSaidaModel copyWith({
     int? idFilial,
@@ -58,10 +58,8 @@ class LoteSaidaModel {
       idPrevenda: map[colIdPrevenda] ?? 0,
       idProduto: map[colIdProduto] ?? 0,
       lote: map[colLote] ?? '',
-      validade: map[colValidade] != null
-          ? map[colValidade].substring(0, 10)
-          : '',
-      qtde: (map[colQtde] ?? 0).toDouble(),
+      validade: map[colValidade] ?? '01-01-2000',
+      qtde: (map[colQtde] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -76,5 +74,5 @@ class LoteSaidaModel {
 
   @override
   String toString() =>
-      'LoteSaidaModel(loja: $idFilial, prevenda: $idPrevenda, produto: $idProduto, lote: $lote, qtde: $qtde)';
+      'LoteSaidaModel(idFilial: $idFilial, idPrevenda: $idPrevenda, idProduto: $idProduto, lote: $lote, validade: $validade, qtde: $qtde)';
 }

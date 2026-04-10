@@ -48,11 +48,12 @@ class _HsEntregaListViewState extends State<HsEntregaListView> {
   }
 
   Future<void> _buscar() async {
+    final deps = AppScope.of(context);
     await widget.controller.buscar(
       RequestHSaida.empty().copyWith(
-        idFilial: AppRoutes.filial.selecionado.codigo != 0
-            ? AppRoutes.filial.selecionado.codigo
-            : AppRoutes.parametro.parametro.idFilial,
+        idFilial: deps.filialController.selecionado.codigo != 0
+            ? deps.filialController.selecionado.codigo
+            : deps.parametroController.parametro.idFilial,
         numero: int.tryParse(_prevendaController.text) ?? 0,
         carregamento: widget.carregamento,
         entregue: _entregue,

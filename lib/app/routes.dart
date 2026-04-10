@@ -24,6 +24,25 @@ import '../views/auditoria/auditoria_view.dart';
 import '../views/inventario/inventario_view.dart';
 import '../views/parametro/parametro_view.dart';
 
+class AppScope extends InheritedWidget {
+  const AppScope({
+    super.key,
+    required this.deps,
+    required super.child,
+  });
+
+  final AppDependencies deps;
+
+  static AppDependencies of(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<AppScope>();
+    assert(scope != null, 'AppScope não encontrado no widget tree.');
+    return scope!.deps;
+  }
+
+  @override
+  bool updateShouldNotify(AppScope oldWidget) => deps != oldWidget.deps;
+}
+
 class AppDependencies {
   AppDependencies({
     ApiClient? apiClient,
@@ -106,49 +125,38 @@ class AppRoutes {
 
   static final ThemeData theme = AppTheme.light;
 
-  static AppDependencies _deps = AppDependencies();
-
-  static void configure(AppDependencies dependencies) {
-    _deps = dependencies;
-  }
-
-  static ParametroController get parametro => _deps.parametroController;
-  static UsuarioController get usuario => _deps.usuarioController;
-  static PreVendaController get preVenda => _deps.preVendaController;
-  static FilialController get filial => _deps.filialController;
-  static PvSeparacaoController get conferencia => _deps.conferenciaController;
-  static CarregamentoController get carregamento => _deps.carregamentoController;
-  static HSaidaController get hsaida => _deps.hsaidaController;
-
-  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+  static Route<dynamic> onGenerateRoute(
+    RouteSettings settings,
+    AppDependencies deps,
+  ) {
     return switch (settings.name) {
       login => _route(const LoginView()),
       home => _route(
         HomeView(
-          usuarioController: _deps.usuarioController,
-          parametroController: _deps.parametroController,
-          filialController: _deps.filialController,
+          usuarioController: deps.usuarioController,
+          parametroController: deps.parametroController,
+          filialController: deps.filialController,
         ),
       ),
       parametros => _route(
         ParametroView(
-          controller: _deps.parametroController,
+          controller: deps.parametroController,
           isAdmin: settings.arguments is bool
               ? settings.arguments as bool
               : false,
         ),
       ),
       preVendas => _route(
-        PvSeparacaoListView(controller: _deps.preVendaController),
+        PvSeparacaoListView(controller: deps.preVendaController),
       ),
       entregaCarga => _route(
         CarregamentoListView(
-          controller: _deps.carregamentoController,
-          hsaidaController: _deps.hsaidaController,
+          controller: deps.carregamentoController,
+          hsaidaController: deps.hsaidaController,
         ),
       ),
       separacaoCarga => _route(
-        PvSeparacaoListView(controller: _deps.preVendaController),
+        PvSeparacaoListView(controller: deps.preVendaController),
       ),
       inventario => _route(const InventarioView()),
       auditoriaEstoque => _route(const AuditoriaView()),

@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../controllers/separacao/pvseparacao_controller.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/app_snack_bar.dart';
+import '../../../core/utils/data_formatar.dart';
 import '../../../core/utils/numero_formatar.dart';
+import '../../../models/lote_saida_model.dart';
 import '../../../models/prevenda/prevenda2_model.dart';
 
 class PvSeparacaoItemCard extends StatefulWidget {
   const PvSeparacaoItemCard({
     super.key,
+    required this.idFilial,
+    required this.idPrevenda,
     required this.item,
+    required this.pvSeparacaoController,
+    required this.lotes,
     required this.qtdeController,
     this.qtdeFocusNode,
     this.highlighted = false,
@@ -18,7 +26,11 @@ class PvSeparacaoItemCard extends StatefulWidget {
     this.romaneio = 0,
   });
 
+  final int idFilial;
+  final int idPrevenda;
   final PreVenda2Model item;
+  final PvSeparacaoController pvSeparacaoController;
+  final List<LoteSaidaModel> lotes;
   final TextEditingController qtdeController;
   final FocusNode? qtdeFocusNode;
   final bool highlighted;
@@ -34,18 +46,72 @@ class PvSeparacaoItemCard extends StatefulWidget {
 
 class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
   String _lastValidValue = '';
+  final List<_LoteRow> _loteRows = [];
+  final Set<int> _savingLoteIndexes = {};
+  final Map<int, String> _lastValidLoteQtde = {};
 
   @override
   void initState() {
     super.initState();
     _lastValidValue = widget.qtdeController.text;
     widget.qtdeController.addListener(_syncLastValidValue);
+    _syncLotesFromWidget();
+  }
+
+  @override
+  void didUpdateWidget(covariant PvSeparacaoItemCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_sameLotes(oldWidget.lotes, widget.lotes)) {
+      _syncLotesFromWidget();
+    }
   }
 
   @override
   void dispose() {
     widget.qtdeController.removeListener(_syncLastValidValue);
+    for (final r in _loteRows) {
+      r.loteController.dispose();
+      r.validadeController.dispose();
+      r.qtdeController.dispose();
+    }
     super.dispose();
+  }
+
+  bool _sameLotes(List<LoteSaidaModel> a, List<LoteSaidaModel> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    final sa = a
+        .map((e) => '${e.idProduto}|${e.lote}|${e.validade}|${e.qtde}')
+        .toSet();
+    final sb = b
+        .map((e) => '${e.idProduto}|${e.lote}|${e.validade}|${e.qtde}')
+        .toSet();
+    return sa.length == sb.length && sa.containsAll(sb);
+  }
+
+  void _syncLotesFromWidget() {
+    for (final r in _loteRows) {
+      r.loteController.dispose();
+      r.validadeController.dispose();
+      r.qtdeController.dispose();
+    }
+    _loteRows.clear();
+    _lastValidLoteQtde.clear();
+
+    final sorted = [...widget.lotes]
+      ..sort((a, b) {
+        final c = a.lote.compareTo(b.lote);
+        if (c != 0) return c;
+        return a.validade.compareTo(b.validade);
+      });
+
+    for (final l in sorted) {
+      _loteRows.add(_LoteRow.fromModel(model: l, decQtde: widget.decQtde));
+    }
+    for (var i = 0; i < _loteRows.length; i++) {
+      _lastValidLoteQtde[i] = _loteRows[i].qtdeController.text;
+    }
+    if (mounted) setState(() {});
   }
 
   void _syncLastValidValue() {
@@ -93,6 +159,213 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     } else {
       _lastValidValue = value;
     }
+  }
+
+  void _adicionarLote() {
+    _loteRows.add(_LoteRow.empty());
+    _lastValidLoteQtde[_loteRows.length - 1] = '';
+    setState(() {});
+  }
+
+  DateTime? _parseDdMmYyyy(String value) {
+    final parts = value.split('/');
+    if (parts.length != 3) return null;
+    final d = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    final y = int.tryParse(parts[2]);
+    if (d == null || m == null || y == null) return null;
+    if (y < 1 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+    final dt = DateTime(y, m, d);
+    if (dt.year != y || dt.month != m || dt.day != d) return null;
+    return dt;
+  }
+
+  String _toIsoValidadeFromInput(String raw) {
+    final v = raw.trim();
+    if (v.isEmpty) return '';
+    final dt = _parseDdMmYyyy(v);
+    if (dt == null) return v;
+    final y = dt.year.toString().padLeft(4, '0');
+    final m = dt.month.toString().padLeft(2, '0');
+    final d = dt.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
+  }
+
+  void _onLoteQtdeChanged(int index, String value) {
+    if (value.trim().isEmpty) {
+      _lastValidLoteQtde[index] = '';
+      return;
+    }
+
+    final entered = double.tryParse(value.replaceAll(',', '.'));
+    if (entered == null) return;
+
+    final somaOutros = _sumLotesExcept(index);
+    final separado =
+        double.tryParse(widget.qtdeController.text.replaceAll(',', '.')) ?? 0.0;
+    final max = separado > 0 ? separado : widget.item.qtde;
+
+    if (somaOutros + entered > max) {
+      final last = _lastValidLoteQtde[index] ?? '';
+      _loteRows[index].qtdeController.text = last;
+      _loteRows[index].qtdeController.selection = TextSelection.fromPosition(
+        TextPosition(offset: last.length),
+      );
+      AppSnackBar.erro(
+        context,
+        separado > 0
+            ? 'A soma dos lotes não pode exceder a quantidade separada ($separado).'
+            : 'A soma dos lotes não pode exceder a quantidade pedida (${widget.item.qtde}).',
+      );
+      return;
+    }
+
+    _lastValidLoteQtde[index] = value;
+  }
+
+  double _sumLotesExcept(int index) {
+    var total = 0.0;
+    for (var i = 0; i < _loteRows.length; i++) {
+      if (i == index) continue;
+      final txt = _loteRows[i].qtdeController.text.trim();
+      final v = double.tryParse(txt.replaceAll(',', '.')) ?? 0.0;
+      total += v;
+    }
+    return total;
+  }
+
+  Future<void> _salvarLote(int index) async {
+    final row = _loteRows[index];
+    final lote = row.loteController.text.trim();
+    final validadeTxt = row.validadeController.text.trim();
+    final qtdeTxt = row.qtdeController.text.trim();
+
+    if (lote.isEmpty) {
+      AppSnackBar.erro(context, 'Informe o lote para salvar.');
+      return;
+    }
+    if (qtdeTxt.isEmpty) {
+      AppSnackBar.erro(context, 'Informe a quantidade do lote para salvar.');
+      return;
+    }
+
+    final qtde = double.tryParse(qtdeTxt.replaceAll(',', '.'));
+    if (qtde == null || qtde <= 0) {
+      AppSnackBar.erro(context, 'Quantidade do lote inválida.');
+      return;
+    }
+
+    if (validadeTxt.isNotEmpty && _parseDdMmYyyy(validadeTxt) == null) {
+      AppSnackBar.erro(context, 'Validade inválida (use DD/MM/AAAA).');
+      return;
+    }
+
+    final validade = _toIsoValidadeFromInput(validadeTxt);
+
+    final somaOutros = _sumLotesExcept(index);
+    final separado =
+        double.tryParse(widget.qtdeController.text.replaceAll(',', '.')) ?? 0.0;
+    final max = separado > 0 ? separado : widget.item.qtde;
+    if (somaOutros + qtde > max) {
+      AppSnackBar.erro(
+        context,
+        separado > 0
+            ? 'A soma dos lotes não pode exceder a quantidade separada ($separado).'
+            : 'A soma dos lotes não pode exceder a quantidade pedida (${widget.item.qtde}).',
+      );
+      return;
+    }
+
+    setState(() => _savingLoteIndexes.add(index));
+
+    final model = LoteSaidaModel(
+      idFilial: widget.idFilial,
+      idPrevenda: widget.idPrevenda,
+      idProduto: widget.item.idproduto,
+      lote: lote,
+      validade: validade,
+      qtde: qtde,
+    );
+
+    await widget.pvSeparacaoController.gravarLote(
+      lote: model,
+      oldLote: row.originalLote.isEmpty ? null : row.originalLote,
+      oldValidade: row.originalValidade.isEmpty ? null : row.originalValidade,
+    );
+
+    if (!mounted) return;
+
+    if (widget.pvSeparacaoController.error != null) {
+      AppSnackBar.erro(
+        context,
+        widget.pvSeparacaoController.error ?? 'Não foi possível salvar o lote.',
+      );
+      setState(() => _savingLoteIndexes.remove(index));
+      return;
+    }
+
+    final formatted = qtde.toStringAsFixed(
+      qtde.truncateToDouble() == qtde ? 0 : widget.decQtde,
+    );
+    row.qtdeController.text = formatted.replaceAll('.', ',');
+    _lastValidLoteQtde[index] = row.qtdeController.text;
+
+    _loteRows[index] = row.copyWithSavedKey(lote: lote, validade: validade);
+    setState(() => _savingLoteIndexes.remove(index));
+    AppSnackBar.sucesso(context, 'Lote salvo com sucesso.');
+  }
+
+  Future<void> _deletarLote(int index) async {
+    final row = _loteRows[index];
+    if (row.originalLote.isEmpty && row.originalValidade.isEmpty) {
+      row.loteController.dispose();
+      row.validadeController.dispose();
+      row.qtdeController.dispose();
+      _loteRows.removeAt(index);
+      setState(() {});
+      return;
+    }
+
+    setState(() => _savingLoteIndexes.add(index));
+
+    await widget.pvSeparacaoController.deletarLote(
+      LoteSaidaModel(
+        idFilial: widget.idFilial,
+        idPrevenda: widget.idPrevenda,
+        idProduto: widget.item.idproduto,
+        lote: row.originalLote,
+        validade: row.originalValidade,
+        qtde: 0,
+      ),
+    );
+
+    if (!mounted) return;
+
+    if (widget.pvSeparacaoController.error != null) {
+      AppSnackBar.erro(
+        context,
+        widget.pvSeparacaoController.error ??
+            'Não foi possível excluir o lote.',
+      );
+      setState(() => _savingLoteIndexes.remove(index));
+      return;
+    }
+
+    row.loteController.dispose();
+    row.validadeController.dispose();
+    row.qtdeController.dispose();
+    _loteRows.removeAt(index);
+    _lastValidLoteQtde.remove(index);
+    _lastValidLoteQtde
+      ..clear()
+      ..addEntries(
+        List.generate(
+          _loteRows.length,
+          (i) => MapEntry(i, _loteRows[i].qtdeController.text),
+        ),
+      );
+    setState(() => _savingLoteIndexes.remove(index));
+    AppSnackBar.sucesso(context, 'Lote removido.');
   }
 
   @override
@@ -156,21 +429,6 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                     ),
                   ),
                 ),
-                // Expanded(
-                //   child: _InfoRow(
-                //     label: 'Qtde Pedida:',
-                //     value: widget.item.qtde.toStringAsFixed(
-                //       widget.item.qtde.truncateToDouble() == widget.item.qtde
-                //           ? 0
-                //           : 2,
-                //     ),
-                //     valueStyle: const TextStyle(
-                //       fontSize: 13,
-                //       fontWeight: FontWeight.w600,
-                //       color: AppColors.textPrimary,
-                //     ),
-                //   ),
-                // ),
               ],
             ),
             Row(
@@ -282,9 +540,229 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                 ),
               ],
             ),
+            if (widget.item.produto.controlelote == 1) ...[
+              const SizedBox(height: 12),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              Theme(
+                data: Theme.of(context).copyWith(
+                  dividerColor: Colors.transparent,
+                ),
+                child: ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: EdgeInsets.zero,
+                  initiallyExpanded: false,
+                  title: const Text(
+                    'Lotes',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  children: [
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        onPressed:
+                            widget.romaneio == 2 ? null : _adicionarLote,
+                        icon: const Icon(Icons.add),
+                      ),
+                    ),
+                    if (_loteRows.isEmpty)
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Nenhum lote informado.',
+                          style: TextStyle(color: AppColors.textSecondary),
+                        ),
+                      )
+                    else
+                      Column(
+                        children: [
+                          for (var i = 0; i < _loteRows.length; i++)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: _buildLoteRow(i),
+                            ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLoteRow(int index) {
+    final row = _loteRows[index];
+    final saving = _savingLoteIndexes.contains(index);
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: row.loteController,
+                  decoration: const InputDecoration(
+                    labelText: 'Lote',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  enabled: widget.romaneio != 2 && !saving,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextFormField(
+                  controller: row.validadeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Validade',
+                    hintText: 'DD/MM/AAAA',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  enabled: widget.romaneio != 2 && !saving,
+                  inputFormatters: [
+                    _DateDdMmYyyyFormatter(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: row.qtdeController,
+                  decoration: InputDecoration(
+                    labelText: 'Qtde',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    prefixIcon: IconButton(
+                      onPressed: widget.romaneio == 2 || saving
+                          ? null
+                          : () => _salvarLote(index),
+                      icon: saving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Icon(
+                              Icons.save_rounded,
+                              size: 24,
+                              color: widget.romaneio == 2
+                                  ? Colors.grey
+                                  : AppColors.primary,
+                            ),
+                    ),
+                  ),
+                  enabled: widget.romaneio != 2 && !saving,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[\d,]')),
+                    _DecimalMaxDigitsFormatter(widget.decQtde),
+                  ],
+                  onTap: () => row.qtdeController.selection = TextSelection(
+                    baseOffset: 0,
+                    extentOffset: row.qtdeController.text.length,
+                  ),
+                  onChanged: (value) => _onLoteQtdeChanged(index, value),
+                ),
+              ),
+              const SizedBox(width: 10),
+              IconButton(
+                onPressed: widget.romaneio == 2 || saving
+                    ? null
+                    : () => _deletarLote(index),
+                icon: const Icon(Icons.delete_outline),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoteRow {
+  _LoteRow({
+    required this.loteController,
+    required this.validadeController,
+    required this.qtdeController,
+    required this.originalLote,
+    required this.originalValidade,
+  });
+
+  factory _LoteRow.fromModel({
+    required LoteSaidaModel model,
+    required int decQtde,
+  }) {
+    final qtde = model.qtde.toStringAsFixed(
+      model.qtde.truncateToDouble() == model.qtde ? 0 : decQtde,
+    );
+    final validadeRaw = model.validade.trim();
+    final validadeText = validadeRaw.isEmpty
+        ? ''
+        : validadeRaw.contains('/')
+        ? validadeRaw
+        : () {
+            try {
+              return DataFormatar.formatDate(DateTime.parse(validadeRaw));
+            } catch (_) {
+              return validadeRaw;
+            }
+          }();
+    return _LoteRow(
+      loteController: TextEditingController(text: model.lote),
+      validadeController: TextEditingController(
+        text: validadeText,
+      ),
+      qtdeController: TextEditingController(text: qtde.replaceAll('.', ',')),
+      originalLote: model.lote,
+      originalValidade: model.validade,
+    );
+  }
+
+  factory _LoteRow.empty() {
+    return _LoteRow(
+      loteController: TextEditingController(),
+      validadeController: TextEditingController(),
+      qtdeController: TextEditingController(),
+      originalLote: '',
+      originalValidade: '',
+    );
+  }
+
+  final TextEditingController loteController;
+  final TextEditingController validadeController;
+  final TextEditingController qtdeController;
+  final String originalLote;
+  final String originalValidade;
+
+  _LoteRow copyWithSavedKey({required String lote, required String validade}) {
+    return _LoteRow(
+      loteController: loteController,
+      validadeController: validadeController,
+      qtdeController: qtdeController,
+      originalLote: lote,
+      originalValidade: validade,
     );
   }
 }
@@ -315,6 +793,31 @@ class _DecimalMaxDigitsFormatter extends TextInputFormatter {
     }
 
     return newValue;
+  }
+}
+
+class _DateDdMmYyyyFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) {
+      return const TextEditingValue(text: '');
+    }
+
+    final limited = digits.length > 8 ? digits.substring(0, 8) : digits;
+    final b = StringBuffer();
+    for (var i = 0; i < limited.length; i++) {
+      if (i == 2 || i == 4) b.write('/');
+      b.write(limited[i]);
+    }
+    final text = b.toString();
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
   }
 }
 

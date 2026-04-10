@@ -58,13 +58,14 @@ class _CarregamentoListViewState extends State<CarregamentoListView> {
     final hoje = DateTime.now();
     final d1 = _data1 ?? DateTime(1990);
     final d2 = _data2 ?? hoje;
+    final deps = AppScope.of(context);
     await widget.controller.buscar(
       RequestCarregamento.empty().copyWith(
         data1: DataFormatar.toYmd(d1),
         data2: DataFormatar.toYmd(d2),
-        idFilial: AppRoutes.filial.selecionado.codigo != 0
-            ? AppRoutes.filial.selecionado.codigo
-            : AppRoutes.parametro.parametro.idFilial,
+        idFilial: deps.filialController.selecionado.codigo != 0
+            ? deps.filialController.selecionado.codigo
+            : deps.parametroController.parametro.idFilial,
         numero: int.tryParse(_numeroController.text) ?? 0,
         status: 1,
       ),

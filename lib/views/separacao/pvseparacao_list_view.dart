@@ -53,18 +53,19 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
     final hoje = DateTime.now();
     final d1 = _data1 ?? DateTime(1990);
     final d2 = _data2 ?? hoje;
+    final deps = AppScope.of(context);
     await widget.controller.buscar(
       RequestPreVenda.empty().copyWith(
         data1: DataFormatar.startOfDayIso(d1),
         data2: DataFormatar.endOfDayIso(d2),
-        idFilial: AppRoutes.filial.selecionado.codigo != 0
-            ? AppRoutes.filial.selecionado.codigo
-            : AppRoutes.parametro.parametro.idFilial,
+        idFilial: deps.filialController.selecionado.codigo != 0
+            ? deps.filialController.selecionado.codigo
+            : deps.parametroController.parametro.idFilial,
         carregamento: int.tryParse(_cargaController.text) ?? 0,
         status: _status.value,
-        idSeparador: AppRoutes.parametro.parametro.idPda == 0
-            ? AppRoutes.usuario.usuario.idfuncionario
-            : AppRoutes.parametro.parametro.idPda,
+        idSeparador: deps.parametroController.parametro.idPda == 0
+            ? deps.usuarioController.usuario.idfuncionario
+            : deps.parametroController.parametro.idPda,
         romaneio: 0,
       ),
     );
@@ -180,7 +181,8 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
                           MaterialPageRoute(
                             builder: (_) => PvSeparacaoItensView(
                               prevenda: pv,
-                              pvseparacaoController: AppRoutes.conferencia,
+                              pvseparacaoController:
+                                  AppScope.of(context).conferenciaController,
                             ),
                           ),
                         ),

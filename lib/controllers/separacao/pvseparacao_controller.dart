@@ -1,5 +1,6 @@
 import '../../core/controllers/base_controller.dart';
 import '../../models/Separacao/separacao_model.dart';
+import '../../models/lote_saida_model.dart';
 import '../../services/separacao/request_separacao.dart';
 import '../../services/separacao/separacao_service.dart';
 
@@ -10,9 +11,14 @@ class PvSeparacaoController extends BaseController {
 
   List<SeparacaoModel> _itens = [];
   SeparacaoModel? _selecionado;
+  Map<int, List<LoteSaidaModel>> _lotesPorProduto = {};
 
   List<SeparacaoModel> get itens => _itens;
   SeparacaoModel? get selecionado => _selecionado;
+  Map<int, List<LoteSaidaModel>> get lotesPorProduto => _lotesPorProduto;
+
+  List<LoteSaidaModel> lotesDoProduto(int idProduto) =>
+      _lotesPorProduto[idProduto] ?? const [];
 
   Future<void> listar(int loja, {int? numero}) => runAsync(() async {
     _itens = await _service.listar(loja: loja, numero: numero);
@@ -85,6 +91,65 @@ class PvSeparacaoController extends BaseController {
     await _service.limpar(loja: loja, numero: numero);
     _itens = [];
     _selecionado = null;
+  });
+
+  Future<void> listarLotes(int loja, int numero) => runAsync(() async {
+    final lotes = await _service.listarLotes(loja: loja, numero: numero);
+    final grouped = <int, List<LoteSaidaModel>>{};
+    for (final l in lotes) {
+      (grouped[l.idProduto] ??= []).add(l);
+    }
+    _lotesPorProduto = grouped;
+  });
+
+  Future<void> gravarLote({
+    required LoteSaidaModel lote,
+    String? oldLote,
+    String? oldValidade,
+  }) =>
+      runAsync(() async {
+        await _service.gravarLote(lote);
+        if (oldLote != null &&
+            oldValidade != null &&
+            (oldLote != lote.lote || oldValidade != lote.validade)) {
+          await _service.deletarLote(
+            loja: lote.idFilial,
+            numero: lote.idPrevenda,
+            idProduto: lote.idProduto,
+            lote: oldLote,
+            validade: oldValidade,
+          );
+        }
+
+        final existing = _lotesPorProduto[lote.idProduto] ?? const [];
+        final idx = existing.indexWhere(
+          (e) => e.lote == lote.lote && e.validade == lote.validade,
+        );
+        if (idx >= 0) {
+          final updated = [...existing]..[idx] = lote;
+          _lotesPorProduto = {..._lotesPorProduto, lote.idProduto: updated};
+        } else {
+          _lotesPorProduto = {
+            ..._lotesPorProduto,
+            lote.idProduto: [...existing, lote],
+          };
+        }
+      });
+
+  Future<void> deletarLote(LoteSaidaModel lote) => runAsync(() async {
+    await _service.deletarLote(
+      loja: lote.idFilial,
+      numero: lote.idPrevenda,
+      idProduto: lote.idProduto,
+      lote: lote.lote,
+      validade: lote.validade,
+    );
+    final existing = _lotesPorProduto[lote.idProduto];
+    if (existing == null) return;
+    final updated = existing
+        .where((e) => !(e.lote == lote.lote && e.validade == lote.validade))
+        .toList();
+    _lotesPorProduto = {..._lotesPorProduto, lote.idProduto: updated};
   });
 
   Future<void> finalizarSeparacao({

@@ -79,7 +79,10 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
-    final ok = await AppRoutes.usuario.login(login, senha);
+    final ok = await AppScope.of(context).usuarioController.login(
+          login,
+          senha,
+        );
 
     if (!mounted) return;
 
@@ -104,10 +107,12 @@ class _LoginViewState extends State<LoginView> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: ListenableBuilder(
-                  listenable: AppRoutes.usuario,
+                  listenable: AppScope.of(context).usuarioController,
                   builder: (context, _) {
-                    final isLoading = AppRoutes.usuario.isLoading;
-                    final erro = AppRoutes.usuario.error;
+                    final usuarioController =
+                        AppScope.of(context).usuarioController;
+                    final isLoading = usuarioController.isLoading;
+                    final erro = usuarioController.error;
 
                     return Form(
                       key: _formKey,
