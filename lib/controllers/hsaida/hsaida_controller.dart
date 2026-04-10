@@ -6,11 +6,10 @@ import '../../services/hsaida/request_hsaida_entrega.dart';
 import '../../services/hsaida/response_hsaida.dart';
 
 class HSaidaController extends BaseController {
-  HSaidaController(this._service, this._getBaseUrl, this._getToken);
+  HSaidaController(this._service, this._getBaseUrl);
 
   final HSaidaService _service;
   final String Function() _getBaseUrl;
-  final String Function() _getToken;
 
   ResponseHSaida _response = ResponseHSaida.empty();
   RequestHSaida _filtro = RequestHSaida.empty();
@@ -38,7 +37,6 @@ class HSaidaController extends BaseController {
     await runAsync(() async {
       _response = await _service.buscar(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         request: _filtro,
       );
     });
@@ -50,7 +48,6 @@ class HSaidaController extends BaseController {
       final proximaPagina = _response.proximaPagina.toString();
       final novaResposta = await _service.buscar(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         request: _filtro.copyWith(paginaAtual: proximaPagina),
       );
       _filtro = _filtro.copyWith(paginaAtual: proximaPagina);
@@ -68,7 +65,6 @@ class HSaidaController extends BaseController {
     await runAsync(() async {
       _selecionado = await _service.buscarPorNumero(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         loja: loja,
         numero: numero,
       );
@@ -79,7 +75,6 @@ class HSaidaController extends BaseController {
     await runAsync(() async {
       await _service.confirmarEntrega(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         request: request,
       );
     });

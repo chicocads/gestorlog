@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import '../../core/http/api_client.dart';
 import '../../models/carregamento/carregamento_model.dart';
 import 'request_carregamento.dart';
@@ -14,15 +10,11 @@ class CarregamentoService {
 
   Future<ResponseCarregamento> buscar({
     required String baseUrl,
-    required String token,
     required RequestCarregamento request,
   }) async {
-    final credentials = dotenv.env['AUTH_API_CADS1'] ?? '';
-    final authToken = base64Encode(utf8.encode(credentials));
-
     final response = await _client.post(
       '$baseUrl/v1/carregamento/consultar',
-      headers: {'Authorization': 'Basic $authToken'},
+      headers: AuthHeaders.basicCads1(),
       body: request.toMap(),
     );
 
@@ -49,16 +41,12 @@ class CarregamentoService {
 
   Future<CarregamentoModel> buscarPorNumero({
     required String baseUrl,
-    required String token,
     required int loja,
     required int numero,
   }) async {
-    final credentials = dotenv.env['AUTH_API_CADS1'] ?? '';
-    final authToken = base64Encode(utf8.encode(credentials));
-
     final response = await _client.get(
       '$baseUrl/v1/carregamento/$loja/$numero',
-      headers: {'Authorization': 'Basic $authToken'},
+      headers: AuthHeaders.basicCads1(),
     );
 
     if (response.statusCode == 200) {

@@ -6,11 +6,10 @@ import '../../services/carregamento/request_carregamento.dart';
 import '../../services/carregamento/response_carregamento.dart';
 
 class CarregamentoController extends BaseController {
-  CarregamentoController(this._service, this._getBaseUrl, this._getToken);
+  CarregamentoController(this._service, this._getBaseUrl);
 
   final CarregamentoService _service;
   final String Function() _getBaseUrl;
-  final String Function() _getToken;
 
   ResponseCarregamento _response = ResponseCarregamento.empty();
   RequestCarregamento _filtro = RequestCarregamento.empty();
@@ -33,7 +32,6 @@ class CarregamentoController extends BaseController {
     await runAsync(() async {
       _response = await _service.buscar(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         request: _filtro,
       );
     });
@@ -45,7 +43,6 @@ class CarregamentoController extends BaseController {
       final proximaPagina = _response.proximaPagina.toString();
       final novaResposta = await _service.buscar(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         request: _filtro.copyWith(paginaAtual: proximaPagina),
       );
       _filtro = _filtro.copyWith(paginaAtual: proximaPagina);
@@ -63,7 +60,6 @@ class CarregamentoController extends BaseController {
     await runAsync(() async {
       _selecionado = await _service.buscarPorNumero(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         loja: loja,
         numero: numero,
       );

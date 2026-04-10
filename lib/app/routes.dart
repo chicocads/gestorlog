@@ -5,6 +5,7 @@ import '../controllers/cadastro/usuario_controller.dart';
 import '../controllers/separacao/pvseparacao_controller.dart';
 import '../controllers/prevenda/prevenda_controller.dart';
 import '../core/constants/app_theme.dart';
+import '../core/http/api_client.dart';
 import '../core/http/dio_client.dart';
 import '../services/cadastro/filial/filial_service.dart';
 import '../services/cadastro/usuario/usuario_service.dart';
@@ -23,6 +24,74 @@ import '../views/auditoria/auditoria_view.dart';
 import '../views/inventario/inventario_view.dart';
 import '../views/parametro/parametro_view.dart';
 
+class AppDependencies {
+  AppDependencies({
+    ApiClient? apiClient,
+    ParametroService? parametroService,
+  }) {
+    this.apiClient = apiClient ?? DioApiClient();
+    this.parametroService = parametroService ?? ParametroService();
+
+    parametroController = ParametroController(this.parametroService);
+
+    usuarioService = UsuarioService(this.apiClient);
+    usuarioController = UsuarioController(
+      usuarioService,
+      () => parametroController.parametro.url,
+    );
+
+    preVendaService = PreVendaService(this.apiClient);
+    preVendaController = PreVendaController(
+      preVendaService,
+      () => parametroController.parametro.url,
+    );
+
+    conferenciaService = SeparacaoService(this.apiClient);
+    conferenciaController = PvSeparacaoController(conferenciaService);
+
+    carregamentoService = CarregamentoService(this.apiClient);
+    carregamentoController = CarregamentoController(
+      carregamentoService,
+      () => parametroController.parametro.url,
+    );
+
+    hsaidaService = HSaidaService(this.apiClient);
+    hsaidaController = HSaidaController(
+      hsaidaService,
+      () => parametroController.parametro.url,
+    );
+
+    filialService = FilialService(this.apiClient);
+    filialController = FilialController(
+      filialService,
+      () => parametroController.parametro.url,
+    );
+  }
+
+  late final ApiClient apiClient;
+
+  late final ParametroService parametroService;
+  late final ParametroController parametroController;
+
+  late final UsuarioService usuarioService;
+  late final UsuarioController usuarioController;
+
+  late final PreVendaService preVendaService;
+  late final PreVendaController preVendaController;
+
+  late final SeparacaoService conferenciaService;
+  late final PvSeparacaoController conferenciaController;
+
+  late final CarregamentoService carregamentoService;
+  late final CarregamentoController carregamentoController;
+
+  late final HSaidaService hsaidaService;
+  late final HSaidaController hsaidaController;
+
+  late final FilialService filialService;
+  late final FilialController filialController;
+}
+
 class AppRoutes {
   AppRoutes._();
 
@@ -37,87 +106,49 @@ class AppRoutes {
 
   static final ThemeData theme = AppTheme.light;
 
-  // Dependências criadas uma única vez (DI manual simples)
-  static final _parametroService = ParametroService();
-  static final _parametroController = ParametroController(_parametroService);
+  static AppDependencies _deps = AppDependencies();
 
-  /// Acesso global aos parâmetros do sistema.
-  static ParametroController get parametro => _parametroController;
+  static void configure(AppDependencies dependencies) {
+    _deps = dependencies;
+  }
 
-  static final _apiClient =
-      DioApiClient(); // troque por DioApiClient() para usar Dio
-  static final _usuarioService = UsuarioService(_apiClient);
-  static final _usuarioController = UsuarioController(
-    _usuarioService,
-    () => _parametroController.parametro.url,
-  );
-
-  /// Acesso global ao usuário logado.
-  static UsuarioController get usuario => _usuarioController;
-
-  static final _preVendaService = PreVendaService(_apiClient);
-  static final _preVendaController = PreVendaController(
-    _preVendaService,
-    () => _parametroController.parametro.url,
-    () => _usuarioController.usuario.senha,
-  );
-  static final _conferenciaService = SeparacaoService(_apiClient);
-  static final _conferenciaController = PvSeparacaoController(
-    _conferenciaService,
-  );
-
-  static final _carregamentoService = CarregamentoService(_apiClient);
-  static final _carregamentoController = CarregamentoController(
-    _carregamentoService,
-    () => _parametroController.parametro.url,
-    () => _usuarioController.usuario.senha,
-  );
-
-  static final _hsaidaService = HSaidaService(_apiClient);
-  static final _hsaidaController = HSaidaController(
-    _hsaidaService,
-    () => _parametroController.parametro.url,
-    () => _usuarioController.usuario.senha,
-  );
-
-  static final _filialService = FilialService(_apiClient);
-  static final _filialController = FilialController(
-    _filialService,
-    () => _parametroController.parametro.url,
-    () => _usuarioController.usuario.senha,
-  );
-
-  /// Acesso global à filial selecionada.
-  static FilialController get filial => _filialController;
-  static PvSeparacaoController get conferencia => _conferenciaController;
+  static ParametroController get parametro => _deps.parametroController;
+  static UsuarioController get usuario => _deps.usuarioController;
+  static PreVendaController get preVenda => _deps.preVendaController;
+  static FilialController get filial => _deps.filialController;
+  static PvSeparacaoController get conferencia => _deps.conferenciaController;
+  static CarregamentoController get carregamento => _deps.carregamentoController;
+  static HSaidaController get hsaida => _deps.hsaidaController;
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     return switch (settings.name) {
       login => _route(const LoginView()),
       home => _route(
         HomeView(
-          usuarioController: _usuarioController,
-          parametroController: _parametroController,
-          filialController: _filialController,
+          usuarioController: _deps.usuarioController,
+          parametroController: _deps.parametroController,
+          filialController: _deps.filialController,
         ),
       ),
       parametros => _route(
         ParametroView(
-          controller: _parametroController,
+          controller: _deps.parametroController,
           isAdmin: settings.arguments is bool
               ? settings.arguments as bool
               : false,
         ),
       ),
-      preVendas => _route(PvSeparacaoListView(controller: _preVendaController)),
+      preVendas => _route(
+        PvSeparacaoListView(controller: _deps.preVendaController),
+      ),
       entregaCarga => _route(
         CarregamentoListView(
-          controller: _carregamentoController,
-          hsaidaController: _hsaidaController,
+          controller: _deps.carregamentoController,
+          hsaidaController: _deps.hsaidaController,
         ),
       ),
       separacaoCarga => _route(
-        PvSeparacaoListView(controller: _preVendaController),
+        PvSeparacaoListView(controller: _deps.preVendaController),
       ),
       inventario => _route(const InventarioView()),
       auditoriaEstoque => _route(const AuditoriaView()),

@@ -5,11 +5,10 @@ import '../../services/cadastro/filial/request_filial.dart';
 import '../../services/cadastro/filial/response_filial.dart';
 
 class FilialController extends BaseController {
-  FilialController(this._service, this._getBaseUrl, this._getToken);
+  FilialController(this._service, this._getBaseUrl);
 
   final FilialService _service;
   final String Function() _getBaseUrl;
-  final String Function() _getToken;
 
   ResponseFilial _response = ResponseFilial.empty();
   RequestFilial _filtro = RequestFilial.empty(1);
@@ -24,7 +23,6 @@ class FilialController extends BaseController {
     await runAsync(() async {
       _response = await _service.consultar(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         request: _filtro,
       );
     });

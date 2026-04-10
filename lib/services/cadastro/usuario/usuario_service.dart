@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../core/http/api_client.dart';
 import '../../../models/cadastro/usuario_model.dart';
 
@@ -13,12 +11,9 @@ class UsuarioService {
     required String login,
     required String senha,
   }) async {
-    final credentials = dotenv.env['AUTH_API_CADS1'] ?? '';
-    final token = base64Encode(utf8.encode(credentials));
-
     final response = await _client.get(
       '$baseUrl/v1/usuarios/login/$login/senha/$senha',
-      headers: {'Authorization': 'Basic $token'},
+      headers: AuthHeaders.basicCads1(),
     );
 
     if (response.statusCode == 200) {

@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../core/database/database_helper.dart';
@@ -83,12 +80,9 @@ class SeparacaoService {
     required String baseUrl,
     required RequestSeparacao request,
   }) async {
-    final credentials = dotenv.env['AUTH_API_CADS1'] ?? '';
-    final authToken = base64Encode(utf8.encode(credentials));
-
     final response = await _client.post(
       '$baseUrl/v1/prevenda/separacao',
-      headers: {'Authorization': 'Basic $authToken'},
+      headers: AuthHeaders.basicCads1(),
       body: request.toMap(),
     );
 

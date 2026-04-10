@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import '../../core/http/api_client.dart';
 import '../../models/hsaida/hsaida_model.dart';
 import 'request_hsaida.dart';
@@ -15,15 +11,11 @@ class HSaidaService {
 
   Future<ResponseHSaida> buscar({
     required String baseUrl,
-    required String token,
     required RequestHSaida request,
   }) async {
-    final credentials = dotenv.env['AUTH_API_CADS1'] ?? '';
-    final authToken = base64Encode(utf8.encode(credentials));
-
     final response = await _client.post(
       '$baseUrl/v1/hsaida/consultar',
-      headers: {'Authorization': 'Basic $authToken'},
+      headers: AuthHeaders.basicCads1(),
       body: request.toMap(),
     );
 
@@ -50,16 +42,12 @@ class HSaidaService {
 
   Future<HSaidaModel> buscarPorNumero({
     required String baseUrl,
-    required String token,
     required int loja,
     required int numero,
   }) async {
-    final credentials = dotenv.env['AUTH_API_CADS1'] ?? '';
-    final authToken = base64Encode(utf8.encode(credentials));
-
     final response = await _client.get(
       '$baseUrl/v1/hsaida/$loja/$numero',
-      headers: {'Authorization': 'Basic $authToken'},
+      headers: AuthHeaders.basicCads1(),
     );
 
     if (response.statusCode == 200) {
@@ -71,15 +59,11 @@ class HSaidaService {
 
   Future<void> confirmarEntrega({
     required String baseUrl,
-    required String token,
     required RequestHSaidaEntrega request,
   }) async {
-    final credentials = dotenv.env['AUTH_API_CADS1'] ?? '';
-    final authToken = base64Encode(utf8.encode(credentials));
-
     final response = await _client.put(
       '$baseUrl/v1/hsaida/entrega',
-      headers: {'Authorization': 'Basic $authToken'},
+      headers: AuthHeaders.basicCads1(),
       body: request.toMap(),
     );
 

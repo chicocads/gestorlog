@@ -5,11 +5,10 @@ import '../../services/prevenda/request_prevenda.dart';
 import '../../services/prevenda/response_prevenda.dart';
 
 class PreVendaController extends BaseController {
-  PreVendaController(this._service, this._getBaseUrl, this._getToken);
+  PreVendaController(this._service, this._getBaseUrl);
 
   final PreVendaService _service;
   final String Function() _getBaseUrl;
-  final String Function() _getToken;
 
   ResponsePreVenda _response = ResponsePreVenda.empty();
   RequestPreVenda _filtro = RequestPreVenda.empty();
@@ -32,7 +31,6 @@ class PreVendaController extends BaseController {
     await runAsync(() async {
       _response = await _service.buscar(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         request: _filtro,
       );
     });
@@ -44,7 +42,6 @@ class PreVendaController extends BaseController {
       final proximaPagina = _response.proximaPagina.toString();
       final novaResposta = await _service.buscar(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         request: _filtro.copyWith(paginaAtual: proximaPagina),
       );
       _filtro = _filtro.copyWith(paginaAtual: proximaPagina);
@@ -62,7 +59,6 @@ class PreVendaController extends BaseController {
     await runAsync(() async {
       _selecionado = await _service.buscarPorNumero(
         baseUrl: _getBaseUrl(),
-        token: _getToken(),
         loja: loja,
         numero: numero,
       );

@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import '../../core/http/api_client.dart';
 import '../../models/prevenda/prevenda_model.dart';
 import 'request_prevenda.dart';
@@ -14,15 +10,11 @@ class PreVendaService {
 
   Future<ResponsePreVenda> buscar({
     required String baseUrl,
-    required String token,
     required RequestPreVenda request,
   }) async {
-    final credentials = dotenv.env['AUTH_API_CADS1'] ?? '';
-    final authToken = base64Encode(utf8.encode(credentials));
-
     final response = await _client.post(
       '$baseUrl/v1/prevenda/consultar',
-      headers: {'Authorization': 'Basic $authToken'},
+      headers: AuthHeaders.basicCads1(),
       body: request.toMap(),
     );
 
@@ -49,13 +41,12 @@ class PreVendaService {
 
   Future<PreVendaModel> buscarPorNumero({
     required String baseUrl,
-    required String token,
     required int loja,
     required int numero,
   }) async {
     final response = await _client.get(
       '$baseUrl/v1/prevendas/$loja/$numero',
-      headers: {'Authorization': 'Bearer $token'},
+      headers: AuthHeaders.basicCads1(),
     );
 
     if (response.statusCode == 200) {

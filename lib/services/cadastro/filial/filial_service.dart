@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import '../../../core/http/api_client.dart';
 import '../../../models/cadastro/filial_model.dart';
 import 'request_filial.dart';
@@ -14,15 +10,11 @@ class FilialService {
 
   Future<ResponseFilial> consultar({
     required String baseUrl,
-    required String token,
     required RequestFilial request,
   }) async {
-    final credentials = dotenv.env['AUTH_API_CADS1'] ?? '';
-    final token = base64Encode(utf8.encode(credentials));
-
     final response = await _client.post(
       '$baseUrl/v1/empresas/consultar',
-      headers: {'Authorization': 'Basic $token'},
+      headers: AuthHeaders.basicCads1(),
       body: request.toMap(),
     );
 

@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// Resposta padronizada retornada por qualquer implementação de [ApiClient].
 class ApiResponse {
   const ApiResponse({
@@ -48,4 +52,18 @@ abstract class ApiClient {
     String url, {
     Map<String, String>? headers,
   });
+}
+
+class AuthHeaders {
+  AuthHeaders._();
+
+  static const envAuthApiCads1 = 'AUTH_API_CADS1';
+
+  static Map<String, String> basicFromEnv(String envKey) {
+    final credentials = dotenv.env[envKey] ?? '';
+    final token = base64Encode(utf8.encode(credentials));
+    return {'Authorization': 'Basic $token'};
+  }
+
+  static Map<String, String> basicCads1() => basicFromEnv(envAuthApiCads1);
 }

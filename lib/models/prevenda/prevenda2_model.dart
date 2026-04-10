@@ -1,4 +1,5 @@
 import '../cadastro/produto_model.dart';
+import '../lote_saida_model.dart';
 
 class PreVenda2Model {
   static const tblNome = 'PreVenda2';
@@ -65,6 +66,8 @@ class PreVenda2Model {
     required this.taraCxs,
     required this.pv2Ns,
     required this.produto,
+        required this.loteList,
+
   });
 
   // chave primária
@@ -111,6 +114,7 @@ class PreVenda2Model {
   final String pv2Ns;
 
   final ProdutoModel produto;
+  final List<LoteSaidaModel> loteList;
 
   factory PreVenda2Model.empty() => PreVenda2Model(
     loja: 0,
@@ -143,6 +147,7 @@ class PreVenda2Model {
     taraCxs: 0,
     pv2Ns: '',
     produto: ProdutoModel.empty(),
+    loteList: [],
   );
 
   PreVenda2Model copyWith({
@@ -176,6 +181,7 @@ class PreVenda2Model {
     double? taraCxs,
     String? pv2Ns,
     ProdutoModel? produto,
+    List<LoteSaidaModel>? loteList,
   }) {
     return PreVenda2Model(
       loja: loja ?? this.loja,
@@ -208,6 +214,7 @@ class PreVenda2Model {
       taraCxs: taraCxs ?? this.taraCxs,
       pv2Ns: pv2Ns ?? this.pv2Ns,
       produto: produto ?? this.produto,
+      loteList: loteList ?? this.loteList,
     );
   }
 
@@ -246,6 +253,10 @@ class PreVenda2Model {
       produto: map[colProduto] is Map<String, dynamic>
           ? ProdutoModel.fromMap(map[colProduto] as Map<String, dynamic>)
           : ProdutoModel.empty(),
+      loteList: (map['loteList'] as List<dynamic>? ?? [])
+          .map((e) => LoteSaidaModel.fromMap(e as Map<String, dynamic>))
+          .toList(),
+
     );
   }
 
@@ -280,119 +291,10 @@ class PreVenda2Model {
     colTaraCxs: taraCxs,
     colPv2Ns: pv2Ns,
     colProduto: produto,
+    'loteList': loteList.map((e) => e.toMap()).toList(),
   };
 
   @override
   String toString() =>
       'PreVenda2Model(loja: $loja, numero: $numero, ordem: $ordem, produto: $produto, qtde: $qtde, preco: $preco)';
-}
-
-class RequestPreVenda2 {
-  RequestPreVenda2({
-    required this.paginaAtual,
-    required this.qtdTotal,
-    required this.loja,
-    required this.numero,
-  });
-
-  final String paginaAtual;
-  final String qtdTotal;
-  final int loja;
-  final int numero;
-
-  factory RequestPreVenda2.empty() =>
-      RequestPreVenda2(paginaAtual: '0', qtdTotal: '0', loja: 0, numero: 0);
-
-  RequestPreVenda2 copyWith({
-    String? paginaAtual,
-    String? qtdTotal,
-    int? loja,
-    int? numero,
-  }) {
-    return RequestPreVenda2(
-      paginaAtual: paginaAtual ?? this.paginaAtual,
-      qtdTotal: qtdTotal ?? this.qtdTotal,
-      loja: loja ?? this.loja,
-      numero: numero ?? this.numero,
-    );
-  }
-
-  factory RequestPreVenda2.fromMap(Map<String, dynamic> map) {
-    if (map.isEmpty) return RequestPreVenda2.empty();
-    return RequestPreVenda2(
-      paginaAtual: map['paginaAtual'] ?? '0',
-      qtdTotal: map['qtdTotal'] ?? '0',
-      loja: map['loja'] ?? 0,
-      numero: map['numero'] ?? 0,
-    );
-  }
-
-  Map<String, dynamic> toMap() => {
-    'paginaAtual': paginaAtual,
-    'qtdTotal': qtdTotal,
-    'loja': loja,
-    'numero': numero,
-  };
-
-  @override
-  String toString() =>
-      'RequestPreVenda2(loja: $loja, numero: $numero, pagina: $paginaAtual/$qtdTotal)';
-}
-
-class ResponsePreVenda2 {
-  ResponsePreVenda2({
-    required this.itens,
-    required this.paginaAtual,
-    required this.proximaPagina,
-    required this.qtdPaginas,
-  });
-
-  final List<PreVenda2Model> itens;
-  final int paginaAtual;
-  final int proximaPagina;
-  final int qtdPaginas;
-
-  factory ResponsePreVenda2.empty() => ResponsePreVenda2(
-    itens: const [],
-    paginaAtual: 1,
-    proximaPagina: 1,
-    qtdPaginas: 1,
-  );
-
-  ResponsePreVenda2 copyWith({
-    List<PreVenda2Model>? itens,
-    int? paginaAtual,
-    int? proximaPagina,
-    int? qtdPaginas,
-  }) {
-    return ResponsePreVenda2(
-      itens: itens ?? List.of(this.itens),
-      paginaAtual: paginaAtual ?? this.paginaAtual,
-      proximaPagina: proximaPagina ?? this.proximaPagina,
-      qtdPaginas: qtdPaginas ?? this.qtdPaginas,
-    );
-  }
-
-  factory ResponsePreVenda2.fromMap(Map<String, dynamic> map) {
-    if (map.isEmpty) return ResponsePreVenda2.empty();
-    return ResponsePreVenda2(
-      itens: (map['itens'] as List<dynamic>? ?? [])
-          .map((e) => PreVenda2Model.fromMap(e as Map<String, dynamic>))
-          .toList(),
-      paginaAtual: map['paginaAtual'] ?? 1,
-      proximaPagina: map['proximaPagina'] ?? 1,
-      qtdPaginas: map['qtdPaginas'] ?? 1,
-    );
-  }
-
-  Map<String, dynamic> toMap() => {
-    'itens': itens.map((e) => e.toMap()).toList(),
-    'paginaAtual': paginaAtual,
-    'proximaPagina': proximaPagina,
-    'qtdPaginas': qtdPaginas,
-  };
-
-  @override
-  String toString() =>
-      'ResponsePreVenda2(itens: ${itens.length}, pagina: $paginaAtual/$qtdPaginas)';
 }
