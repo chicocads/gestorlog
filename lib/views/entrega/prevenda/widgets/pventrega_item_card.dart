@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/info_row.dart';
 import '../../../../models/prevenda/prevenda2_model.dart';
 
 class PvEntregaItemCard extends StatelessWidget {
@@ -45,17 +46,17 @@ class PvEntregaItemCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: _InfoRow(label: 'Código:', value: '${item.idproduto}'),
+                  child: InfoRow(label: 'Código:', value: '${item.idproduto}'),
                 ),
                 Expanded(
-                  child: _InfoRow(label: 'Unidade:', value: item.und),
+                  child: InfoRow(label: 'Unidade:', value: item.und),
                 ),
               ],
             ),
             Row(
               children: [
                 Expanded(
-                  child: _InfoRow(
+                  child: InfoRow(
                     label: 'Marca:',
                     value: item.produto.marca
                         .padRight(10)
@@ -69,7 +70,7 @@ class PvEntregaItemCard extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: _InfoRow(
+                  child: InfoRow(
                     label: 'Qtde:',
                     value: _formatQtde(item.qtde),
                     valueStyle: const TextStyle(
@@ -90,42 +91,5 @@ class PvEntregaItemCard extends StatelessWidget {
   String _formatQtde(double value) {
     final hasDecimals = value.truncateToDouble() != value;
     return value.toStringAsFixed(hasDecimals ? 2 : 0);
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value, this.valueStyle});
-
-  final String label;
-  final String value;
-  final TextStyle? valueStyle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 85,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style:
-                  valueStyle ??
-                  const TextStyle(fontSize: 14, color: AppColors.textPrimary),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

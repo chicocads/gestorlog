@@ -4,7 +4,9 @@ import '../../../controllers/separacao/pvseparacao_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/app_snack_bar.dart';
 import '../../../core/utils/data_formatar.dart';
+import '../../../core/utils/input_formatters.dart';
 import '../../../core/utils/numero_formatar.dart';
+import '../../../core/widgets/info_row.dart';
 import '../../../models/lote_saida_model.dart';
 import '../../../models/prevenda/prevenda2_model.dart';
 
@@ -167,30 +169,6 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     setState(() {});
   }
 
-  DateTime? _parseDdMmYyyy(String value) {
-    final parts = value.split('/');
-    if (parts.length != 3) return null;
-    final d = int.tryParse(parts[0]);
-    final m = int.tryParse(parts[1]);
-    final y = int.tryParse(parts[2]);
-    if (d == null || m == null || y == null) return null;
-    if (y < 1 || m < 1 || m > 12 || d < 1 || d > 31) return null;
-    final dt = DateTime(y, m, d);
-    if (dt.year != y || dt.month != m || dt.day != d) return null;
-    return dt;
-  }
-
-  String _toIsoValidadeFromInput(String raw) {
-    final v = raw.trim();
-    if (v.isEmpty) return '';
-    final dt = _parseDdMmYyyy(v);
-    if (dt == null) return v;
-    final y = dt.year.toString().padLeft(4, '0');
-    final m = dt.month.toString().padLeft(2, '0');
-    final d = dt.day.toString().padLeft(2, '0');
-    return '$y-$m-$d';
-  }
-
   void _onLoteQtdeChanged(int index, String value) {
     if (value.trim().isEmpty) {
       _lastValidLoteQtde[index] = '';
@@ -255,12 +233,13 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       return;
     }
 
-    if (validadeTxt.isNotEmpty && _parseDdMmYyyy(validadeTxt) == null) {
+    if (validadeTxt.isNotEmpty &&
+        DataFormatar.parseDdMmYyyy(validadeTxt) == null) {
       AppSnackBar.erro(context, 'Validade inválida (use DD/MM/AAAA).');
       return;
     }
 
-    final validade = _toIsoValidadeFromInput(validadeTxt);
+    final validade = DataFormatar.toIsoDateFromDdMmYyyy(validadeTxt);
 
     final somaOutros = _sumLotesExcept(index);
     final separado =
@@ -398,26 +377,26 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
             Row(
               children: [
                 Expanded(
-                  child: _InfoRow(
+                  child: InfoRow(
                     label: 'Código:',
                     value: '${widget.item.idproduto}',
                   ),
                 ),
                 Expanded(
-                  child: _InfoRow(label: 'Unidade:', value: widget.item.und),
+                  child: InfoRow(label: 'Unidade:', value: widget.item.und),
                 ),
               ],
             ),
             Row(
               children: [
                 Expanded(
-                  child: _InfoRow(
+                  child: InfoRow(
                     label: 'Preço:',
                     value: NumeroFormatar.moeda(widget.item.preco.toString()),
                   ),
                 ),
                 Expanded(
-                  child: _InfoRow(
+                  child: InfoRow(
                     label: 'Marca:',
                     value: widget.item.produto.marca
                         .padRight(10)
@@ -434,7 +413,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
             Row(
               children: [
                 Expanded(
-                  child: _InfoRow(
+                  child: InfoRow(
                     label: 'Codigo Barra:',
                     value: widget.item.produto.codigoalfa,
                   ),
@@ -445,7 +424,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
               Row(
                 children: [
                   Expanded(
-                    child: _InfoRow(
+                    child: InfoRow(
                       label: 'Localização:',
                       value: widget.item.produto.localizacao,
                     ),
@@ -456,7 +435,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
               Row(
                 children: [
                   Expanded(
-                    child: _InfoRow(
+                    child: InfoRow(
                       label: 'Localização:',
                       value: _wmsFormatado,
                     ),
@@ -523,12 +502,13 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                               ),
                       ),
                     ),
+                    enabled: widget.romaneio != 2 && !widget.isSalvando,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[\d,]')),
-                      _DecimalMaxDigitsFormatter(widget.decQtde),
+                      DecimalMaxDigitsFormatter(widget.decQtde),
                     ],
                     onTap: () =>
                         widget.qtdeController.selection = TextSelection(
@@ -634,7 +614,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                   ),
                   enabled: widget.romaneio != 2 && !saving,
                   inputFormatters: [
-                    _DateDdMmYyyyFormatter(),
+                    DateDdMmYyyyFormatter(),
                   ],
                 ),
               ),
@@ -677,7 +657,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                   ),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[\d,]')),
-                    _DecimalMaxDigitsFormatter(widget.decQtde),
+                    DecimalMaxDigitsFormatter(widget.decQtde),
                   ],
                   onTap: () => row.qtdeController.selection = TextSelection(
                     baseOffset: 0,
@@ -763,97 +743,6 @@ class _LoteRow {
       qtdeController: qtdeController,
       originalLote: lote,
       originalValidade: validade,
-    );
-  }
-}
-
-class _DecimalMaxDigitsFormatter extends TextInputFormatter {
-  _DecimalMaxDigitsFormatter(this.maxDecimals);
-
-  final int maxDecimals;
-
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final text = newValue.text;
-    if (text.isEmpty) return newValue;
-
-    final sepIndex = text.indexOf(',');
-
-    // Block multiple commas
-    if (sepIndex != -1 && text.indexOf(',', sepIndex + 1) > sepIndex) {
-      return oldValue;
-    }
-
-    // Limit decimal places
-    if (sepIndex != -1 && text.length - sepIndex - 1 > maxDecimals) {
-      return oldValue;
-    }
-
-    return newValue;
-  }
-}
-
-class _DateDdMmYyyyFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
-    if (digits.isEmpty) {
-      return const TextEditingValue(text: '');
-    }
-
-    final limited = digits.length > 8 ? digits.substring(0, 8) : digits;
-    final b = StringBuffer();
-    for (var i = 0; i < limited.length; i++) {
-      if (i == 2 || i == 4) b.write('/');
-      b.write(limited[i]);
-    }
-    final text = b.toString();
-    return TextEditingValue(
-      text: text,
-      selection: TextSelection.collapsed(offset: text.length),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value, this.valueStyle});
-
-  final String label;
-  final String value;
-  final TextStyle? valueStyle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 85,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style:
-                  valueStyle ??
-                  const TextStyle(fontSize: 14, color: AppColors.textPrimary),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

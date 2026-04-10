@@ -24,6 +24,30 @@ class DataFormatar {
     return '$y$m$d';
   }
 
+  static DateTime? parseDdMmYyyy(String value) {
+    final parts = value.split('/');
+    if (parts.length != 3) return null;
+    final d = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    final y = int.tryParse(parts[2]);
+    if (d == null || m == null || y == null) return null;
+    if (y < 1 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+    final dt = DateTime(y, m, d);
+    if (dt.year != y || dt.month != m || dt.day != d) return null;
+    return dt;
+  }
+
+  static String toIsoDateFromDdMmYyyy(String raw) {
+    final v = raw.trim();
+    if (v.isEmpty) return '';
+    final dt = parseDdMmYyyy(v);
+    if (dt == null) return v;
+    final y = dt.year.toString().padLeft(4, '0');
+    final m = dt.month.toString().padLeft(2, '0');
+    final d = dt.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
+  }
+
   static String _offsetString(DateTime date) {
     final offset = date.timeZoneOffset;
     final h = offset.inHours.abs().toString().padLeft(2, '0');

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestorlog/core/utils/numero_formatar.dart';
+import 'package:gestorlog/core/widgets/info_row.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../models/hsaida/dsaida_model.dart';
@@ -47,23 +48,23 @@ class HsEntregaItemCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: _InfoRow(label: 'Código:', value: '${item.idProduto}'),
+                  child: InfoRow(label: 'Código:', value: '${item.idProduto}'),
                 ),
                 Expanded(
-                  child: _InfoRow(label: 'Unidade:', value: item.undvenda),
+                  child: InfoRow(label: 'Unidade:', value: item.undvenda),
                 ),
               ],
             ),
             Row(
               children: [
                 Expanded(
-                  child: _InfoRow(
+                  child: InfoRow(
                     label: 'Lote:',
                     value: item.lote.isNotEmpty ? item.lote : '-',
                   ),
                 ),
                 Expanded(
-                  child: _InfoRow(
+                  child: InfoRow(
                     label: 'Qtde:',
                     value: _formatQtde(context, item.qtde),
                     valueStyle: const TextStyle(
@@ -86,43 +87,6 @@ class HsEntregaItemCard extends StatelessWidget {
     return NumeroFormatar.numero(
       value.toString(),
       hasDecimals ? AppScope.of(context).parametroController.parametro.decQtde : 0,
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value, this.valueStyle});
-
-  final String label;
-  final String value;
-  final TextStyle? valueStyle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 85,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style:
-                  valueStyle ??
-                  const TextStyle(fontSize: 14, color: AppColors.textPrimary),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
