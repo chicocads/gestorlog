@@ -3,10 +3,10 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../controllers/separacao/pvseparacao_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_snack_bar.dart';
+import '../../core/utils/numero_formatar.dart';
+import '../../core/functions/separacao_lotes_utils.dart';
 import '../../models/Separacao/separacao_model.dart';
-import '../../models/lote_saida_model.dart';
 import '../../models/prevenda/prevenda_model.dart';
-import '../../models/prevenda/prevenda2_model.dart';
 import '../../app/routes.dart';
 import '../../services/separacao/request_separacao.dart';
 import 'widgets/pvseparacao_item_card.dart';
@@ -39,59 +39,6 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
   bool _apagando = false;
   bool _finalizando = false;
   bool _finalizado = false;
-
-  int _pow10(int exp) {
-    var v = 1;
-    for (var i = 0; i < exp; i++) {
-      v *= 10;
-    }
-    return v;
-  }
-
-  int _scaleQtde(double value, int decQtde) {
-    final factor = _pow10(decQtde);
-    return (value * factor).round();
-  }
-
-  List<LoteSaidaModel> _mergedLotesDoItem(PreVenda2Model item) {
-    final idFilial = widget.prevenda.idFilial;
-    final idPrevenda = widget.prevenda.idPrevenda;
-
-    final apiLotes = item.lotesaida.isNotEmpty
-        ? item.lotesaida
-            .map(
-              (e) => e.copyWith(
-                idFilial: idFilial,
-                idPrevenda: idPrevenda,
-                idProduto: item.idproduto,
-              ),
-            )
-            .toList()
-        : (item.lote.trim().isNotEmpty || item.validade.trim().isNotEmpty)
-            ? [
-                LoteSaidaModel(
-                  idFilial: idFilial,
-                  idPrevenda: idPrevenda,
-                  idProduto: item.idproduto,
-                  lote: item.lote,
-                  validade: item.validade,
-                  qtde: item.qtdesep > 0 ? item.qtdesep : 0.0,
-                ),
-              ]
-            : const <LoteSaidaModel>[];
-
-    final localLotes = widget.pvseparacaoController.lotesDoProduto(item.idproduto);
-    final mergedMap = <String, LoteSaidaModel>{
-      for (final l in apiLotes) '${l.lote}__${l.validade}': l,
-      for (final l in localLotes) '${l.lote}__${l.validade}': l,
-    };
-    return mergedMap.values.toList();
-  }
-
-  double _sumLotesDoItem(PreVenda2Model item) {
-    final lotes = _mergedLotesDoItem(item);
-    return lotes.fold(0.0, (sum, l) => sum + l.qtde);
-  }
 
   Future<void> _destacarItem(int index) async {
     setState(() => _highlightedIndex = index);
@@ -159,6 +106,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       widget.prevenda.idPrevenda,
     );
     if (!mounted) return;
+    final decQtde = AppScope.of(context).parametroController.parametro.decQtde;
     final registros = widget.pvseparacaoController.itens;
     final mapa = <String, double>{
       for (final r in registros) '${r.ordem}_${r.idproduto}': r.qtde,
@@ -167,14 +115,17 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       final item = widget.prevenda.itens[i];
       // Se a API já retornou qtdesep > 0, usa esse valor (já separado anteriormente)
       if (item.qtdesep > 0) {
-        _qtdeControllers[i].text = _formatQtde(item.qtdesep);
+        _qtdeControllers[i].text = NumeroFormatar.qtde(
+          item.qtdesep,
+          decQtde: decQtde,
+        );
         continue;
       }
       // Caso contrário, usa o valor do banco local
       final key = '${item.ordem}_${item.idproduto}';
       final qtde = mapa[key];
       if (qtde != null) {
-        _qtdeControllers[i].text = _formatQtde(qtde);
+        _qtdeControllers[i].text = NumeroFormatar.qtde(qtde, decQtde: decQtde);
       }
     }
     setState(() {});
@@ -219,7 +170,10 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
             'Não foi possível salvar a quantidade.',
       );
     } else {
-      final textoFormatado = _formatQtde(qtde);
+      final decQtde = AppScope.of(
+        context,
+      ).parametroController.parametro.decQtde;
+      final textoFormatado = NumeroFormatar.qtde(qtde, decQtde: decQtde);
       _qtdeControllers[index].text = textoFormatado;
       if (digitado) {
         AppSnackBar.sucesso(context, 'Quantidade salva com sucesso.');
@@ -247,14 +201,6 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
         ],
       ),
     );
-  }
-
-  String _formatQtde(double value) {
-    final hasDecimals = value.truncateToDouble() != value;
-    final formatted = value.toStringAsFixed(
-      hasDecimals ? AppScope.of(context).parametroController.parametro.decQtde : 0,
-    );
-    return formatted.replaceAll('.', ',');
   }
 
   void _abrirScanner() {
@@ -389,6 +335,9 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
     }
 
     if (incrementar) {
+      final decQtde = AppScope.of(
+        context,
+      ).parametroController.parametro.decQtde;
       final current =
           double.tryParse(_qtdeControllers[index].text.replaceAll(',', '.')) ??
           0;
@@ -399,7 +348,10 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
           itens[index].qtde,
         );
       } else {
-        _qtdeControllers[index].text = _formatQtde(nova);
+        _qtdeControllers[index].text = NumeroFormatar.qtde(
+          nova,
+          decQtde: decQtde,
+        );
         _salvarQtde(index, false);
       }
     }
@@ -475,22 +427,42 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       final item = widget.prevenda.itens[i];
 
       if (item.produto.controlelote == 1) {
-        final somaLotes = _sumLotesDoItem(item);
-        if (_scaleQtde(somaLotes, decQtde) != _scaleQtde(qtde, decQtde)) {
+        final localLotes = widget.pvseparacaoController.lotesDoProduto(
+          item.idproduto,
+        );
+        final lotes = mergeLotesForItem(
+          item: item,
+          idFilial: widget.prevenda.idFilial,
+          idPrevenda: widget.prevenda.idPrevenda,
+          localLotes: localLotes,
+        );
+        final somaLotes = sumQtdeLotes(lotes);
+        if (scaleByDecimals(somaLotes, decQtde) !=
+            scaleByDecimals(qtde, decQtde)) {
           _destacarItem(i);
           AppSnackBar.erro(
             context,
-            'Produto "${item.produto.nome}": soma dos lotes (${_formatQtde(somaLotes)}) deve ser igual ao separado (${_formatQtde(qtde)}).',
+            'Produto "${item.produto.nome}": soma dos lotes (${NumeroFormatar.qtde(somaLotes, decQtde: decQtde)}) deve ser igual ao separado (${NumeroFormatar.qtde(qtde, decQtde: decQtde)}).',
           );
           return;
         }
       }
 
+      final localLotes = widget.pvseparacaoController.lotesDoProduto(
+        item.idproduto,
+      );
+      final lotes = mergeLotesForItem(
+        item: item,
+        idFilial: widget.prevenda.idFilial,
+        idPrevenda: widget.prevenda.idPrevenda,
+        localLotes: localLotes,
+      );
       itensConferidos.add(
         RequestSeparacaoItem(
           ordem: item.ordem,
           idproduto: item.idproduto,
           qtdesep: qtde,
+          lotesaida: lotes,
         ),
       );
     }
@@ -639,14 +611,16 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
             tooltip: _mostrandoLeitor
                 ? 'Fechar campo'
                 : 'Digitar código de barra',
-            onPressed:
-                _finalizado || widget.prevenda.romaneio == 2 ? null : _toggleLeitor,
+            onPressed: _finalizado || widget.prevenda.romaneio == 2
+                ? null
+                : _toggleLeitor,
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed:
-            _finalizado || widget.prevenda.romaneio == 2 ? null : _abrirScanner,
+        onPressed: _finalizado || widget.prevenda.romaneio == 2
+            ? null
+            : _abrirScanner,
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.qr_code_scanner, color: Colors.white),
       ),
@@ -744,43 +718,21 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
                       final item = itens[idx];
                       final idFilial = widget.prevenda.idFilial;
                       final idPrevenda = widget.prevenda.idPrevenda;
-                      final apiLotes = item.lotesaida.isNotEmpty
-                          ? item.lotesaida
-                              .map(
-                                (e) => e.copyWith(
-                                  idFilial: idFilial,
-                                  idPrevenda: idPrevenda,
-                                  idProduto: item.idproduto,
-                                ),
-                              )
-                              .toList()
-                          : (item.lote.trim().isNotEmpty ||
-                                  item.validade.trim().isNotEmpty)
-                              ? [
-                                  LoteSaidaModel(
-                                    idFilial: idFilial,
-                                    idPrevenda: idPrevenda,
-                                    idProduto: item.idproduto,
-                                    lote: item.lote,
-                                    validade: item.validade,
-                                    qtde: item.qtdesep > 0 ? item.qtdesep : 0.0,
-                                  ),
-                                ]
-                              : const <LoteSaidaModel>[];
                       final localLotes = widget.pvseparacaoController
                           .lotesDoProduto(item.idproduto);
-                      final mergedMap = <String, LoteSaidaModel>{
-                        for (final l in apiLotes) '${l.lote}__${l.validade}': l,
-                        for (final l in localLotes)
-                          '${l.lote}__${l.validade}': l,
-                      };
+                      final lotes = mergeLotesForItem(
+                        item: item,
+                        idFilial: idFilial,
+                        idPrevenda: idPrevenda,
+                        localLotes: localLotes,
+                      );
                       return PvSeparacaoItemCard(
                         key: _cardKeys[idx],
                         idFilial: idFilial,
                         idPrevenda: idPrevenda,
                         item: item,
                         pvSeparacaoController: widget.pvseparacaoController,
-                        lotes: mergedMap.values.toList(),
+                        lotes: lotes,
                         qtdeController: _qtdeControllers[idx],
                         qtdeFocusNode: _qtdeFocusNodes[idx],
                         highlighted: _highlightedIndex == idx,
@@ -791,8 +743,9 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
                         ),
                         isSalvando: _salvandoIndex == idx,
                         romaneio: _finalizado ? 2 : widget.prevenda.romaneio,
-                        decQtde:
-                            AppScope.of(context).parametroController.parametro.decQtde,
+                        decQtde: AppScope.of(
+                          context,
+                        ).parametroController.parametro.decQtde,
                       );
                     },
                   ),

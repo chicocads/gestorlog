@@ -7,8 +7,11 @@ import '../../../core/utils/data_formatar.dart';
 import '../../../core/utils/input_formatters.dart';
 import '../../../core/utils/numero_formatar.dart';
 import '../../../core/widgets/info_row.dart';
+import '../../../core/functions/lotes_card_helpers.dart';
 import '../../../models/lote_saida_model.dart';
 import '../../../models/prevenda/prevenda2_model.dart';
+
+part 'pvseparacao_item_card_lote_row.dart';
 
 class PvSeparacaoItemCard extends StatefulWidget {
   const PvSeparacaoItemCard({
@@ -63,7 +66,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
   @override
   void didUpdateWidget(covariant PvSeparacaoItemCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!_sameLotes(oldWidget.lotes, widget.lotes)) {
+    if (!sameLotes(oldWidget.lotes, widget.lotes)) {
       _syncLotesFromWidget();
     }
   }
@@ -79,18 +82,6 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     super.dispose();
   }
 
-  bool _sameLotes(List<LoteSaidaModel> a, List<LoteSaidaModel> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    final sa = a
-        .map((e) => '${e.idProduto}|${e.lote}|${e.validade}|${e.qtde}')
-        .toSet();
-    final sb = b
-        .map((e) => '${e.idProduto}|${e.lote}|${e.validade}|${e.qtde}')
-        .toSet();
-    return sa.length == sb.length && sa.containsAll(sb);
-  }
-
   void _syncLotesFromWidget() {
     for (final r in _loteRows) {
       r.loteController.dispose();
@@ -100,12 +91,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     _loteRows.clear();
     _lastValidLoteQtde.clear();
 
-    final sorted = [...widget.lotes]
-      ..sort((a, b) {
-        final c = a.lote.compareTo(b.lote);
-        if (c != 0) return c;
-        return a.validade.compareTo(b.validade);
-      });
+    final sorted = sortLotes(widget.lotes);
 
     for (final l in sorted) {
       _loteRows.add(_LoteRow.fromModel(model: l, decQtde: widget.decQtde));
@@ -178,7 +164,10 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     final entered = double.tryParse(value.replaceAll(',', '.'));
     if (entered == null) return;
 
-    final somaOutros = _sumLotesExcept(index);
+    final somaOutros = sumLotesExcept(
+      _loteRows.map((r) => r.qtdeController.text.trim()).toList(),
+      index,
+    );
     final separado =
         double.tryParse(widget.qtdeController.text.replaceAll(',', '.')) ?? 0.0;
     final max = separado > 0 ? separado : widget.item.qtde;
@@ -199,17 +188,6 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     }
 
     _lastValidLoteQtde[index] = value;
-  }
-
-  double _sumLotesExcept(int index) {
-    var total = 0.0;
-    for (var i = 0; i < _loteRows.length; i++) {
-      if (i == index) continue;
-      final txt = _loteRows[i].qtdeController.text.trim();
-      final v = double.tryParse(txt.replaceAll(',', '.')) ?? 0.0;
-      total += v;
-    }
-    return total;
   }
 
   Future<void> _salvarLote(int index) async {
@@ -241,7 +219,10 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
 
     final validade = DataFormatar.toIsoDateFromDdMmYyyy(validadeTxt);
 
-    final somaOutros = _sumLotesExcept(index);
+    final somaOutros = sumLotesExcept(
+      _loteRows.map((r) => r.qtdeController.text.trim()).toList(),
+      index,
+    );
     final separado =
         double.tryParse(widget.qtdeController.text.replaceAll(',', '.')) ?? 0.0;
     final max = separado > 0 ? separado : widget.item.qtde;
@@ -263,6 +244,10 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       idProduto: widget.item.idproduto,
       lote: lote,
       validade: validade,
+      fabricacao: DateTime.now()
+          .subtract(const Duration(days: 365))
+          .toIso8601String()
+          .substring(0, 10),
       qtde: qtde,
     );
 
@@ -314,6 +299,10 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
         idProduto: widget.item.idproduto,
         lote: row.originalLote,
         validade: row.originalValidade,
+        fabricacao: DateTime.now()
+            .subtract(const Duration(days: 365))
+            .toIso8601String()
+            .substring(0, 10),
         qtde: 0,
       ),
     );
@@ -330,11 +319,23 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       return;
     }
 
-    row.loteController.dispose();
-    row.validadeController.dispose();
-    row.qtdeController.dispose();
-    _loteRows.removeAt(index);
-    _lastValidLoteQtde.remove(index);
+    final atualizados = widget.pvSeparacaoController
+        .lotesDoProduto(widget.item.idproduto)
+        .where((e) => e.lote.isNotEmpty && e.qtde > 0)
+        .toList();
+
+    for (final r in _loteRows) {
+      r.loteController.dispose();
+      r.validadeController.dispose();
+      r.qtdeController.dispose();
+    }
+    _loteRows
+      ..clear()
+      ..addAll(
+        sortLotes(
+          atualizados,
+        ).map((l) => _LoteRow.fromModel(model: l, decQtde: widget.decQtde)),
+      );
     _lastValidLoteQtde
       ..clear()
       ..addEntries(
@@ -343,6 +344,10 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
           (i) => MapEntry(i, _loteRows[i].qtdeController.text),
         ),
       );
+    widget.item.lotesaida
+      ..clear()
+      ..addAll(atualizados);
+
     setState(() => _savingLoteIndexes.remove(index));
     AppSnackBar.sucesso(context, 'Lote removido.');
   }
@@ -435,10 +440,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
               Row(
                 children: [
                   Expanded(
-                    child: InfoRow(
-                      label: 'Localização:',
-                      value: _wmsFormatado,
-                    ),
+                    child: InfoRow(label: 'Localização:', value: _wmsFormatado),
                   ),
                 ],
               ),
@@ -525,9 +527,9 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
               const Divider(height: 1),
               const SizedBox(height: 12),
               Theme(
-                data: Theme.of(context).copyWith(
-                  dividerColor: Colors.transparent,
-                ),
+                data: Theme.of(
+                  context,
+                ).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
                   tilePadding: EdgeInsets.zero,
                   childrenPadding: EdgeInsets.zero,
@@ -544,8 +546,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: IconButton(
-                        onPressed:
-                            widget.romaneio == 2 ? null : _adicionarLote,
+                        onPressed: widget.romaneio == 2 ? null : _adicionarLote,
                         icon: const Icon(Icons.add),
                       ),
                     ),
@@ -613,9 +614,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                     isDense: true,
                   ),
                   enabled: widget.romaneio != 2 && !saving,
-                  inputFormatters: [
-                    DateDdMmYyyyFormatter(),
-                  ],
+                  inputFormatters: [DateDdMmYyyyFormatter()],
                 ),
               ),
             ],
@@ -638,9 +637,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : Icon(
                               Icons.save_rounded,
@@ -677,72 +674,6 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _LoteRow {
-  _LoteRow({
-    required this.loteController,
-    required this.validadeController,
-    required this.qtdeController,
-    required this.originalLote,
-    required this.originalValidade,
-  });
-
-  factory _LoteRow.fromModel({
-    required LoteSaidaModel model,
-    required int decQtde,
-  }) {
-    final qtde = model.qtde.toStringAsFixed(
-      model.qtde.truncateToDouble() == model.qtde ? 0 : decQtde,
-    );
-    final validadeRaw = model.validade.trim();
-    final validadeText = validadeRaw.isEmpty
-        ? ''
-        : validadeRaw.contains('/')
-        ? validadeRaw
-        : () {
-            try {
-              return DataFormatar.formatDate(DateTime.parse(validadeRaw));
-            } catch (_) {
-              return validadeRaw;
-            }
-          }();
-    return _LoteRow(
-      loteController: TextEditingController(text: model.lote),
-      validadeController: TextEditingController(
-        text: validadeText,
-      ),
-      qtdeController: TextEditingController(text: qtde.replaceAll('.', ',')),
-      originalLote: model.lote,
-      originalValidade: model.validade,
-    );
-  }
-
-  factory _LoteRow.empty() {
-    return _LoteRow(
-      loteController: TextEditingController(),
-      validadeController: TextEditingController(),
-      qtdeController: TextEditingController(),
-      originalLote: '',
-      originalValidade: '',
-    );
-  }
-
-  final TextEditingController loteController;
-  final TextEditingController validadeController;
-  final TextEditingController qtdeController;
-  final String originalLote;
-  final String originalValidade;
-
-  _LoteRow copyWithSavedKey({required String lote, required String validade}) {
-    return _LoteRow(
-      loteController: loteController,
-      validadeController: validadeController,
-      qtdeController: qtdeController,
-      originalLote: lote,
-      originalValidade: validade,
     );
   }
 }

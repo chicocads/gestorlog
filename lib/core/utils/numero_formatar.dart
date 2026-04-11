@@ -35,4 +35,9 @@ class NumeroFormatar {
       return formatter.format(valor).toString().trim().replaceAll('.', ',');
     }
   }
+
+  static String qtde(double value, {required int decQtde}) {
+    final hasDecimals = value.truncateToDouble() != value;
+    return numero(value.toString(), hasDecimals ? decQtde : 0);
+  }
 }

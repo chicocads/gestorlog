@@ -9,7 +9,8 @@ import '../core/http/api_client.dart';
 import '../core/http/dio_client.dart';
 import '../services/cadastro/filial/filial_service.dart';
 import '../services/cadastro/usuario/usuario_service.dart';
-import '../services/separacao/separacao_service.dart';
+import '../services/separacao/separacao_local_service.dart';
+import '../services/separacao/separacao_remote_service.dart';
 import '../services/prevenda/prevenda_service.dart';
 import '../services/parametro_service.dart';
 import '../views/auth/login_view.dart';
@@ -65,8 +66,12 @@ class AppDependencies {
       () => parametroController.parametro.url,
     );
 
-    conferenciaService = SeparacaoService(this.apiClient);
-    conferenciaController = PvSeparacaoController(conferenciaService);
+    conferenciaLocalService = SeparacaoLocalService();
+    conferenciaRemoteService = SeparacaoRemoteService(this.apiClient);
+    conferenciaController = PvSeparacaoController(
+      conferenciaLocalService,
+      conferenciaRemoteService,
+    );
 
     carregamentoService = CarregamentoService(this.apiClient);
     carregamentoController = CarregamentoController(
@@ -98,7 +103,8 @@ class AppDependencies {
   late final PreVendaService preVendaService;
   late final PreVendaController preVendaController;
 
-  late final SeparacaoService conferenciaService;
+  late final SeparacaoLocalService conferenciaLocalService;
+  late final SeparacaoRemoteService conferenciaRemoteService;
   late final PvSeparacaoController conferenciaController;
 
   late final CarregamentoService carregamentoService;

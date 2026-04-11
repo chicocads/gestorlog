@@ -34,6 +34,7 @@ class PreVenda2Model {
   static const colTaraCxs = 'tara_cxs';
   static const colPv2Ns = 'pv2_ns';
   static const colProduto = 'produto';
+  static const colLotesaida = 'lotesaida';
 
   PreVenda2Model({
     required this.loja,
@@ -116,38 +117,38 @@ class PreVenda2Model {
   final List<LoteSaidaModel> lotesaida;
 
   factory PreVenda2Model.empty() => PreVenda2Model(
-        loja: 0,
-        numero: 0,
-        ordem: 0,
-        tipo: 0,
-        idproduto: 0,
-        lote: '',
-        validade: '',
-        nomeProduto: '',
-        und: '',
-        pecas: 0,
-        qtde: 0.0,
-        qtdesep: 0.0,
-        desconto: 0.0,
-        tabela: 0,
-        precoTabela: 0.0,
-        preco: 0.0,
-        tecnico: 0,
-        tipoComissao: 0,
-        comissao: 0.0,
-        status: 0,
-        requis: 0,
-        autUsuario: '',
-        xPedNfe: '',
-        xIPedNfe: '',
-        fatorVenda: 0.0,
-        vlDesc: 0.0,
-        qtdeCxs: 0,
-        taraCxs: 0.0,
-        pv2Ns: '',
-        produto: ProdutoModel.empty(),
-        lotesaida: const [],
-      );
+    loja: 0,
+    numero: 0,
+    ordem: 0,
+    tipo: 0,
+    idproduto: 0,
+    lote: '',
+    validade: '',
+    nomeProduto: '',
+    und: '',
+    pecas: 0,
+    qtde: 0.0,
+    qtdesep: 0.0,
+    desconto: 0.0,
+    tabela: 0,
+    precoTabela: 0.0,
+    preco: 0.0,
+    tecnico: 0,
+    tipoComissao: 0,
+    comissao: 0.0,
+    status: 0,
+    requis: 0,
+    autUsuario: '',
+    xPedNfe: '',
+    xIPedNfe: '',
+    fatorVenda: 0.0,
+    vlDesc: 0.0,
+    qtdeCxs: 0,
+    taraCxs: 0.0,
+    pv2Ns: '',
+    produto: ProdutoModel.empty(),
+    lotesaida: const [],
+  );
 
   PreVenda2Model copyWith({
     int? loja,
@@ -252,7 +253,7 @@ class PreVenda2Model {
       produto: map[colProduto] is Map<String, dynamic>
           ? ProdutoModel.fromMap(map[colProduto] as Map<String, dynamic>)
           : ProdutoModel.empty(),
-      lotesaida: (map['lotesaida'] as List<dynamic>? ?? [])
+      lotesaida: (map[colLotesaida] as List<dynamic>? ?? [])
           .map((e) => LoteSaidaModel.fromMap(e as Map<String, dynamic>))
           .toList(),
     );
@@ -289,7 +290,7 @@ class PreVenda2Model {
     colTaraCxs: taraCxs,
     colPv2Ns: pv2Ns,
     colProduto: produto.toMap(),
-    'loteList': lotesaida.map((e) => e.toMap()).toList(),
+    colLotesaida: lotesaida.map((e) => e.toMap()).toList(),
   };
 
   @override

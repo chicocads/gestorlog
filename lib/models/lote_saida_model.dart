@@ -6,6 +6,7 @@ class LoteSaidaModel {
   static const colIdProduto = 'idproduto';
   static const colLote = 'lote';
   static const colValidade = 'validade';
+  static const colFabricacao = 'fabricacao';
   static const colQtde = 'qtde';
 
   LoteSaidaModel({
@@ -14,6 +15,7 @@ class LoteSaidaModel {
     required this.idProduto,
     required this.lote,
     required this.validade,
+    required this.fabricacao,
     required this.qtde,
   });
 
@@ -22,16 +24,21 @@ class LoteSaidaModel {
   final int idProduto;
   final String lote;
   final String validade;
+  final String fabricacao;
   final double qtde;
 
   factory LoteSaidaModel.empty() => LoteSaidaModel(
-        idFilial: 0,
-        idPrevenda: 0,
-        idProduto: 0,
-        lote: '',
-        validade: '',
-        qtde: 0.0,
-      );
+    idFilial: 0,
+    idPrevenda: 0,
+    idProduto: 0,
+    lote: '',
+    validade: '',
+    fabricacao: DateTime.now()
+        .subtract(const Duration(days: 365))
+        .toIso8601String()
+        .substring(0, 10),
+    qtde: 0.0,
+  );
 
   LoteSaidaModel copyWith({
     int? idFilial,
@@ -47,6 +54,7 @@ class LoteSaidaModel {
       idProduto: idProduto ?? this.idProduto,
       lote: lote ?? this.lote,
       validade: validade ?? this.validade,
+      fabricacao: fabricacao,
       qtde: qtde ?? this.qtde,
     );
   }
@@ -59,6 +67,7 @@ class LoteSaidaModel {
       idProduto: map[colIdProduto] ?? 0,
       lote: map[colLote] ?? '',
       validade: map[colValidade] ?? '01-01-2000',
+      fabricacao: map[colFabricacao] ?? '01-01-2000',
       qtde: (map[colQtde] as num?)?.toDouble() ?? 0.0,
     );
   }
@@ -69,6 +78,7 @@ class LoteSaidaModel {
     colIdProduto: idProduto,
     colLote: lote,
     colValidade: validade,
+    colFabricacao: fabricacao,
     colQtde: qtde,
   };
 

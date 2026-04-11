@@ -1,15 +1,10 @@
 import 'package:sqflite/sqflite.dart';
 
 import '../../core/database/database_helper.dart';
-import '../../core/http/api_client.dart';
 import '../../models/Separacao/separacao_model.dart';
 import '../../models/lote_saida_model.dart';
-import 'request_separacao.dart';
 
-class SeparacaoService {
-  SeparacaoService(this._client);
-
-  final ApiClient _client;
+class SeparacaoLocalService {
   final _db = DatabaseHelper.instance;
 
   Future<SeparacaoModel?> get({
@@ -77,21 +72,6 @@ class SeparacaoService {
     );
   }
 
-  Future<void> gravarConferencia({
-    required String baseUrl,
-    required RequestSeparacao request,
-  }) async {
-    final response = await _client.post(
-      '$baseUrl/v1/prevenda/separacao',
-      headers: AuthHeaders.basicCads1(),
-      body: request.toMap(),
-    );
-
-    if (response.statusCode != 201) {
-      throw Exception('Erro ao gravar separação (${response.statusCode})');
-    }
-  }
-
   Future<List<LoteSaidaModel>> listarLotes({
     required int loja,
     required int numero,
@@ -100,7 +80,7 @@ class SeparacaoService {
     final rows = await database.query(
       LoteSaidaModel.tblNome,
       where:
-          '${LoteSaidaModel.colIdFilial} = ? AND ${LoteSaidaModel.colIdPrevenda} = ?',
+          '${LoteSaidaModel.colIdFilial} = ? AND ${LoteSaidaModel.colIdPrevenda} = ? AND ${LoteSaidaModel.colLote} <> "" AND ${LoteSaidaModel.colQtde} > 0',
       whereArgs: [loja, numero],
     );
     return rows.map(LoteSaidaModel.fromMap).toList();
@@ -121,13 +101,28 @@ class SeparacaoService {
     required int idProduto,
     required String lote,
     required String validade,
+    required String fabricacao,
   }) async {
     final database = await _db.db;
     await database.delete(
       LoteSaidaModel.tblNome,
       where:
-          '${LoteSaidaModel.colIdFilial} = ? AND ${LoteSaidaModel.colIdPrevenda} = ? AND ${LoteSaidaModel.colIdProduto} = ? AND ${LoteSaidaModel.colLote} = ? AND ${LoteSaidaModel.colValidade} = ?',
-      whereArgs: [loja, numero, idProduto, lote, validade],
+          '${LoteSaidaModel.colIdFilial} = ? AND ${LoteSaidaModel.colIdPrevenda} = ? AND ${LoteSaidaModel.colIdProduto} = ? AND ${LoteSaidaModel.colLote} = ? AND ${LoteSaidaModel.colValidade} = ? AND ${LoteSaidaModel.colFabricacao} = ?',
+      whereArgs: [loja, numero, idProduto, lote, validade, fabricacao],
+    );
+  }
+
+  Future<void> deletarLotesVaziosProduto({
+    required int loja,
+    required int numero,
+    required int idProduto,
+  }) async {
+    final database = await _db.db;
+    await database.delete(
+      LoteSaidaModel.tblNome,
+      where:
+          '${LoteSaidaModel.colIdFilial} = ? AND ${LoteSaidaModel.colIdPrevenda} = ? AND ${LoteSaidaModel.colIdProduto} = ? AND ( ${LoteSaidaModel.colLote} = "" OR ${LoteSaidaModel.colQtde} <= 0 )',
+      whereArgs: [loja, numero, idProduto],
     );
   }
 

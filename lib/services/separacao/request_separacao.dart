@@ -1,23 +1,31 @@
+import '../../models/lote_saida_model.dart';
+
 class RequestSeparacaoItem {
   static const colOrdem = 'ordem';
   static const colIdProduto = 'idproduto';
   static const colQtdeSep = 'qtdesep';
+  static const colLoteSaida = 'lotesaida';
 
   RequestSeparacaoItem({
     required this.ordem,
     required this.idproduto,
     required this.qtdesep,
+    this.lotesaida = const [],
   });
 
   final int ordem;
   final int idproduto;
   final double qtdesep;
+  final List<LoteSaidaModel> lotesaida;
 
   factory RequestSeparacaoItem.fromMap(Map<String, dynamic> map) {
     return RequestSeparacaoItem(
       ordem: map[colOrdem] ?? 0,
       idproduto: map[colIdProduto] ?? 0,
       qtdesep: (map[colQtdeSep] as num?)?.toDouble() ?? 0.0,
+      lotesaida: (map[colLoteSaida] as List<dynamic>? ?? [])
+          .map((e) => LoteSaidaModel.fromMap(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -25,6 +33,7 @@ class RequestSeparacaoItem {
     colOrdem: ordem,
     colIdProduto: idproduto,
     colQtdeSep: qtdesep,
+    colLoteSaida: lotesaida.map((e) => e.toMap()).toList(),
   };
 }
 

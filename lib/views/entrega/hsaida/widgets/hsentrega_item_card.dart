@@ -66,7 +66,13 @@ class HsEntregaItemCard extends StatelessWidget {
                 Expanded(
                   child: InfoRow(
                     label: 'Qtde:',
-                    value: _formatQtde(context, item.qtde),
+                    value: NumeroFormatar.qtde(
+                      item.qtde,
+                      decQtde: AppScope.of(context)
+                          .parametroController
+                          .parametro
+                          .decQtde,
+                    ),
                     valueStyle: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -79,14 +85,6 @@ class HsEntregaItemCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  String _formatQtde(BuildContext context, double value) {
-    final hasDecimals = value.truncateToDouble() != value;
-    return NumeroFormatar.numero(
-      value.toString(),
-      hasDecimals ? AppScope.of(context).parametroController.parametro.decQtde : 0,
     );
   }
 }

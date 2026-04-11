@@ -82,6 +82,7 @@ class DatabaseHelper {
         ${LoteSaidaModel.colIdProduto}  INTEGER NOT NULL DEFAULT 0,
         ${LoteSaidaModel.colLote}       TEXT    NOT NULL DEFAULT '',
         ${LoteSaidaModel.colValidade}   TEXT    NOT NULL DEFAULT '',
+        ${LoteSaidaModel.colFabricacao} TEXT    NOT NULL DEFAULT '',
         ${LoteSaidaModel.colQtde}       REAL    NOT NULL DEFAULT 0,
         PRIMARY KEY (
           ${LoteSaidaModel.colIdFilial},
