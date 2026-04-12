@@ -1,9 +1,9 @@
 import '../../core/controllers/base_controller.dart';
-import '../../models/carregamento/carregamento_model.dart';
+import '../../models/carga/carga_model.dart';
 
-import '../../services/carregamento/carregamento_service.dart';
-import '../../services/carregamento/request_carregamento.dart';
-import '../../services/carregamento/response_carregamento.dart';
+import '../../services/carga/carga_service.dart';
+import '../../services/carga/request_carga.dart';
+import '../../services/carga/response_carga.dart';
 
 class CarregamentoController extends BaseController {
   CarregamentoController(this._service, this._getBaseUrl);

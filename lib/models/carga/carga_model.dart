@@ -16,8 +16,8 @@ enum StatusCarregamento {
 class CarregamentoModel {
   static const tblNome = 'Carregamento';
 
-  static const colLoja = 'loja';
-  static const colNumero = 'numero';
+  static const colIdFilial = 'loja';
+  static const colIdCarga = 'numero';
   static const colUsuario = 'usuario';
   static const colUData = 'udata';
   static const colData = 'data';
@@ -38,8 +38,8 @@ class CarregamentoModel {
   static const colCentroCusto = 'centrocusto';
 
   CarregamentoModel({
-    required this.loja,
-    required this.numero,
+    required this.idFilial,
+    required this.idCarga,
     required this.usuario,
     required this.uData,
     required this.data,
@@ -61,8 +61,8 @@ class CarregamentoModel {
   });
 
   // chave primária
-  final int loja;
-  final int numero;
+  final int idFilial;
+  final int idCarga;
 
   // identificação / auditoria
   final String usuario;
@@ -97,8 +97,8 @@ class CarregamentoModel {
   final String centroCusto;
 
   factory CarregamentoModel.empty() => CarregamentoModel(
-    loja: 0,
-    numero: 0,
+    idFilial: 0,
+    idCarga: 0,
     usuario: '',
     uData: '',
     data: '',
@@ -120,8 +120,8 @@ class CarregamentoModel {
   );
 
   CarregamentoModel copyWith({
-    int? loja,
-    int? numero,
+    int? idFilial,
+    int? idCarga,
     String? usuario,
     String? uData,
     String? data,
@@ -142,8 +142,8 @@ class CarregamentoModel {
     String? centroCusto,
   }) {
     return CarregamentoModel(
-      loja: loja ?? this.loja,
-      numero: numero ?? this.numero,
+      idFilial: idFilial ?? this.idFilial,
+      idCarga: idCarga ?? this.idCarga,
       usuario: usuario ?? this.usuario,
       uData: uData ?? this.uData,
       data: data ?? this.data,
@@ -168,8 +168,8 @@ class CarregamentoModel {
   factory CarregamentoModel.fromMap(Map<String, dynamic> map) {
     if (map.isEmpty) return CarregamentoModel.empty();
     return CarregamentoModel(
-      loja: map[colLoja] ?? 0,
-      numero: map[colNumero] ?? 0,
+      idFilial: map[colIdFilial] ?? 0,
+      idCarga: map[colIdCarga] ?? 0,
       usuario: map[colUsuario] ?? '',
       uData: map[colUData] ?? '',
       data: map[colData] ?? '',
@@ -192,8 +192,8 @@ class CarregamentoModel {
   }
 
   Map<String, dynamic> toMap() => {
-    colLoja: loja,
-    colNumero: numero,
+    colIdFilial: idFilial,
+    colIdCarga: idCarga,
     colUsuario: usuario,
     colUData: uData,
     colData: data,
@@ -216,5 +216,5 @@ class CarregamentoModel {
 
   @override
   String toString() =>
-      'CarregamentoModel(loja: $loja, numero: $numero, motorista: $motorista, status: $status)';
+      'CarregamentoModel(loja: $idFilial, numero: $idCarga, motorista: $motorista, status: $status)';
 }

@@ -1,7 +1,8 @@
 import '../../core/http/api_client.dart';
-import '../../models/carregamento/carregamento_model.dart';
-import 'request_carregamento.dart';
-import 'response_carregamento.dart';
+import '../../models/carga/carga_model.dart';
+import 'request_carga.dart';
+import 'request_pv_carga.dart';
+import 'response_carga.dart';
 
 class CarregamentoService {
   const CarregamentoService(this._client);
@@ -54,5 +55,20 @@ class CarregamentoService {
     }
 
     throw Exception('Carregamento não encontrado (${response.statusCode})');
+  }
+
+  Future<void> confirmarEntrega({
+    required String baseUrl,
+    required PvCargaRequest request,
+  }) async {
+    final response = await _client.put(
+      '$baseUrl/v1/pvcarga/salvar',
+      headers: AuthHeaders.basicCads1(),
+      body: request.toMap(),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Erro ao confirmar entrega (${response.statusCode})');
+    }
   }
 }

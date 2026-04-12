@@ -1,4 +1,4 @@
-import '../../models/carregamento/carregamento_model.dart';
+import '../../models/carga/carga_model.dart';
 
 class ResponseCarregamento {
   ResponseCarregamento({

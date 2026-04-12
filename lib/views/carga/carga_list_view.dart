@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../app/routes.dart';
-import '../../controllers/carregamento/carregamento_controller.dart';
+import '../../controllers/carga/carga_controller.dart';
 import '../../controllers/hsaida/hsaida_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/data_formatar.dart';
 import '../../core/widgets/list_state_builder.dart';
-import '../../services/carregamento/request_carregamento.dart';
+import '../../services/carga/request_carga.dart';
 import '../../services/hsaida/request_hsaida.dart';
 import '../entrega/hsaida/hsentrega_list_view.dart';
-import 'widgets/carregamento_card.dart';
-import 'widgets/carregamento_filtro.dart';
+import 'widgets/carga_card.dart';
+import 'widgets/carga_filtro.dart';
 
-class CarregamentoListView extends StatefulWidget {
-  const CarregamentoListView({
+class CargaListView extends StatefulWidget {
+  const CargaListView({
     super.key,
     required this.controller,
     required this.hsaidaController,
@@ -22,10 +22,10 @@ class CarregamentoListView extends StatefulWidget {
   final HSaidaController hsaidaController;
 
   @override
-  State<CarregamentoListView> createState() => _CarregamentoListViewState();
+  State<CargaListView> createState() => _CargaListViewState();
 }
 
-class _CarregamentoListViewState extends State<CarregamentoListView> {
+class _CargaListViewState extends State<CargaListView> {
   DateTime? _data1;
   DateTime? _data2;
   final _scrollController = ScrollController();
@@ -56,7 +56,7 @@ class _CarregamentoListViewState extends State<CarregamentoListView> {
 
   Future<void> _buscar() async {
     final hoje = DateTime.now();
-    final d1 = _data1 ?? DateTime(1990);
+    final d1 = _data1 ?? DateTime(2020);
     final d2 = _data2 ?? hoje;
     final deps = AppScope.of(context);
     await widget.controller.buscar(
@@ -66,7 +66,8 @@ class _CarregamentoListViewState extends State<CarregamentoListView> {
         idFilial: deps.filialController.selecionado.codigo != 0
             ? deps.filialController.selecionado.codigo
             : deps.parametroController.parametro.idFilial,
-        numero: int.tryParse(_numeroController.text) ?? 0,
+        idCarga: int.tryParse(_numeroController.text) ?? 0,
+        frota: deps.parametroController.parametro.idFrota,
         status: 1,
       ),
     );
@@ -111,7 +112,7 @@ class _CarregamentoListViewState extends State<CarregamentoListView> {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('Carregamentos'),
+                const Text('Cargas'),
                 if (total > 0) ...[
                   const SizedBox(width: 8),
                   Container(
@@ -173,13 +174,13 @@ class _CarregamentoListViewState extends State<CarregamentoListView> {
                         );
                       }
                       final carga = ctrl.itens[index];
-                      return CarregamentoCard(
+                      return CargaCard(
                         carregamento: carga,
                         onTap: () {
                           widget.hsaidaController.buscar(
                             RequestHSaida.empty().copyWith(
-                              idFilial: carga.loja,
-                              carregamento: carga.numero,
+                              idFilial: carga.idFilial,
+                              carregamento: carga.idCarga,
                               status: 2,
                               romaneio: 9,
                             ),
@@ -189,7 +190,7 @@ class _CarregamentoListViewState extends State<CarregamentoListView> {
                             MaterialPageRoute(
                               builder: (_) => HsEntregaListView(
                                 controller: widget.hsaidaController,
-                                carregamento: carga.numero,
+                                carregamento: carga.idCarga,
                               ),
                             ),
                           );

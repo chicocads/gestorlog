@@ -5,7 +5,7 @@ class RequestCarregamento {
     required this.data1,
     required this.data2,
     required this.idFilial,
-    required this.numero,
+    required this.idCarga,
     required this.status,
     required this.frota,
   });
@@ -15,7 +15,7 @@ class RequestCarregamento {
   final String data1;
   final String data2;
   final int idFilial;
-  final int numero;
+  final int idCarga;
   final int status;
   final int frota;
 
@@ -25,7 +25,7 @@ class RequestCarregamento {
     data1: '',
     data2: '',
     idFilial: 0,
-    numero: 0,
+    idCarga: 0,
     status: 0,
     frota: 0,
   );
@@ -36,7 +36,7 @@ class RequestCarregamento {
     String? data1,
     String? data2,
     int? idFilial,
-    int? numero,
+    int? idCarga,
     int? status,
     int? frota,
   }) {
@@ -46,7 +46,7 @@ class RequestCarregamento {
       data1: data1 ?? this.data1,
       data2: data2 ?? this.data2,
       idFilial: idFilial ?? this.idFilial,
-      numero: numero ?? this.numero,
+      idCarga: idCarga ?? this.idCarga,
       status: status ?? this.status,
       frota: frota ?? this.frota,
     );
@@ -60,7 +60,7 @@ class RequestCarregamento {
       data1: map['data1'] ?? '',
       data2: map['data2'] ?? '',
       idFilial: map['idFilial'] ?? 0,
-      numero: map['numero'] ?? 0,
+      idCarga: map['numero'] ?? 0,
       status: map['status'] ?? 0,
       frota: map['frota'] ?? 0,
     );
@@ -72,7 +72,7 @@ class RequestCarregamento {
     'data1': data1,
     'data2': data2,
     'idFilial': idFilial,
-    'numero': numero,
+    'numero': idCarga,
     'status': status,
     'frota': frota,
   };

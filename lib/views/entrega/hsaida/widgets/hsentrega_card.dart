@@ -6,10 +6,18 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../../models/hsaida/hsaida_model.dart';
 
 class HsEntregaCard extends StatelessWidget {
-  const HsEntregaCard({super.key, required this.hsaida, this.onTap});
+  const HsEntregaCard({
+    super.key,
+    required this.hsaida,
+    this.onTap,
+    this.onConfirmarEntrega,
+    this.confirmandoEntrega = false,
+  });
 
   final HSaidaModel hsaida;
   final VoidCallback? onTap;
+  final VoidCallback? onConfirmarEntrega;
+  final bool confirmandoEntrega;
 
   bool get _entregue => hsaida.entregue == 1;
 
@@ -48,19 +56,39 @@ class HsEntregaCard extends StatelessWidget {
                           'N\u00ba ${hsaida.idPrevenda}',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                            fontSize: 16,
                           ),
                         ),
                         if (_entregue) ...[
                           const SizedBox(width: 6),
                           const Icon(
                             Icons.check_circle,
-                            size: 16,
+                            size: 24,
                             color: AppColors.success,
                           ),
                         ],
                         const Spacer(),
                         StatusBadge(label: _entregueLabel, color: _statusColor),
+                        if (!_entregue && onConfirmarEntrega != null) ...[
+                          const SizedBox(width: 8),
+                          IconButton(
+                            iconSize: 48,
+                            padding: const EdgeInsets.all(16),
+                            onPressed: confirmandoEntrega
+                                ? null
+                                : onConfirmarEntrega,
+                            icon: confirmandoEntrega
+                                ? const SizedBox(
+                                    width: 36,
+                                    height: 36,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                    ),
+                                  )
+                                : const Icon(Icons.check_circle_outline, color: AppColors.primary),
+                            tooltip: 'Confirmar entrega',
+                          ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -140,7 +168,7 @@ class HsEntregaCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            hsaida.dtEntrega,
+                            DataFormatar.formatEntrega(hsaida.dtEntrega),
                             style: TextStyle(
                               fontSize: 12,
                               color: _entregue

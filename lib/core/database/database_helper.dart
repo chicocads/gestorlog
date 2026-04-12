@@ -19,7 +19,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     return openDatabase(
       join(dbPath, 'gestorlog.db'),
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -30,8 +30,9 @@ class DatabaseHelper {
       CREATE TABLE ${ParametroModel.tblNome} (
         ${ParametroModel.colId}           INTEGER PRIMARY KEY,
         ${ParametroModel.colIdCads}       INTEGER NOT NULL DEFAULT 1,
-        ${ParametroModel.colIdPda}        INTEGER NOT NULL DEFAULT 0,
         ${ParametroModel.colIdFilial}     INTEGER NOT NULL DEFAULT 1,
+        ${ParametroModel.colIdPda}        INTEGER NOT NULL DEFAULT 0,
+        ${ParametroModel.colIdFrota}      INTEGER NOT NULL DEFAULT 0,
         ${ParametroModel.colIdInventario} INTEGER NOT NULL DEFAULT 0,
         ${ParametroModel.colUrl}          TEXT    NOT NULL DEFAULT '',
         ${ParametroModel.colDecPreco}     INTEGER NOT NULL DEFAULT 2,
@@ -53,6 +54,12 @@ class DatabaseHelper {
     }
     if (oldVersion < 3) {
       await _createLoteSaidaTable(db);
+    }
+    if (oldVersion < 4) {
+      await db.execute('''
+        ALTER TABLE ${ParametroModel.tblNome}
+        ADD COLUMN ${ParametroModel.colIdFrota} INTEGER NOT NULL DEFAULT 0
+      ''');
     }
   }
 

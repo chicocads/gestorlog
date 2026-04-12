@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../app/routes.dart';
 import '../../../controllers/hsaida/hsaida_controller.dart';
+import '../../../core/functions/geolocalizacao.dart';
+import '../../../core/utils/app_snack_bar.dart';
 import '../../../core/widgets/list_state_builder.dart';
+import '../../../models/hsaida/hsaida_model.dart';
+import '../../../services/carga/request_pv_carga.dart';
 import '../../../services/hsaida/request_hsaida.dart';
 import 'hsentrega_itens_view.dart';
 import 'widgets/hsentrega_card.dart';
@@ -23,6 +27,7 @@ class HsEntregaListView extends StatefulWidget {
 
 class _HsEntregaListViewState extends State<HsEntregaListView> {
   int _entregue = 0;
+  final Set<String> _confirmandoEntrega = {};
   final _scrollController = ScrollController();
   final _prevendaController = TextEditingController();
 
@@ -62,6 +67,43 @@ class _HsEntregaListViewState extends State<HsEntregaListView> {
         tabAux: 1,
       ),
     );
+  }
+
+  String _keyEntrega(HSaidaModel hs) => '${hs.idFilial}__${hs.idPrevenda}';
+
+  Future<void> _confirmarEntrega(HSaidaModel hs) async {
+    final key = _keyEntrega(hs);
+    if (_confirmandoEntrega.contains(key)) return;
+    setState(() => _confirmandoEntrega.add(key));
+    try {
+      final coord = await obterCoordenadaGeograficaAtual();
+      final request = PvCargaRequest(
+        idfilial: hs.idFilial,
+        idprevenda: hs.idPrevenda,
+        situacao: 1,
+        latitude: coord.latitude.toString(),
+        longitude: coord.longitude.toString(),
+        obs: 'Entrega confirmada via app',
+        assintura: '',
+      );
+
+      await widget.controller.confirmarEntrega(request);
+
+      if (!mounted) return;
+      if (widget.controller.error != null) {
+        AppSnackBar.erro(
+          context,
+          widget.controller.error ?? 'Não foi possível confirmar a entrega.',
+        );
+      } else {
+        AppSnackBar.sucesso(context, 'Entrega confirmada com sucesso.');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      AppSnackBar.erro(context, e.toString());
+    } finally {
+      if (mounted) setState(() => _confirmandoEntrega.remove(key));
+    }
   }
 
   @override
@@ -140,6 +182,12 @@ class _HsEntregaListViewState extends State<HsEntregaListView> {
                       final hs = ctrl.itens[index];
                       return HsEntregaCard(
                         hsaida: hs,
+                        onConfirmarEntrega: hs.entregue == 1
+                            ? null
+                            : () => _confirmarEntrega(hs),
+                        confirmandoEntrega: _confirmandoEntrega.contains(
+                          _keyEntrega(hs),
+                        ),
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(

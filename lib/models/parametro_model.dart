@@ -3,8 +3,9 @@ class ParametroModel {
   static const tblNome = 'parametro';
   static const colId = 'id';
   static const colIdCads = 'idCads';
-  static const colIdPda = 'idPda';
   static const colIdFilial = 'idFilial';
+  static const colIdPda = 'idPda';
+  static const colIdFrota = 'idFrota';
   static const colIdInventario = 'idInventario';
   static const colDecPreco = 'decPreco';
   static const colDecQtde = 'decQtde';
@@ -13,8 +14,9 @@ class ParametroModel {
   ParametroModel({
     required this.id,
     required this.idCads,
-    required this.idPda,
     required this.idFilial,
+    required this.idPda,
+    required this.idFrota,
     required this.idInventario,
     required this.decPreco,
     required this.decQtde,
@@ -23,8 +25,9 @@ class ParametroModel {
 
   final int id;
   final int idCads;
-  final int idPda;
   final int idFilial;
+  final int idPda;
+  final int idFrota;
   final int idInventario;
   final int decPreco;
   final int decQtde;
@@ -33,8 +36,9 @@ class ParametroModel {
   factory ParametroModel.empty() => ParametroModel(
     id: 1,
     idCads: 1,
-    idPda: 0,
     idFilial: 1,
+    idPda: 0,
+    idFrota: 0,
     idInventario: 0,
     decPreco: 2,
     decQtde: 0,
@@ -44,8 +48,9 @@ class ParametroModel {
   ParametroModel copyWith({
     int? id,
     int? idCads,
-    int? idPda,
     int? idFilial,
+    int? idPda,
+    int? idFrota,
     int? idInventario,
     int? decPreco,
     int? decQtde,
@@ -54,8 +59,9 @@ class ParametroModel {
     return ParametroModel(
       id: id ?? this.id,
       idCads: idCads ?? this.idCads,
-      idPda: idPda ?? this.idPda,
       idFilial: idFilial ?? this.idFilial,
+      idPda: idPda ?? this.idPda,
+      idFrota: idFrota ?? this.idFrota,
       idInventario: idInventario ?? this.idInventario,
       url: url ?? this.url,
       decPreco: decPreco ?? this.decPreco,
@@ -68,8 +74,9 @@ class ParametroModel {
     return ParametroModel(
       id: map[colId] as int? ?? 1,
       idCads: map[colIdCads] as int? ?? 1,
-      idPda: map[colIdPda] as int? ?? 0,
       idFilial: map[colIdFilial] as int? ?? 1,
+      idPda: map[colIdPda] as int? ?? 0,
+      idFrota: map[colIdFrota] as int? ?? 0,
       idInventario: map[colIdInventario] as int? ?? 0,
       url: map[colUrl] as String? ?? 'http://45.224.122.64:5000',
       decPreco: map[colDecPreco] as int? ?? 2,
@@ -80,8 +87,9 @@ class ParametroModel {
   Map<String, dynamic> toMap() => {
     colId: id,
     colIdCads: idCads,
-    colIdPda: idPda,
     colIdFilial: idFilial,
+    colIdPda: idPda,
+    colIdFrota: idFrota,
     colIdInventario: idInventario,
     colUrl: url,
     colDecPreco: decPreco,

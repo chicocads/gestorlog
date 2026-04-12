@@ -1,14 +1,16 @@
 import '../../core/controllers/base_controller.dart';
 import '../../models/hsaida/hsaida_model.dart';
+import '../../services/carga/carga_service.dart';
 import '../../services/hsaida/hsaida_service.dart';
 import '../../services/hsaida/request_hsaida.dart';
-import '../../services/hsaida/request_hsaida_entrega.dart';
+import '../../services/carga/request_pv_carga.dart';
 import '../../services/hsaida/response_hsaida.dart';
 
 class HSaidaController extends BaseController {
-  HSaidaController(this._service, this._getBaseUrl);
+  HSaidaController(this._service, this._carregamentoService, this._getBaseUrl);
 
   final HSaidaService _service;
+  final CarregamentoService _carregamentoService;
   final String Function() _getBaseUrl;
 
   ResponseHSaida _response = ResponseHSaida.empty();
@@ -71,12 +73,33 @@ class HSaidaController extends BaseController {
     });
   }
 
-  Future<void> confirmarEntrega(RequestHSaidaEntrega request) async {
+  Future<void> confirmarEntrega(PvCargaRequest request) async {
     await runAsync(() async {
-      await _service.confirmarEntrega(
+      await _carregamentoService.confirmarEntrega(
         baseUrl: _getBaseUrl(),
         request: request,
       );
+      _response = _response.copyWith(
+        itens: _response.itens
+            .map(
+              (e) =>
+                  (e.idFilial == request.idfilial &&  
+                      e.idPrevenda == request.idprevenda)
+                  ? e.copyWith(
+                      entregue: request.situacao,
+                      dtEntrega: DateTime.now().toIso8601String(),
+                    )
+                  : e,
+            )
+            .toList(),
+      );
+      if (_selecionado.idFilial == request.idfilial &&  
+          _selecionado.idPrevenda == request.idprevenda) {  
+        _selecionado = _selecionado.copyWith(
+          entregue: request.situacao,
+          dtEntrega: DateTime.now().toIso8601String(),
+        );
+      }
     });
   }
 

@@ -3,10 +3,10 @@ import 'package:gestorlog/core/utils/numero_formatar.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/data_formatar.dart';
 import '../../../core/widgets/status_badge.dart';
-import '../../../models/carregamento/carregamento_model.dart';
+import '../../../models/carga/carga_model.dart';
 
-class CarregamentoCard extends StatelessWidget {
-  const CarregamentoCard({super.key, required this.carregamento, this.onTap});
+class CargaCard extends StatelessWidget {
+  const CargaCard({super.key, required this.carregamento, this.onTap});
 
   final CarregamentoModel carregamento;
   final VoidCallback? onTap;
@@ -50,7 +50,7 @@ class CarregamentoCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          'Nº ${carregamento.numero}',
+                          'Nº ${carregamento.idCarga}',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,

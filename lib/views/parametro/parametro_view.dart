@@ -24,10 +24,11 @@ class _ParametroViewState extends State<ParametroView> {
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _idCadsCtrl;
-  late final TextEditingController _idPdaCtrl;
   late final TextEditingController _idFilialCtrl;
-  late final TextEditingController _urlCtrl;
+  late final TextEditingController _idPdaCtrl;
+  late final TextEditingController _idFrotaCtrl;
   late final TextEditingController _idInventarioCtrl;
+  late final TextEditingController _urlCtrl;
   late final TextEditingController _decPrecoCtrl;
   late final TextEditingController _decQtdeCtrl;
 
@@ -39,8 +40,9 @@ class _ParametroViewState extends State<ParametroView> {
     super.initState();
     final p = widget.controller.parametro;
     _idCadsCtrl = TextEditingController(text: p.idCads.toString());
-    _idPdaCtrl = TextEditingController(text: p.idPda.toString());
     _idFilialCtrl = TextEditingController(text: p.idFilial.toString());
+    _idPdaCtrl = TextEditingController(text: p.idPda.toString());
+    _idFrotaCtrl = TextEditingController(text: p.idFrota.toString());
     _idInventarioCtrl = TextEditingController(text: p.idInventario.toString());
     _urlCtrl = TextEditingController(text: p.url);
     _decPrecoCtrl = TextEditingController(text: p.decPreco.toString());
@@ -50,8 +52,9 @@ class _ParametroViewState extends State<ParametroView> {
   @override
   void dispose() {
     _idCadsCtrl.dispose();
-    _idPdaCtrl.dispose();
     _idFilialCtrl.dispose();
+    _idPdaCtrl.dispose();
+    _idFrotaCtrl.dispose();
     _idInventarioCtrl.dispose();
     _urlCtrl.dispose();
     _decPrecoCtrl.dispose();
@@ -66,12 +69,13 @@ class _ParametroViewState extends State<ParametroView> {
     await widget.controller.save(
       widget.controller.parametro.copyWith(
         idCads: int.parse(_idCadsCtrl.text.trim()),
-        idPda: int.parse(_idPdaCtrl.text.trim()),
         idFilial: int.parse(_idFilialCtrl.text.trim()),
+        idPda: int.parse(_idPdaCtrl.text.trim()),
+        idFrota: int.parse(_idFrotaCtrl.text.trim()),
         idInventario: int.parse(_idInventarioCtrl.text.trim()),
-        url: _urlCtrl.text.trim(),
         decPreco: int.parse(_decPrecoCtrl.text.trim()),
         decQtde: int.parse(_decQtdeCtrl.text.trim()),
+        url: _urlCtrl.text.trim(),
       ),
     );
 
@@ -111,20 +115,27 @@ class _ParametroViewState extends State<ParametroView> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: AppIntField(controller: _idPdaCtrl, label: 'ID PDA'),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
                     child: AppIntField(
                       controller: _idFilialCtrl,
                       label: 'ID Filial',
                     ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: AppIntField(controller: _idPdaCtrl, label: 'ID PDA'),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
               Row(
                 children: [
+                  Expanded(
+                    child: AppIntField(
+                      controller: _idFrotaCtrl,
+                      label: 'ID Frota',
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: AppIntField(
                       controller: _idInventarioCtrl,

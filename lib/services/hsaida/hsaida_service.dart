@@ -1,7 +1,6 @@
 import '../../core/http/api_client.dart';
 import '../../models/hsaida/hsaida_model.dart';
 import 'request_hsaida.dart';
-import 'request_hsaida_entrega.dart';
 import 'response_hsaida.dart';
 
 class HSaidaService {
@@ -55,20 +54,5 @@ class HSaidaService {
     }
 
     throw Exception('Saída não encontrada (${response.statusCode})');
-  }
-
-  Future<void> confirmarEntrega({
-    required String baseUrl,
-    required RequestHSaidaEntrega request,
-  }) async {
-    final response = await _client.put(
-      '$baseUrl/v1/hsaida/entrega',
-      headers: AuthHeaders.basicCads1(),
-      body: request.toMap(),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Erro ao confirmar entrega (${response.statusCode})');
-    }
   }
 }

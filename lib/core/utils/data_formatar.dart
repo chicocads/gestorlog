@@ -10,6 +10,25 @@ class DataFormatar {
     return '$d/$m/$y $h:$min';
   }
 
+  static String formatEntrega(String raw) {
+    final v = raw.trim();
+    if (v.isEmpty) return '';
+    if (v.contains('/')) return v;
+
+    final match = RegExp(
+      r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})',
+    ).firstMatch(v);
+    if (match == null) return raw;
+
+    final y = match.group(1)!;
+    final mo = match.group(2)!;
+    final d = match.group(3)!;
+    final h = match.group(4)!;
+    final mi = match.group(5)!;
+    final s = match.group(6)!;
+    return '$d/$mo/$y $h:$mi:$s';
+  }
+
   static String formatDate(DateTime date) {
     final d = date.day.toString().padLeft(2, '0');
     final m = date.month.toString().padLeft(2, '0');
@@ -69,6 +88,25 @@ class DataFormatar {
       "+0000",
       "-0700",
     );
+  }
+
+  static String toIsoWithFixedOffset(DateTime date, {required String offset}) {
+    final y = date.year.toString().padLeft(4, '0');
+    final mo = date.month.toString().padLeft(2, '0');
+    final d = date.day.toString().padLeft(2, '0');
+    final h = date.hour.toString().padLeft(2, '0');
+    final mi = date.minute.toString().padLeft(2, '0');
+    final s = date.second.toString().padLeft(2, '0');
+    final ms = date.millisecond.toString().padLeft(3, '0');
+    return '$y-$mo-${d}T$h:$mi:$s.$ms$offset';
+  }
+
+  /// Formata como "2026-04-11T00:00:00" (yyyy-MM-ddT00:00:00)
+  static String toIsoMidnight(DateTime date) {
+    final y = date.year.toString().padLeft(4, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final d = date.day.toString().padLeft(2, '0');
+    return '$y-$m-${d}T00:00:00';
   }
 
   /// Início do dia: "2026-03-01T00:00:00.000-0700"

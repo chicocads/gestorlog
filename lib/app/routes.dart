@@ -14,11 +14,11 @@ import '../services/separacao/separacao_remote_service.dart';
 import '../services/prevenda/prevenda_service.dart';
 import '../services/parametro_service.dart';
 import '../views/auth/login_view.dart';
-import '../controllers/carregamento/carregamento_controller.dart';
+import '../controllers/carga/carga_controller.dart';
 import '../controllers/hsaida/hsaida_controller.dart';
-import '../services/carregamento/carregamento_service.dart';
+import '../services/carga/carga_service.dart';
 import '../services/hsaida/hsaida_service.dart';
-import '../views/carregamento/carregamento_list_view.dart';
+import '../views/carga/carga_list_view.dart';
 import '../views/separacao/pvseparacao_list_view.dart';
 import '../views/home/home_view.dart';
 import '../views/auditoria/auditoria_view.dart';
@@ -82,6 +82,7 @@ class AppDependencies {
     hsaidaService = HSaidaService(this.apiClient);
     hsaidaController = HSaidaController(
       hsaidaService,
+      carregamentoService,
       () => parametroController.parametro.url,
     );
 
@@ -156,7 +157,7 @@ class AppRoutes {
         PvSeparacaoListView(controller: deps.preVendaController),
       ),
       entregaCarga => _route(
-        CarregamentoListView(
+        CargaListView(
           controller: deps.carregamentoController,
           hsaidaController: deps.hsaidaController,
         ),
