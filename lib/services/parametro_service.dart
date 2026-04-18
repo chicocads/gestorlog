@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import '../core/database/database_helper.dart';
-import '../models/parametro_model.dart';
+import '../models/diversos/parametro_model.dart';
 
 class ParametroService {
   final _db = DatabaseHelper.instance;

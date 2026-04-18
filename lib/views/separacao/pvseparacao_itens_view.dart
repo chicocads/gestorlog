@@ -113,19 +113,25 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
     };
     for (var i = 0; i < widget.prevenda.itens.length; i++) {
       final item = widget.prevenda.itens[i];
-      // Se a API já retornou qtdesep > 0, usa esse valor (já separado anteriormente)
+      final key = '${item.ordem}_${item.idproduto}';
+      final qtdeLocal = mapa[key];
+
+      // Prioriza o valor salvo localmente para refletir a última edição do usuário.
+      if (qtdeLocal != null) {
+        _qtdeControllers[i].text = NumeroFormatar.qtde(
+          qtdeLocal,
+          decQtde: decQtde,
+        );
+        continue;
+      }
+
+      // Se não houver valor local, usa o valor vindo da API.
       if (item.qtdesep > 0) {
         _qtdeControllers[i].text = NumeroFormatar.qtde(
           item.qtdesep,
           decQtde: decQtde,
         );
         continue;
-      }
-      // Caso contrário, usa o valor do banco local
-      final key = '${item.ordem}_${item.idproduto}';
-      final qtde = mapa[key];
-      if (qtde != null) {
-        _qtdeControllers[i].text = NumeroFormatar.qtde(qtde, decQtde: decQtde);
       }
     }
     setState(() {});
@@ -160,6 +166,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       ordem: item.ordem,
       idproduto: item.idproduto,
       qtde: qtde,
+      pecas: item.pecas,
     );
     await widget.pvseparacaoController.gravar(separacao);
     if (!mounted) return;
@@ -170,10 +177,20 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
             'Não foi possível salvar a quantidade.',
       );
     } else {
+      final salvo = await widget.pvseparacaoController.buscar(
+        loja: widget.prevenda.idFilial,
+        numero: widget.prevenda.idPrevenda,
+        ordem: item.ordem,
+        idproduto: item.idproduto,
+      );
+      if (!mounted) return;
       final decQtde = AppScope.of(
         context,
       ).parametroController.parametro.decQtde;
-      final textoFormatado = NumeroFormatar.qtde(qtde, decQtde: decQtde);
+      final textoFormatado = NumeroFormatar.qtde(
+        salvo?.qtde ?? qtde,
+        decQtde: decQtde,
+      );
       _qtdeControllers[index].text = textoFormatado;
       if (digitado) {
         AppSnackBar.sucesso(context, 'Quantidade salva com sucesso.');

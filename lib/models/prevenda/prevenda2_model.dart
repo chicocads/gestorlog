@@ -1,5 +1,5 @@
 import '../cadastro/produto_model.dart';
-import '../lote_saida_model.dart';
+import '../diversos/lote_saida_model.dart';
 
 class PreVenda2Model {
   static const tblNome = 'PreVenda2';

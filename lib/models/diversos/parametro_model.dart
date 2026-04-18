@@ -9,6 +9,7 @@ class ParametroModel {
   static const colIdInventario = 'idInventario';
   static const colDecPreco = 'decPreco';
   static const colDecQtde = 'decQtde';
+  static const colControlePecas = 'controlePecas';
   static const colUrl = 'Url';
 
   ParametroModel({
@@ -20,6 +21,7 @@ class ParametroModel {
     required this.idInventario,
     required this.decPreco,
     required this.decQtde,
+    required this.controlePecas,
     required this.url,
   });
 
@@ -31,6 +33,7 @@ class ParametroModel {
   final int idInventario;
   final int decPreco;
   final int decQtde;
+  final int controlePecas;
   final String url;
 
   factory ParametroModel.empty() => ParametroModel(
@@ -42,6 +45,7 @@ class ParametroModel {
     idInventario: 0,
     decPreco: 2,
     decQtde: 0,
+    controlePecas: 0,
     url: 'http://45.224.122.64:5000',
   );
 
@@ -54,6 +58,7 @@ class ParametroModel {
     int? idInventario,
     int? decPreco,
     int? decQtde,
+    int? controlePecas,
     String? url,
   }) {
     return ParametroModel(
@@ -66,6 +71,7 @@ class ParametroModel {
       url: url ?? this.url,
       decPreco: decPreco ?? this.decPreco,
       decQtde: decQtde ?? this.decQtde,
+      controlePecas: controlePecas ?? this.controlePecas,
     );
   }
 
@@ -81,6 +87,7 @@ class ParametroModel {
       url: map[colUrl] as String? ?? 'http://45.224.122.64:5000',
       decPreco: map[colDecPreco] as int? ?? 2,
       decQtde: map[colDecQtde] as int? ?? 0,
+      controlePecas: map[colControlePecas] as int? ?? 0,
     );
   }
 
@@ -94,6 +101,7 @@ class ParametroModel {
     colUrl: url,
     colDecPreco: decPreco,
     colDecQtde: decQtde,
+    colControlePecas: controlePecas,
   };
 
   @override

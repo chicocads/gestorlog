@@ -29,7 +29,7 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
   @override
   void initState() {
     super.initState();
-    _data1 = DateTime.now().subtract(const Duration(days: 15));
+    _data1 = DateTime.now().subtract(const Duration(days: 90));
     _data2 = DateTime.now();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => _buscar());

@@ -8,7 +8,7 @@ import '../../../core/utils/input_formatters.dart';
 import '../../../core/utils/numero_formatar.dart';
 import '../../../core/widgets/info_row.dart';
 import '../../../core/functions/lotes_card_helpers.dart';
-import '../../../models/lote_saida_model.dart';
+import '../../../models/diversos/lote_saida_model.dart';
 import '../../../models/prevenda/prevenda2_model.dart';
 
 part 'pvseparacao_item_card_lote_row.dart';
@@ -268,13 +268,41 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       return;
     }
 
-    final formatted = qtde.toStringAsFixed(
-      qtde.truncateToDouble() == qtde ? 0 : widget.decQtde,
+    await widget.pvSeparacaoController.listarLotes(
+      widget.idFilial,
+      widget.idPrevenda,
     );
-    row.qtdeController.text = formatted.replaceAll('.', ',');
-    _lastValidLoteQtde[index] = row.qtdeController.text;
+    if (!mounted) return;
 
-    _loteRows[index] = row.copyWithSavedKey(lote: lote, validade: validade);
+    final atualizados = widget.pvSeparacaoController
+        .lotesDoProduto(widget.item.idproduto)
+        .where((e) => e.lote.isNotEmpty && e.qtde > 0)
+        .toList();
+
+    for (final r in _loteRows) {
+      r.loteController.dispose();
+      r.validadeController.dispose();
+      r.qtdeController.dispose();
+    }
+    _loteRows
+      ..clear()
+      ..addAll(
+        sortLotes(
+          atualizados,
+        ).map((l) => _LoteRow.fromModel(model: l, decQtde: widget.decQtde)),
+      );
+    _lastValidLoteQtde
+      ..clear()
+      ..addEntries(
+        List.generate(
+          _loteRows.length,
+          (i) => MapEntry(i, _loteRows[i].qtdeController.text),
+        ),
+      );
+    widget.item.lotesaida
+      ..clear()
+      ..addAll(atualizados);
+
     setState(() => _savingLoteIndexes.remove(index));
     AppSnackBar.sucesso(context, 'Lote salvo com sucesso.');
   }

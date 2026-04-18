@@ -1,6 +1,6 @@
 import '../../core/controllers/base_controller.dart';
 import '../../models/Separacao/separacao_model.dart';
-import '../../models/lote_saida_model.dart';
+import '../../models/diversos/lote_saida_model.dart';
 import '../../services/separacao/request_separacao.dart';
 import '../../services/separacao/separacao_local_service.dart';
 import '../../services/separacao/separacao_remote_service.dart';
@@ -91,8 +91,10 @@ class PvSeparacaoController extends BaseController {
 
   Future<void> limpar(int loja, {int? numero}) => runAsync(() async {
     await _local.limpar(loja: loja, numero: numero);
+    await _local.limparLotes(loja: loja, numero: numero);
     _itens = [];
     _selecionado = null;
+    _lotesPorProduto = {};
   });
 
   Future<void> listarLotes(int loja, int numero) => runAsync(() async {
@@ -119,7 +121,6 @@ class PvSeparacaoController extends BaseController {
         idProduto: lote.idProduto,
         lote: oldLote,
         validade: oldValidade,
-        fabricacao: lote.fabricacao,
       );
     }
 
@@ -145,7 +146,6 @@ class PvSeparacaoController extends BaseController {
       idProduto: lote.idProduto,
       lote: lote.lote,
       validade: lote.validade,
-      fabricacao: lote.fabricacao,
     );
     await _local.deletarLotesVaziosProduto(
       loja: lote.idFilial,

@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../core/database/database_helper.dart';
 import '../../models/Separacao/separacao_model.dart';
-import '../../models/lote_saida_model.dart';
+import '../../models/diversos/lote_saida_model.dart';
 
 class SeparacaoLocalService {
   final _db = DatabaseHelper.instance;
@@ -101,14 +101,13 @@ class SeparacaoLocalService {
     required int idProduto,
     required String lote,
     required String validade,
-    required String fabricacao,
   }) async {
     final database = await _db.db;
     await database.delete(
       LoteSaidaModel.tblNome,
       where:
-          '${LoteSaidaModel.colIdFilial} = ? AND ${LoteSaidaModel.colIdPrevenda} = ? AND ${LoteSaidaModel.colIdProduto} = ? AND ${LoteSaidaModel.colLote} = ? AND ${LoteSaidaModel.colValidade} = ? AND ${LoteSaidaModel.colFabricacao} = ?',
-      whereArgs: [loja, numero, idProduto, lote, validade, fabricacao],
+          '${LoteSaidaModel.colIdFilial} = ? AND ${LoteSaidaModel.colIdPrevenda} = ? AND ${LoteSaidaModel.colIdProduto} = ? AND ${LoteSaidaModel.colLote} = ? AND ${LoteSaidaModel.colValidade} = ?',
+      whereArgs: [loja, numero, idProduto, lote, validade],
     );
   }
 

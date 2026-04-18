@@ -29,6 +29,7 @@ class ProdutoModel {
   static const colFator = 'fator';
   static const colQtEmbala = 'qtembala';
   static const colQtAtacado = 'qtatacado';
+  static const colPesoVariavel = 'pesovariavel';
   static const colMarca = 'marca';
   static const colRefer = 'referencia';
   static const colCaracter = 'caracteristicas';
@@ -69,6 +70,7 @@ class ProdutoModel {
     required this.fator,
     required this.qtembala,
     required this.qtatacado,
+    required this.pesovariavel,
     required this.marca,
     required this.referencia,
     required this.caracteristicas,
@@ -109,6 +111,7 @@ class ProdutoModel {
   final double fator;
   final int qtembala;
   final double qtatacado;
+  final int pesovariavel;
   final String marca;
   final String referencia;
   final String caracteristicas;
@@ -149,6 +152,7 @@ class ProdutoModel {
     fator: 1,
     qtembala: 0,
     qtatacado: 0,
+    pesovariavel: 0,
     marca: '',
     referencia: '',
     caracteristicas: '',
@@ -190,6 +194,7 @@ class ProdutoModel {
     double? fator,
     int? qtembala,
     double? qtatacado,
+    int? pesovariavel,
     String? marca,
     String? referencia,
     String? caracteristicas,
@@ -230,6 +235,7 @@ class ProdutoModel {
       fator: fator ?? this.fator,
       qtembala: qtembala ?? this.qtembala,
       qtatacado: qtatacado ?? this.qtatacado,
+      pesovariavel: pesovariavel ?? this.pesovariavel,
       marca: marca ?? this.marca,
       referencia: referencia ?? this.referencia,
       caracteristicas: caracteristicas ?? this.caracteristicas,
@@ -275,6 +281,7 @@ class ProdutoModel {
       fator: (map[colFator] as num?)?.toDouble() ?? 1,
       qtembala: map[colQtEmbala] as int? ?? 0,
       qtatacado: (map[colQtAtacado] as num?)?.toDouble() ?? 0,
+      pesovariavel: map[colPesoVariavel] as int? ?? 0,
       marca: map[colMarca] as String? ?? '',
       referencia: map[colRefer] as String? ?? '',
       caracteristicas: (map[colCaracter] ?? '').toString().replaceAll(
@@ -320,6 +327,7 @@ class ProdutoModel {
     colFator: fator,
     colQtEmbala: qtembala,
     colQtAtacado: qtatacado,
+    colPesoVariavel: pesovariavel,
     colMarca: marca,
     colRefer: referencia,
     colCaracter: caracteristicas,

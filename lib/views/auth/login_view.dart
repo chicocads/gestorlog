@@ -94,184 +94,168 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset('assets/images/logo_cads.png', height: 150),
-              ],
-            ),
-            Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: ListenableBuilder(
-                  listenable: AppScope.of(context).usuarioController,
-                  builder: (context, _) {
-                    final usuarioController =
-                        AppScope.of(context).usuarioController;
-                    final isLoading = usuarioController.isLoading;
-                    final erro = usuarioController.error;
+      appBar: AppBar(
+        title: Text(AppStrings.appName,style: TextStyle(fontSize: 26,
+        fontWeight: FontWeight.bold,),
+                        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Sair',
+            onPressed: () {
+              SystemNavigator.pop();
+              exit(0);
+            },
+            icon: const Icon(Icons.exit_to_app),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/images/logo_cads.png', height: 150),
+            ],
+          ),
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: ListenableBuilder(
+                listenable: AppScope.of(context).usuarioController,
+                builder: (context, _) {
+                  final usuarioController =
+                      AppScope.of(context).usuarioController;
+                  final isLoading = usuarioController.isLoading;
+                  final erro = usuarioController.error;
 
-                    return Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            'assets/icons/inventario.ico',
-                            width: 72,
-                            height: 72,
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            AppStrings.appName,
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF12128B),
-                            ),
-                          ),
-                          const SizedBox(height: 40),
-                          TextFormField(
-                            controller: _loginCtrl,
-                            focusNode: _loginFocus,
-                            enabled: !isLoading,
-                            textCapitalization: TextCapitalization.characters,
-                            inputFormatters: [
-                              TextInputFormatter.withFunction(
-                                (old, new_) => new_.copyWith(
-                                  text: new_.text.toUpperCase(),
-                                  selection: new_.selection,
-                                ),
-                              ),
-                            ],
-                            decoration: const InputDecoration(
-                              labelText: AppStrings.login,
-                              prefixIcon: Icon(Icons.person_outline),
-                            ),
-                            textInputAction: TextInputAction.next,
-                            onTap: () => _loginCtrl.selection = TextSelection(
-                              baseOffset: 0,
-                              extentOffset: _loginCtrl.text.length,
-                            ),
-                            validator: (v) => (v == null || v.trim().isEmpty)
-                                ? AppStrings.loginObrigatorio
-                                : null,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _senhaCtrl,
-                            enabled: !isLoading,
-                            obscureText: !_senhaVisivel,
-                            decoration: InputDecoration(
-                              labelText: AppStrings.senha,
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _senhaVisivel
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                ),
-                                onPressed: () => setState(
-                                  () => _senhaVisivel = !_senhaVisivel,
-                                ),
+                  return Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/icons/inventario.ico',
+                          width: 72,
+                          height: 72,
+                        ),
+                        const SizedBox(height: 40),
+                        TextFormField(
+                          controller: _loginCtrl,
+                          focusNode: _loginFocus,
+                          enabled: !isLoading,
+                          textCapitalization: TextCapitalization.characters,
+                          inputFormatters: [
+                            TextInputFormatter.withFunction(
+                              (old, new_) => new_.copyWith(
+                                text: new_.text.toUpperCase(),
+                                selection: new_.selection,
                               ),
                             ),
-                            textInputAction: TextInputAction.done,
-                            onTap: () => _senhaCtrl.selection = TextSelection(
-                              baseOffset: 0,
-                              extentOffset: _senhaCtrl.text.length,
-                            ),
-                            onFieldSubmitted: (_) => _entrar(),
-                            validator: (v) => (v == null || v.trim().isEmpty)
-                                ? AppStrings.senhaObrigatoria
-                                : null,
-                          ),
-                          if (erro != null) ...[
-                            const SizedBox(height: 16),
-                            ErrorBanner(message: erro),
                           ],
-                          const SizedBox(height: 28),
-                          CustomButton(
-                            label: AppStrings.entrar,
-                            isLoading: isLoading,
-                            onPressed: _entrar,
+                          decoration: const InputDecoration(
+                            labelText: AppStrings.login,
+                            prefixIcon: Icon(Icons.person_outline),
                           ),
-                          const SizedBox(height: 28),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 44,
-                                  child: _atualizando
-                                      ? Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            LinearProgressIndicator(
-                                              value: _progressoDownload > 0
-                                                  ? _progressoDownload
-                                                  : null,
-                                              color: AppColors.primary,
-                                            ),
-                                            const SizedBox(height: 6),
-                                            Text(
-                                              _progressoDownload > 0
-                                                  ? 'Baixando... ${(_progressoDownload * 100).toStringAsFixed(0)}%'
-                                                  : 'Conectando...',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: AppColors.textSecondary,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : OutlinedButton.icon(
-                                          onPressed: _atualizarApp,
-                                          icon: const Icon(Icons.system_update),
-                                          label: const Text('Atualizar App'),
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor: AppColors.primary,
-                                          ),
-                                        ),
-                                ),
+                          textInputAction: TextInputAction.next,
+                          onTap: () => _loginCtrl.selection = TextSelection(
+                            baseOffset: 0,
+                            extentOffset: _loginCtrl.text.length,
+                          ),
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? AppStrings.loginObrigatorio
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _senhaCtrl,
+                          enabled: !isLoading,
+                          obscureText: !_senhaVisivel,
+                          decoration: InputDecoration(
+                            labelText: AppStrings.senha,
+                            prefixIcon: const Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _senhaVisivel
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
                               ),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                height: 44,
-                                child: OutlinedButton.icon(
-                                  onPressed: () {
-                                    SystemNavigator.pop();
-                                    exit(0);
-                                  },
-                                  icon: const Icon(Icons.exit_to_app),
-                                  label: const Text('Sair'),
+                              onPressed: () => setState(
+                                () => _senhaVisivel = !_senhaVisivel,
+                              ),
+                            ),
+                          ),
+                          textInputAction: TextInputAction.done,
+                          onTap: () => _senhaCtrl.selection = TextSelection(
+                            baseOffset: 0,
+                            extentOffset: _senhaCtrl.text.length,
+                          ),
+                          onFieldSubmitted: (_) => _entrar(),
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? AppStrings.senhaObrigatoria
+                              : null,
+                        ),
+                        if (erro != null) ...[
+                          const SizedBox(height: 16),
+                          ErrorBanner(message: erro),
+                        ],
+                        const SizedBox(height: 28),
+                        CustomButton(
+                          label: AppStrings.entrar,
+                          isLoading: isLoading,
+                          onPressed: _entrar,
+                        ),
+                        const SizedBox(height: 28),
+                        SizedBox(
+                          height: 44,
+                          width: double.infinity,
+                          child: _atualizando
+                              ? Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    LinearProgressIndicator(
+                                      value: _progressoDownload > 0
+                                          ? _progressoDownload
+                                          : null,
+                                      color: AppColors.primary,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      _progressoDownload > 0
+                                          ? 'Baixando... ${(_progressoDownload * 100).toStringAsFixed(0)}%'
+                                          : 'Conectando...',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : OutlinedButton.icon(
+                                  onPressed: _atualizarApp,
+                                  icon: const Icon(Icons.system_update),
+                                  label: const Text('Atualizar App'),
                                   style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.red,
-                                    side: const BorderSide(color: Colors.red),
+                                    foregroundColor: AppColors.primary,
                                   ),
                                 ),
-                              ),
-                            ],
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          _versao,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
                           ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            _versao,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

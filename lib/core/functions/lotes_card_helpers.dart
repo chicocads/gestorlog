@@ -1,4 +1,4 @@
-import '../../models/lote_saida_model.dart';
+import '../../models/diversos/lote_saida_model.dart';
 
 bool sameLotes(List<LoteSaidaModel> a, List<LoteSaidaModel> b) {
   if (identical(a, b)) return true;

@@ -1,10 +1,11 @@
 class SeparacaoModel {
-  static const tblNome = 'Conferencia';
+  static const tblNome = 'Separacao';
   static const colLoja = 'loja';
   static const colNumero = 'numero';
   static const colOrdem = 'ordem';
   static const colIdProduto = 'idproduto';
   static const colQtde = 'qtde';
+  static const colPecas = 'pecas';
 
   SeparacaoModel({
     required this.loja,
@@ -12,6 +13,7 @@ class SeparacaoModel {
     required this.ordem,
     required this.idproduto,
     required this.qtde,
+    required this.pecas,
   });
 
   // chave primária
@@ -22,9 +24,17 @@ class SeparacaoModel {
 
   // dados
   final double qtde;
+  final int pecas;
 
   factory SeparacaoModel.empty() =>
-      SeparacaoModel(loja: 0, numero: 0, ordem: 0, idproduto: 0, qtde: 0);
+      SeparacaoModel(
+        loja: 0,
+        numero: 0,
+        ordem: 0,
+        idproduto: 0,
+        qtde: 0,
+        pecas: 0,
+      );
 
   SeparacaoModel copyWith({
     int? loja,
@@ -32,6 +42,7 @@ class SeparacaoModel {
     int? ordem,
     int? idproduto,
     double? qtde,
+    int? pecas,
   }) {
     return SeparacaoModel(
       loja: loja ?? this.loja,
@@ -39,6 +50,7 @@ class SeparacaoModel {
       ordem: ordem ?? this.ordem,
       idproduto: idproduto ?? this.idproduto,
       qtde: qtde ?? this.qtde,
+      pecas: pecas ?? this.pecas,
     );
   }
 
@@ -50,6 +62,7 @@ class SeparacaoModel {
       ordem: map[colOrdem] ?? 0,
       idproduto: map[colIdProduto] ?? 0,
       qtde: (map[colQtde] as num?)?.toDouble() ?? 0.0,
+      pecas: map[colPecas] ?? 0,
     );
   }
 
@@ -59,9 +72,10 @@ class SeparacaoModel {
     colOrdem: ordem,
     colIdProduto: idproduto,
     colQtde: qtde,
+    colPecas: pecas,
   };
 
   @override
   String toString() =>
-      'ConferenciaModel(loja: $loja, numero: $numero, idproduto: $idproduto, qtde: $qtde)';
+      'SeparacaoModel(loja: $loja, numero: $numero, idproduto: $idproduto, qtde: $qtde, peca: $pecas)';
 }

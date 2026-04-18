@@ -1,4 +1,4 @@
-import '../../models/lote_saida_model.dart';
+import '../../models/diversos/lote_saida_model.dart';
 
 class RequestSeparacaoItem {
   static const colOrdem = 'ordem';
