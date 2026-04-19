@@ -6,34 +6,58 @@ import '../../../models/cadastro/produto_model.dart';
 class ProdutoLocalService {
   final _db = DatabaseHelper.instance;
 
+  Future<ProdutoModel?> buscarPorCodigo(int codigo) async {
+    final database = await _db.db;
+    final rows = await database.query(
+      ProdutoModel.tblNome,
+      where: '${ProdutoModel.colCodigo} = ?',
+      whereArgs: [codigo],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return ProdutoModel.fromMap(rows.first);
+  }
+
+  Future<ProdutoModel?> buscarPorCodigoBarra(String codigoBarra) async {
+    final termo = codigoBarra.trim();
+    if (termo.isEmpty) return null;
+    final database = await _db.db;
+    final rows = await database.query(
+      ProdutoModel.tblNome,
+      where:
+          '(${ProdutoModel.colCodigoAlfa} = ? OR ${ProdutoModel.colDun14} = ?)',
+      whereArgs: [termo, termo],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return ProdutoModel.fromMap(rows.first);
+  }
+
   Future<List<ProdutoModel>> listar({
     required int limit,
     required int offset,
-    String termoCodigoBarra = '',
+    int? codigo,
+    String termoBarra = '',
     String termoNome = '',
   }) async {
     final database = await _db.db;
-    final termoCodigoBarraLimpo = termoCodigoBarra.trim();
+    final termoBarraLimpo = termoBarra.trim();
     final termoNomeLimpo = termoNome.trim();
     final whereParts = <String>[];
     final whereArgs = <Object?>[];
 
-    if (termoCodigoBarraLimpo.isNotEmpty) {
-      final codigo = int.tryParse(termoCodigoBarraLimpo);
-      final codigoOuBarraParts = <String>[
-        '${ProdutoModel.colCodigoAlfa} LIKE ?',
-        '${ProdutoModel.colDun14} LIKE ?',
-      ];
-      final likeTerm = '%$termoCodigoBarraLimpo%';
-      final codigoOuBarraArgs = <Object?>[likeTerm, likeTerm];
+    if (codigo != null) {
+      whereParts.add('${ProdutoModel.colCodigo} = ?');
+      whereArgs.add(codigo);
+    }
 
-      if (codigo != null) {
-        codigoOuBarraParts.insert(0, '${ProdutoModel.colCodigo} = ?');
-        codigoOuBarraArgs.insert(0, codigo);
-      }
-
-      whereParts.add('(${codigoOuBarraParts.join(' OR ')})');
-      whereArgs.addAll(codigoOuBarraArgs);
+    if (termoBarraLimpo.isNotEmpty) {
+      whereParts.add(
+        '(${ProdutoModel.colDun14} LIKE ? OR ${ProdutoModel.colCodigoAlfa} LIKE ?)',
+      );
+      whereArgs
+        ..add('%$termoBarraLimpo%')
+        ..add('%$termoBarraLimpo%');
     }
 
     if (termoNomeLimpo.isNotEmpty) {

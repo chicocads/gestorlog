@@ -6,25 +6,25 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/list_state_builder.dart';
 import '../../../services/cadastro/produto/produto_local_service.dart';
 import '../../../services/cadastro/produto/request_produto.dart';
-import '../../cadastro/produto/widgets/produto_filtro.dart';
 import '../widgets/inventario_produto_card.dart';
 
 class InventarioProdutosTab extends StatefulWidget {
   const InventarioProdutosTab({super.key});
 
   @override
-  State<InventarioProdutosTab> createState() => _InventarioProdutosTabState();
+  State<InventarioProdutosTab> createState() => InventarioProdutosTabState();
 }
 
-class _InventarioProdutosTabState extends State<InventarioProdutosTab> {
+class InventarioProdutosTabState extends State<InventarioProdutosTab> {
   final _scrollController = ScrollController();
-  final _codigoController = TextEditingController();
-  final _nomeController = TextEditingController();
+  final _buscaController = TextEditingController();
   final _localService = ProdutoLocalService();
   late final _controller = InventarioProdutoController(_localService);
 
   bool _sincronizando = false;
   int _produtosBaixados = 0;
+
+  bool get sincronizando => _sincronizando;
 
   @override
   void initState() {
@@ -36,8 +36,7 @@ class _InventarioProdutosTabState extends State<InventarioProdutosTab> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _codigoController.dispose();
-    _nomeController.dispose();
+    _buscaController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -50,10 +49,7 @@ class _InventarioProdutosTabState extends State<InventarioProdutosTab> {
   }
 
   Future<void> _buscar() async {
-    await _controller.consultar(
-      termoCodigoBarra: _codigoController.text,
-      termoNome: _nomeController.text,
-    );
+    await _controller.consultar(termoBusca: _buscaController.text);
 
     if (_scrollController.hasClients) {
       _scrollController.jumpTo(0);
@@ -117,7 +113,6 @@ class _InventarioProdutosTabState extends State<InventarioProdutosTab> {
         if (resposta.proximaPagina <= resposta.paginaAtual) {
           break;
         }
-
         pagina = resposta.proximaPagina;
       }
 
@@ -145,74 +140,85 @@ class _InventarioProdutosTabState extends State<InventarioProdutosTab> {
     }
   }
 
+  Future<void> baixarProdutos() => _baixarProdutos();
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
       children: [
-        Positioned.fill(
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.06),
+            border: const Border(
+              bottom: BorderSide(color: AppColors.primary, width: 0.5),
+            ),
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           child: Column(
             children: [
-              ProdutoFiltro(
-                codigoController: _codigoController,
-                nomeController: _nomeController,
-                onBuscar: _buscar,
-              ),
-              Expanded(
-                child: ListenableBuilder(
-                  listenable: _controller,
-                  builder: (context, _) {
-                    return ListStateBuilder(
-                      isLoading: _controller.isLoading && _controller.itens.isEmpty,
-                      error: _controller.itens.isEmpty ? _controller.error : null,
-                      isEmpty: _controller.itens.isEmpty,
-                      emptyMessage:
-                          'Nenhum produto encontrado no banco local.',
-                      emptyIcon: Icons.inventory_2_outlined,
-                      builder: () => ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 96),
-                        itemCount:
-                            _controller.itens.length +
-                            (_controller.temMaisPaginas ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index == _controller.itens.length) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
-
-                          final produto = _controller.itens[index];
-                          return InventarioProdutoCard(
-                            produto: produto,
-                            onTap: () => _controller.selecionar(produto),
-                          );
-                        },
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _buscaController,
+                      keyboardType: TextInputType.text,
+                      onSubmitted: (_) => _buscar(),
+                      decoration: InputDecoration(
+                        labelText: 'Código / Barra / Nome',
+                        labelStyle: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.primary,
+                        ),
+                        isDense: true,
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          onPressed: _buscar,
+                          icon: const Icon(Icons.search),
+                          color: AppColors.primary,
+                          tooltip: 'Buscar',
+                        ),
                       ),
-                    );
-                  },
-                ),
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
-        Positioned(
-          right: 16,
-          bottom: 16,
-          child: FloatingActionButton.extended(
-            onPressed: _sincronizando ? null : _baixarProdutos,
-            backgroundColor: AppColors.primary,
-            icon: _sincronizando
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.download_outlined),
-            label: Text(_sincronizando ? 'Baixando...' : 'Baixar'),
+        Expanded(
+          child: ListenableBuilder(
+            listenable: _controller,
+            builder: (context, _) {
+              return ListStateBuilder(
+                isLoading: _controller.isLoading && _controller.itens.isEmpty,
+                error: _controller.itens.isEmpty ? _controller.error : null,
+                isEmpty: _controller.itens.isEmpty,
+                emptyMessage: 'Nenhum produto encontrado no banco local.',
+                emptyIcon: Icons.inventory_2_outlined,
+                builder: () => ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+                  itemCount:
+                      _controller.itens.length +
+                      (_controller.temMaisPaginas ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == _controller.itens.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    final produto = _controller.itens[index];
+                    return InventarioProdutoCard(
+                      produto: produto,
+                      onTap: () => _controller.selecionar(produto),
+                    );
+                  },
+                ),
+              );
+            },
           ),
         ),
       ],

@@ -9,7 +9,7 @@ class ParametroModel {
   static const colIdInventario = 'idInventario';
   static const colDecPreco = 'decPreco';
   static const colDecQtde = 'decQtde';
-  static const colControlePecas = 'controlePecas';
+  static const colControlePecas = 'controlepecas';
   static const colUrl = 'Url';
 
   ParametroModel({

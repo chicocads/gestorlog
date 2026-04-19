@@ -17,6 +17,9 @@ class InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final normalizedLabel = label.trimRight();
+    final labelText =
+        normalizedLabel.endsWith(':') ? normalizedLabel : '$normalizedLabel:';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -24,7 +27,7 @@ class InfoRow extends StatelessWidget {
           SizedBox(
             width: labelWidth,
             child: Text(
-              label,
+              labelText,
               style: const TextStyle(
                 fontSize: 11,
                 color: AppColors.textSecondary,
@@ -44,4 +47,3 @@ class InfoRow extends StatelessWidget {
     );
   }
 }
-

@@ -52,21 +52,95 @@ class InventarioProdutoCard extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 12),
-              InfoRow(
-                label: 'EAN',
-                value: produto.codigoalfa.isNotEmpty
-                    ? produto.codigoalfa
-                    : 'Não informado',
+              const SizedBox(height: 1.5),
+              Row(
+                children: [
+                  Expanded(
+                    child: InfoRow(
+                      label: 'Fator',
+                      value: produto.fator.toString(),
+                      labelWidth: 40,
+                      valueStyle: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: InfoRow(
+                      label: 'Und',
+                      value: produto.undvenda.trim().isNotEmpty
+                          ? produto.undvenda
+                          : '-',
+                      labelWidth: 34,
+                      valueStyle: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: InfoRow(
+                      label: 'Emb',
+                      value: produto.qtembala.toString(),
+                      labelWidth: 34,
+                      valueStyle: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              InfoRow(
-                label: 'DUN14',
-                value: produto.dun14.isNotEmpty ? produto.dun14 : 'Não informado',
+              const SizedBox(height: 1),
+              Row(
+                children: [
+                  Expanded(
+                    child: InfoRow(
+                      label: 'EAN',
+                      value: produto.codigoalfa.isNotEmpty
+                          ? produto.codigoalfa
+                          : 'Não informado',
+                      labelWidth: 40,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: InfoRow(
+                      label: 'DUN14',
+                      value: produto.dun14.isNotEmpty
+                          ? produto.dun14
+                          : 'Não informado',
+                      labelWidth: 48,
+                    ),
+                  ),
+                ],
               ),
-              InfoRow(
-                label: 'Marca',
-                value: produto.marca.isNotEmpty ? produto.marca : 'Não informada',
+              const SizedBox(height: 1),
+              Row(
+                children: [
+                  Expanded(
+                    child: InfoRow(
+                      label: 'Marca',
+                      value: produto.marca.isNotEmpty
+                          ? produto.marca
+                          : 'Não informada',
+                      labelWidth: 45,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: InfoRow(
+                      label: 'Seção',
+                      value: '${produto.secao}/${produto.grupo}/${produto.sgrupo}',
+                      labelWidth: 45,
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 1),
               InfoRow(
                 label: 'Local',
                 value: _temWms
@@ -74,10 +148,6 @@ class InventarioProdutoCard extends StatelessWidget {
                     : (produto.localizacao.trim().isNotEmpty
                           ? produto.localizacao
                           : 'Não informado'),
-              ),
-              InfoRow(
-                label: 'Seção',
-                value: '${produto.secao}/${produto.grupo}/${produto.sgrupo}',
               ),
             ],
           ),

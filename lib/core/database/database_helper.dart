@@ -4,6 +4,7 @@ import '../../models/Separacao/separacao_model.dart';
 import '../../models/cadastro/produto_model.dart';
 import '../../models/diversos/lote_saida_model.dart';
 import '../../models/diversos/parametro_model.dart';
+import '../../models/inventario/inventario_model.dart';
 
 class DatabaseHelper {
   DatabaseHelper._();
@@ -20,7 +21,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     return openDatabase(
       join(dbPath, 'gestorlog.db'),
-      version: 7,
+      version: 9,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -42,6 +43,7 @@ class DatabaseHelper {
       )
     ''');
     await _createProdutoTable(db);
+    await _createInventarioTable(db);
     await _createSeparacaoTable(db);
     await _createLoteSaidaTable(db);
   }
@@ -109,6 +111,22 @@ class DatabaseHelper {
         await _createProdutoTable(db);
       }
     }
+    if (oldVersion < 8) {
+      if (!await _tableExists(db, InventarioModel.tblNome)) {
+        await _createInventarioTable(db);
+      }
+    }
+    if (oldVersion < 9) {
+      if (!await _tableExists(db, InventarioModel.tblNome)) {
+        await _createInventarioTable(db);
+      }
+      await _addColumnIfMissing(
+        db,
+        table: InventarioModel.tblNome,
+        column: InventarioModel.colPecas,
+        definition: 'INTEGER NOT NULL DEFAULT 0',
+      );
+    }
   }
 
   Future<void> _createProdutoTable(Database db) async {
@@ -172,6 +190,21 @@ class DatabaseHelper {
           ${SeparacaoModel.colOrdem},
           ${SeparacaoModel.colIdProduto}
         )
+      )
+    ''');
+  }
+
+  Future<void> _createInventarioTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE ${InventarioModel.tblNome} (
+        ${InventarioModel.colId}       INTEGER PRIMARY KEY AUTOINCREMENT,
+        ${InventarioModel.colProduto}  INTEGER NOT NULL DEFAULT 0,
+        ${InventarioModel.colBarra}    TEXT    NOT NULL DEFAULT '',
+        ${InventarioModel.colPecas}    INTEGER NOT NULL DEFAULT 0,
+        ${InventarioModel.colQtde}     REAL    NOT NULL DEFAULT 0,
+        ${InventarioModel.colLote}     TEXT    NOT NULL DEFAULT '',
+        ${InventarioModel.colValidade} TEXT    NOT NULL DEFAULT '',
+        ${InventarioModel.colNomePro}  TEXT    NOT NULL DEFAULT ''
       )
     ''');
   }

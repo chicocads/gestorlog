@@ -13,23 +13,23 @@ class InventarioProdutoController extends BaseController {
   ProdutoModel _selecionado = ProdutoModel.empty();
   int _offset = 0;
   bool _temMaisPaginas = true;
-  String _termoCodigoBarra = '';
+  int? _codigoFiltro;
+  String _termoBarra = '';
   String _termoNome = '';
 
   List<ProdutoModel> get itens => List.unmodifiable(_itens);
   ProdutoModel get selecionado => _selecionado;
   bool get temMaisPaginas => _temMaisPaginas;
-  String get termoCodigoBarra => _termoCodigoBarra;
+  int? get codigoFiltro => _codigoFiltro;
+  String get termoBarra => _termoBarra;
   String get termoNome => _termoNome;
 
   Future<void> consultar({
-    String termoCodigoBarra = '',
-    String termoNome = '',
+    String termoBusca = '',
   }) async {
     _offset = 0;
     _temMaisPaginas = true;
-    _termoCodigoBarra = termoCodigoBarra.trim();
-    _termoNome = termoNome.trim();
+    _aplicarFiltroBusca(termoBusca);
     _itens.clear();
     notifyListeners();
 
@@ -37,7 +37,8 @@ class InventarioProdutoController extends BaseController {
       final itens = await _service.listar(
         limit: _pageSize,
         offset: 0,
-        termoCodigoBarra: _termoCodigoBarra,
+        codigo: _codigoFiltro,
+        termoBarra: _termoBarra,
         termoNome: _termoNome,
       );
       _itens
@@ -55,7 +56,8 @@ class InventarioProdutoController extends BaseController {
       final itens = await _service.listar(
         limit: _pageSize,
         offset: _offset,
-        termoCodigoBarra: _termoCodigoBarra,
+        codigo: _codigoFiltro,
+        termoBarra: _termoBarra,
         termoNome: _termoNome,
       );
       _itens.addAll(itens);
@@ -67,5 +69,26 @@ class InventarioProdutoController extends BaseController {
   void selecionar(ProdutoModel produto) {
     _selecionado = produto;
     notifyListeners();
+  }
+
+  void _aplicarFiltroBusca(String termoBusca) {
+    final termo = termoBusca.trim();
+    _codigoFiltro = null;
+    _termoBarra = '';
+    _termoNome = '';
+
+    if (termo.isEmpty) return;
+
+    final somenteDigitos = RegExp(r'^\d+$').hasMatch(termo);
+    if (somenteDigitos) {
+      if (termo.length > 10) {
+        _termoBarra = termo;
+      } else {
+        _codigoFiltro = int.tryParse(termo);
+      }
+      return;
+    }
+
+    _termoNome = termo;
   }
 }
