@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -29,10 +32,81 @@ class ProdutoCard extends StatelessWidget {
     return partes.join(' | ');
   }
 
+  Uint8List? _imagemBytes() {
+    final imagem = produto.imagem.trim();
+    if (imagem.isEmpty) return null;
+    try {
+      final bytes = base64Decode(imagem);
+      if (bytes.isEmpty) return null;
+      return bytes;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _abrirImagemAmpliada(BuildContext context, Uint8List bytes) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.sizeOf(context).width * 0.9,
+            maxHeight: MediaQuery.sizeOf(context).height * 0.55,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.memory(bytes, fit: BoxFit.contain),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImagemProduto(BuildContext context) {
+    final bytes = _imagemBytes();
+    if (bytes == null) return _buildImagemPlaceholder();
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () => _abrirImagemAmpliada(context, bytes),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.memory(
+          bytes,
+          width: 52,
+          height: 52,
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => _buildImagemPlaceholder(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImagemPlaceholder() {
+    return Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Icon(
+        Icons.inventory_2_outlined,
+        color: AppColors.textSecondary,
+        size: 24,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final saldo = NumeroFormatar.qtde(produto.saldo, decQtde: 2);
     final preco = NumeroFormatar.moeda(produto.precovenda.toString());
+    const tituloCampoStyle = TextStyle(
+      fontSize: 9,
+      color: AppColors.textSecondary,
+    );
 
     return Card(
       elevation: 1,
@@ -49,6 +123,8 @@ class ProdutoCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  _buildImagemProduto(context),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,29 +146,71 @@ class ProdutoCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              InfoRow(
-                label: 'EAN',
-                value: produto.codigoalfa.isNotEmpty ? produto.codigoalfa : 'Não informado',
+              Row(
+                children: [
+                  Expanded(
+                    child: InfoRow(
+                      label: 'EAN',
+                      labelWidth: 34,
+                      labelStyle: tituloCampoStyle,
+                      valueStyle: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
+                      value: produto.codigoalfa.isNotEmpty
+                          ? produto.codigoalfa
+                          : 'Não informado',
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: InfoRow(
+                      label: 'DUN14',
+                      labelWidth: 46,
+                      labelStyle: tituloCampoStyle,
+                      valueStyle: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
+                      value: produto.dun14.isNotEmpty
+                          ? produto.dun14
+                          : 'Não informado',
+                    ),
+                  ),
+                ],
               ),
-              InfoRow(
-                label: 'DUN14',
-                value: produto.dun14.isNotEmpty ? produto.dun14 : 'Não informado',
-              ),
-              InfoRow(
-                label: 'Marca',
-                value: produto.marca.isNotEmpty ? produto.marca : 'Não informada',
+              Row(
+                children: [
+                  Expanded(
+                    child: InfoRow(
+                      label: 'Marca',
+                      labelWidth: 42,
+                      labelStyle: tituloCampoStyle,
+                      value: produto.marca.isNotEmpty
+                          ? produto.marca
+                          : 'Não informada',
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: InfoRow(
+                      label: 'Seção',
+                      labelWidth: 40,
+                      labelStyle: tituloCampoStyle,
+                      value: '${produto.secao}/${produto.grupo}/${produto.sgrupo}',
+                    ),
+                  ),
+                ],
               ),
               InfoRow(
                 label: 'Local',
+                labelWidth: 42,
+                labelStyle: tituloCampoStyle,
                 value: _temWms
                     ? _wmsFormatado
                     : (produto.localizacao.trim().isNotEmpty
                           ? produto.localizacao
                           : 'Não informado'),
-              ),
-              InfoRow(
-                label: 'Seção',
-                value: '${produto.secao}/${produto.grupo}/${produto.sgrupo}',
               ),
               const SizedBox(height: 10),
               Row(

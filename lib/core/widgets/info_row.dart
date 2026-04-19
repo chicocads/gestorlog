@@ -7,12 +7,14 @@ class InfoRow extends StatelessWidget {
     required this.label,
     required this.value,
     this.valueStyle,
+    this.labelStyle,
     this.labelWidth = 85,
   });
 
   final String label;
   final String value;
   final TextStyle? valueStyle;
+  final TextStyle? labelStyle;
   final double labelWidth;
 
   @override
@@ -28,10 +30,12 @@ class InfoRow extends StatelessWidget {
             width: labelWidth,
             child: Text(
               labelText,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.textSecondary,
-              ),
+              style:
+                  labelStyle ??
+                  const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
             ),
           ),
           Expanded(

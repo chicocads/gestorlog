@@ -3,6 +3,7 @@ import '../../app/routes.dart';
 import '../../controllers/carga/carga_controller.dart';
 import '../../controllers/hsaida/hsaida_controller.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/functions/geolocalizacao.dart';
 import '../../core/utils/data_formatar.dart';
 import '../../core/widgets/list_state_builder.dart';
 import '../../services/carga/request_carga.dart';
@@ -37,7 +38,7 @@ class _CargaListViewState extends State<CargaListView> {
     _data1 = DateTime.now().subtract(const Duration(days: 90));
     _data2 = DateTime.now();
     _scrollController.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _buscar());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _validarGpsEBuscar());
   }
 
   @override
@@ -52,6 +53,16 @@ class _CargaListViewState extends State<CargaListView> {
         _scrollController.position.maxScrollExtent - 200) {
       widget.controller.buscarMais();
     }
+  }
+
+  Future<void> _validarGpsEBuscar() async {
+    final podeEntrar = await validarGpsAtivoParaEntrega(context);
+    if (!mounted) return;
+    if (!podeEntrar) {
+      Navigator.of(context).pop();
+      return;
+    }
+    await _buscar();
   }
 
   Future<void> _buscar() async {

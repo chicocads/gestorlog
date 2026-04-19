@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../app/routes.dart';
 import '../../../controllers/cadastro/produto_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/string_sanitizer.dart';
 import '../../../core/widgets/list_state_builder.dart';
 import '../../../services/cadastro/produto/request_produto.dart';
 import 'widgets/produto_card.dart';
-import 'widgets/produto_filtro.dart';
 
 class ProdutoView extends StatefulWidget {
   const ProdutoView({super.key, required this.controller});
@@ -18,8 +19,7 @@ class ProdutoView extends StatefulWidget {
 
 class _ProdutoViewState extends State<ProdutoView> {
   final _scrollController = ScrollController();
-  final _codigoController = TextEditingController();
-  final _nomeController = TextEditingController();
+  final _buscaController = TextEditingController();
 
   @override
   void initState() {
@@ -31,8 +31,7 @@ class _ProdutoViewState extends State<ProdutoView> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _codigoController.dispose();
-    _nomeController.dispose();
+    _buscaController.dispose();
     super.dispose();
   }
 
@@ -44,9 +43,12 @@ class _ProdutoViewState extends State<ProdutoView> {
   }
 
   Future<void> _buscar() async {
-    final termoCodigo = _codigoController.text.trim();
-    final termoNome = _nomeController.text.trim();
-    final codigo = int.tryParse(termoCodigo) ?? 0;
+    final termo = _buscaController.text.trim();
+    final somenteDigitos = StringSanitizer.isDigits(termo);
+    final codigo = somenteDigitos && termo.length <= 10 ? int.tryParse(termo) ?? 0 : 0;
+    final termoBarra = somenteDigitos && termo.length > 10 ? termo : '';
+    final termoNome = !somenteDigitos ? termo : '';
+
     final deps = AppScope.of(context);
     final idFilial = deps.filialController.selecionado.codigo != 0
         ? deps.filialController.selecionado.codigo
@@ -58,13 +60,17 @@ class _ProdutoViewState extends State<ProdutoView> {
         qtdTotal: '50',
         idFilial: idFilial,
         codigo: codigo,
-        codigoalfa: termoCodigo,
-        dun14: termoCodigo,
+        codigoalfa: termoBarra,
+        dun14: termoBarra,
         nome: termoNome,
         situacao: 1,
         saldo: 2, 
       ),
     );
+
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(0);
+    }
   }
 
   @override
@@ -108,10 +114,41 @@ class _ProdutoViewState extends State<ProdutoView> {
       ),
       body: Column(
         children: [
-          ProdutoFiltro(
-            codigoController: _codigoController,
-            nomeController: _nomeController,
-            onBuscar: _buscar,
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.06),
+              border: const Border(
+                bottom: BorderSide(color: AppColors.primary, width: 0.5),
+              ),
+            ),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _buscaController,
+                    keyboardType: TextInputType.text,
+                    onSubmitted: (_) => _buscar(),
+                    decoration: InputDecoration(
+                      labelText: 'Código / Barra / Nome',
+                      labelStyle: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.primary,
+                      ),
+                      isDense: true,
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        onPressed: _buscar,
+                        icon: const Icon(Icons.search),
+                        color: AppColors.primary,
+                        tooltip: 'Buscar',
+                      ),
+                    ),
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: ListenableBuilder(

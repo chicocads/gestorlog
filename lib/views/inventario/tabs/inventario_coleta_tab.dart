@@ -7,6 +7,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/app_snack_bar.dart';
 import '../../../core/utils/data_formatar.dart';
 import '../../../core/utils/input_formatters.dart';
+import '../../../core/utils/string_sanitizer.dart';
 import '../../../models/cadastro/produto_model.dart';
 import '../../../models/inventario/inventario_model.dart';
 import '../../../services/cadastro/produto/produto_local_service.dart';
@@ -89,10 +90,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
                 if (rawValue == null || rawValue.isEmpty) return;
                 scanned = true;
                 Navigator.of(context).pop();
-                final codigo = rawValue.trim().replaceAll(
-                  RegExp(r'[^0-9]'),
-                  '',
-                );
+                final codigo = StringSanitizer.digitsOnly(rawValue.trim());
                 if (codigo.isEmpty) return;
                 _codigoController.text = codigo;
                 _buscarProduto(disparadoPorCodigo: true);
@@ -148,7 +146,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     final termo = _codigoController.text.trim();
     if (termo.isEmpty) return;
 
-    if (!RegExp(r'^\d+$').hasMatch(termo)) {
+    if (!StringSanitizer.isDigits(termo)) {
       AppSnackBar.erro(context, 'Informe apenas números no código.');
       return;
     }
@@ -236,7 +234,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
       AppSnackBar.erro(context, 'Informe o código para coletar.');
       return;
     }
-    if (!RegExp(r'^\d+$').hasMatch(codigo)) {
+    if (!StringSanitizer.isDigits(codigo)) {
       AppSnackBar.erro(context, 'O código deve conter apenas números.');
       return;
     }
@@ -328,6 +326,301 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     }
   }
 
+  Widget _buildCodigoRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _codigoController,
+            focusNode: _codigoFocus,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            onSubmitted: (_) => _buscarProduto(disparadoPorCodigo: true),
+            onChanged: (value) {
+              final v = value.trim();
+              if (v.length >= 13 && StringSanitizer.isDigits(v)) {
+                _buscarProduto(disparadoPorCodigo: true);
+              }
+            },
+            decoration: InputDecoration(
+              labelText: 'Código de barras',
+              border: const OutlineInputBorder(),
+              isDense: true,
+              suffixIcon: IconButton(
+                onPressed:
+                    _buscandoProduto ? null : () => _buscarProduto(disparadoPorCodigo: true),
+                icon: _buscandoProduto
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.search),
+                color: AppColors.primary,
+                tooltip: 'Buscar',
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 48,
+          height: 48,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              onPressed: _buscandoProduto ? null : _abrirScanner,
+              icon: const Icon(Icons.qr_code_scanner_outlined),
+              color: Colors.white,
+              tooltip: 'Ler código',
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProdutoStatusOuNome() {
+    if (_buscandoProduto) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.primary.withValues(alpha: 0.25),
+          ),
+        ),
+        child: const Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Buscando produto...',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final produto = _produtoColetado;
+    if (produto != null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: AppColors.success.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.success.withValues(alpha: 0.25),
+          ),
+        ),
+        child: Text(
+          '${produto.codigo} - ${produto.nome}',
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      );
+    }
+
+    return TextField(
+      controller: _nomeProdutoManualController,
+      focusNode: _nomeProdutoManualFocus,
+      enabled: true,
+      keyboardType: TextInputType.text,
+      textCapitalization: TextCapitalization.characters,
+      inputFormatters: [
+        UpperCaseTextFormatter(),
+        LengthLimitingTextInputFormatter(80),
+      ],
+      decoration: InputDecoration(
+        labelText: 'Nome do produto',
+        hintText: _produtoNaoCadastrado
+            ? 'Digite o nome do produto'
+            : 'Digite o nome (se não localizar)',
+        border: const OutlineInputBorder(),
+        isDense: true,
+      ),
+    );
+  }
+
+  Widget _buildPecasQtdeRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _pecasController,
+            enabled: _controlePecasAtivo,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: 'Peças',
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: TextField(
+            controller: _qtdeController,
+            focusNode: _qtdeFocus,
+            readOnly: _somarMais1EVoltarCodigo,
+            keyboardType: TextInputType.numberWithOptions(
+              decimal: _decQtde > 0,
+            ),
+            inputFormatters: _decQtde == 0
+                ? [FilteringTextInputFormatter.digitsOnly]
+                : [
+                    FilteringTextInputFormatter.allow(RegExp(r'[\d,]')),
+                    DecimalMaxDigitsFormatter(_decQtde),
+                  ],
+            decoration: const InputDecoration(
+              labelText: 'Quantidade',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoteValidadeRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _loteController,
+            enabled: _deveColetarLoteValidade,
+            decoration: const InputDecoration(
+              labelText: 'Lote',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: TextField(
+            controller: _validadeController,
+            enabled: _deveColetarLoteValidade,
+            keyboardType: TextInputType.datetime,
+            inputFormatters: [DateDdMmYyyyFormatter()],
+            decoration: const InputDecoration(
+              labelText: 'Validade',
+              hintText: 'DD/MM/AAAA',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSwitchAutoContagem() {
+    return Center(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Contagem pela digitação do código:',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Switch.adaptive(
+            value: _somarMais1EVoltarCodigo,
+            onChanged: (v) => setState(() {
+              _somarMais1EVoltarCodigo = v;
+              if (v) _qtdeController.text = '1';
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUltimoLancamento() {
+    if (_ultimoCodigoLancado.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 40),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.primary.withValues(alpha: 0.18),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.history_rounded,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Último código: $_ultimoCodigoLancado',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.20),
+                ),
+              ),
+              child: Text(
+                'Qtde: $_ultimaQtdeLancada',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final podeSalvar =
@@ -338,208 +631,13 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _codigoController,
-                  focusNode: _codigoFocus,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  onSubmitted: (_) => _buscarProduto(disparadoPorCodigo: true),
-                  onChanged: (value) {
-                    final v = value.trim();
-                    if (v.length >= 13 && RegExp(r'^\d+$').hasMatch(v)) {
-                      _buscarProduto(disparadoPorCodigo: true);
-                    }
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Código de barras',
-                    border: const OutlineInputBorder(),
-                    isDense: true,
-                    suffixIcon: IconButton(
-                      onPressed: _buscandoProduto
-                          ? null
-                          : () => _buscarProduto(disparadoPorCodigo: true),
-                      icon: _buscandoProduto
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.search),
-                      color: AppColors.primary,
-                      tooltip: 'Buscar',
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              SizedBox(
-                width: 48,
-                height: 48,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: IconButton(
-                    onPressed: _buscandoProduto ? null : _abrirScanner,
-                    icon: const Icon(Icons.qr_code_scanner_outlined),
-                    color: Colors.white,
-                    tooltip: 'Ler código',
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildCodigoRow(),
           const SizedBox(height: 10),
-          if (_buscandoProduto)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.25),
-                ),
-              ),
-              child: const Row(
-                children: [
-                  SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    'Buscando produto...',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else if (_produtoColetado != null)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.success.withValues(alpha: 0.25),
-                ),
-              ),
-              child: Text(
-                '${_produtoColetado!.codigo} - ${_produtoColetado!.nome}',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            )
-          else
-            TextField(
-              controller: _nomeProdutoManualController,
-              focusNode: _nomeProdutoManualFocus,
-              enabled: true,
-              keyboardType: TextInputType.text,
-              textCapitalization: TextCapitalization.characters,
-              onChanged: (value) {
-                final upper = value.toUpperCase();
-                if (value == upper) return;
-                _nomeProdutoManualController.value = TextEditingValue(
-                  text: upper,
-                  selection: TextSelection.collapsed(offset: upper.length),
-                );
-              },
-              inputFormatters: [LengthLimitingTextInputFormatter(80)],
-              decoration: InputDecoration(
-                labelText: 'Nome do produto',
-                hintText: _produtoNaoCadastrado
-                    ? 'Digite o nome do produto'
-                    : 'Digite o nome (se não localizar)',
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-            ),
+          _buildProdutoStatusOuNome(),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _pecasController,
-                  enabled: _controlePecasAtivo,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    labelText: 'Peças',
-                    border: const OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  controller: _qtdeController,
-                  focusNode: _qtdeFocus,
-                  readOnly: _somarMais1EVoltarCodigo,
-                  keyboardType: TextInputType.numberWithOptions(
-                    decimal: _decQtde > 0,
-                  ),
-                  inputFormatters: _decQtde == 0
-                      ? [FilteringTextInputFormatter.digitsOnly]
-                      : [
-                          FilteringTextInputFormatter.allow(RegExp(r'[\d,]')),
-                          DecimalMaxDigitsFormatter(_decQtde),
-                        ],
-                  decoration: const InputDecoration(
-                    labelText: 'Quantidade',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildPecasQtdeRow(),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _loteController,
-                  enabled: _deveColetarLoteValidade,
-                  decoration: const InputDecoration(
-                    labelText: 'Lote',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  controller: _validadeController,
-                  enabled: _deveColetarLoteValidade,
-                  keyboardType: TextInputType.datetime,
-                  inputFormatters: [DateDdMmYyyyFormatter()],
-                  decoration: const InputDecoration(
-                    labelText: 'Validade',
-                    hintText: 'DD/MM/AAAA',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildLoteValidadeRow(),
           const SizedBox(height: 14),
           FilledButton.icon(
             onPressed: podeSalvar ? _salvarColeta : null,
@@ -547,86 +645,8 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
             label: const Text('Salvar'),
           ),
           const SizedBox(height: 50),
-          Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Contagem pela digitação do código:',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Switch.adaptive(
-                  value: _somarMais1EVoltarCodigo,
-                  onChanged: (v) => setState(() {
-                    _somarMais1EVoltarCodigo = v;
-                    if (v) _qtdeController.text = '1';
-                  }),
-                ),
-              ],
-            ),
-          ),
-          if (_ultimoCodigoLancado.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 40),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.18),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.history_rounded,
-                      size: 18,
-                      color: AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Último código: $_ultimoCodigoLancado',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.20),
-                        ),
-                      ),
-                      child: Text(
-                        'Qtde: $_ultimaQtdeLancada',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          _buildSwitchAutoContagem(),
+          _buildUltimoLancamento(),
         ],
       ),
     );

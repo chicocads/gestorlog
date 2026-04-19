@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -39,6 +40,19 @@ class _LoginViewState extends State<LoginView> {
   static const _urlApk =
       'http://cadsma.dyndns.info:8082/GestorService/Download/app-gestorlog.apk';
 
+  Future<bool> _temInternet() async {
+    try {
+      final result = await InternetAddress.lookup(
+        'one.one.one.one',
+      ).timeout(const Duration(seconds: 3));
+      return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
+    } on SocketException {
+      return false;
+    } on TimeoutException {
+      return false;
+    }
+  }
+
   Future<void> _atualizarApp() async {
     setState(() {
       _atualizando = true;
@@ -76,6 +90,13 @@ class _LoginViewState extends State<LoginView> {
       _loginCtrl.clear();
       _senhaCtrl.clear();
       _loginFocus.requestFocus();
+      return;
+    }
+
+    final conectado = await _temInternet();
+    if (!mounted) return;
+    if (!conectado) {
+      AppSnackBar.erro(context, 'Sem internet. Ative a internet e tente novamente.');
       return;
     }
 

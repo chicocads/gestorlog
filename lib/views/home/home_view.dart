@@ -5,10 +5,17 @@ import '../../controllers/cadastro/usuario_controller.dart';
 import '../../controllers/parametro_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
+import '../../core/functions/geolocalizacao.dart';
 import '../../core/widgets/drawer_menu_item.dart';
 import '../../core/widgets/quick_action_card.dart';
 import '../../models/cadastro/filial_model.dart';
 import '../../services/cadastro/filial/request_filial.dart';
+
+Future<void> _abrirEntregaCargaComValidacaoGps(BuildContext context) async {
+  final podeAbrir = await validarGpsAtivoParaEntrega(context);
+  if (!context.mounted || !podeAbrir) return;
+  Navigator.pushNamed(context, AppRoutes.entregaCarga);
+}
 
 class HomeView extends StatefulWidget {
   const HomeView({
@@ -152,9 +159,9 @@ class _AppDrawer extends StatelessWidget {
                 DrawerMenuItem(
                   icon: Icons.local_shipping_outlined,
                   label: 'Entrega de Carga',
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, AppRoutes.entregaCarga);
+                    await _abrirEntregaCargaComValidacaoGps(context);
                   },
                 ),
                 DrawerMenuItem(
@@ -321,10 +328,8 @@ class _HomeBody extends StatelessWidget {
                           icon: Icons.local_shipping_outlined,
                           label: 'Entrega de Carga',
                           color: AppColors.success,
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            AppRoutes.entregaCarga,
-                          ),
+                          onTap: () async =>
+                              _abrirEntregaCargaComValidacaoGps(context),
                         ),
                       ),
                       const SizedBox(width: 8),

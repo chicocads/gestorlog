@@ -1,6 +1,21 @@
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import '../utils/app_snack_bar.dart';
 
 typedef CoordenadaGeografica = ({double latitude, double longitude});
+
+Future<bool> isGpsAtivo() => Geolocator.isLocationServiceEnabled();
+
+Future<bool> validarGpsAtivoParaEntrega(BuildContext context) async {
+  final ativo = await isGpsAtivo();
+  if (ativo) return true;
+  if (!context.mounted) return false;
+  AppSnackBar.erro(
+    context,
+    'Ative o GPS do celular para acessar a Entrega de Carga.',
+  );
+  return false;
+}
 
 Future<CoordenadaGeografica> obterCoordenadaGeograficaAtual({
   LocationAccuracy accuracy = LocationAccuracy.high,
