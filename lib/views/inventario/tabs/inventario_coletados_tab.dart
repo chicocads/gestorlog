@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/routes.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/app_snack_bar.dart';
+import '../../../core/utils/data_formatar.dart';
 import '../../../core/utils/numero_formatar.dart';
 import '../../../core/widgets/info_row.dart';
 import '../../../core/widgets/list_state_builder.dart';
@@ -23,6 +24,15 @@ class _InventarioColetadosTabState extends State<InventarioColetadosTab> {
 
   int get _decQtde =>
       AppScope.of(context).parametroController.parametro.decQtde;
+
+  String _formatValidade(String raw) {
+    final v = raw.trim();
+    if (v.isEmpty) return '';
+    if (v.contains('/')) return v;
+    final dt = DateTime.tryParse(v);
+    if (dt == null) return raw;
+    return DataFormatar.formatDate(dt);
+  }
 
   @override
   void initState() {
@@ -181,7 +191,7 @@ class _InventarioColetadosTabState extends State<InventarioColetadosTab> {
                 Expanded(
                   child: InfoRow(
                     label: 'Validade',
-                    value: inv.validade,
+                    value: _formatValidade(inv.validade),
                     labelWidth: labelWidth,
                   ),
                 ),

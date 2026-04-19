@@ -16,6 +16,7 @@ class _InventarioViewState extends State<InventarioView>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   final _produtosTabKey = GlobalKey<InventarioProdutosTabState>();
+  final _sincronizandoProdutos = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -29,6 +30,7 @@ class _InventarioViewState extends State<InventarioView>
     _tabController
       ..removeListener(_handleTabChanged)
       ..dispose();
+    _sincronizandoProdutos.dispose();
     super.dispose();
   }
 
@@ -54,21 +56,24 @@ class _InventarioViewState extends State<InventarioView>
         elevation: 1,
         actions: [
           if (mostrandoAcaoProdutos)
-            IconButton(
-              onPressed: _produtosTabKey.currentState?.sincronizando == true
-                  ? null
-                  : _baixarProdutosNoAppBar,
-              tooltip: 'Baixar produtos',
-              icon: _produtosTabKey.currentState?.sincronizando == true
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.download_outlined),
+            ValueListenableBuilder<bool>(
+              valueListenable: _sincronizandoProdutos,
+              builder: (context, sincronizando, _) {
+                return IconButton(
+                  onPressed: sincronizando ? null : _baixarProdutosNoAppBar,
+                  tooltip: 'Baixar produtos',
+                  icon: sincronizando
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.download_outlined),
+                );
+              },
             ),
         ],
         bottom: TabBar(
@@ -89,7 +94,10 @@ class _InventarioViewState extends State<InventarioView>
       body: TabBarView(
         controller: _tabController,
         children: [
-          InventarioProdutosTab(key: _produtosTabKey),
+          InventarioProdutosTab(
+            key: _produtosTabKey,
+            sincronizandoNotifier: _sincronizandoProdutos,
+          ),
           const InventarioColetaTab(),
           const InventarioColetadosTab(),
           const InventarioTotalTab(),

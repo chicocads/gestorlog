@@ -92,6 +92,10 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
                 Navigator.of(context).pop();
                 final codigo = StringSanitizer.digitsOnly(rawValue.trim());
                 if (codigo.isEmpty) return;
+                if (!_validarCodigoBarra(codigo)) {
+                  _focarCodigo(limpar: true);
+                  return;
+                }
                 _codigoController.text = codigo;
                 _buscarProduto(disparadoPorCodigo: true);
               },
@@ -127,6 +131,43 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     );
   }
 
+  bool _validarCodigoBarra(String codigo) {
+    final v = codigo.trim();
+    if (v.isEmpty) return false;
+    if (!StringSanitizer.isDigits(v)) return false;
+
+    if (v.length <= 10) return true;
+
+    if (v.length != 13 && v.length != 14) {
+      _mostrarDialogoCodigoBarrasInvalido(
+        'Código de barras deve ter 13 ou 14 dígitos.',
+      );
+      return false;
+    }
+
+    if (!StringSanitizer.isValidGtin(v, length: v.length)) {
+      _mostrarDialogoCodigoBarrasInvalido('Código de barras inválido.');
+      return false;
+    }
+    return true;
+  }
+
+  void _mostrarDialogoCodigoBarrasInvalido(String mensagem) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Código de Barras Inválido'),
+        content: Text(mensagem),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _focarCodigo({bool limpar = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -141,6 +182,49 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     });
   }
 
+  bool _produtoColetadoCorrespondeAoCodigo(String codigoDigitado) {
+    final produto = _produtoColetado;
+    if (produto == null) return false;
+
+    final codigo = codigoDigitado.trim();
+    if (codigo.isEmpty) return false;
+
+    if (codigo.length > 10) {
+      final barra = codigo;
+      return produto.codigoalfa.trim() == barra || produto.dun14.trim() == barra;
+    }
+
+    final cod = int.tryParse(codigo);
+    if (cod == null) return false;
+    return produto.codigo == cod;
+  }
+
+  Future<ProdutoModel?> _buscarProdutoSilent(String termo) async {
+    ProdutoModel? produto;
+    if (termo.length > 10) {
+      produto = await _produtoLocalService.buscarPorCodigoBarra(termo);
+    } else {
+      final codigo = int.tryParse(termo);
+      if (codigo != null) {
+        produto = await _produtoLocalService.buscarPorCodigo(codigo);
+      }
+    }
+
+    if (!mounted) return produto;
+    setState(() {
+      _produtoColetado = produto;
+      _produtoNaoCadastrado = produto == null;
+      _buscandoProduto = false;
+    });
+    if (produto != null) {
+      _nomeProdutoManualController.text = produto.nome;
+    }
+    if (_somarMais1EVoltarCodigo) {
+      _qtdeController.text = '1';
+    }
+    return produto;
+  }
+
   Future<void> _buscarProduto({bool disparadoPorCodigo = false}) async {
     if (_buscandoProduto) return;
     final termo = _codigoController.text.trim();
@@ -148,6 +232,9 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
 
     if (!StringSanitizer.isDigits(termo)) {
       AppSnackBar.erro(context, 'Informe apenas números no código.');
+      return;
+    }
+    if (!_validarCodigoBarra(termo)) {
       return;
     }
 
@@ -189,12 +276,14 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
         if (_somarMais1EVoltarCodigo &&
             !_controlePecasAtivo &&
             !_deveColetarLoteValidade) {
-          await _salvarColeta();
+          await _salvarColeta(ignorarBuscandoProduto: true);
           if (!mounted) return;
           _focarCodigo(limpar: true);
           return;
         }
-        if (!_somarMais1EVoltarCodigo) {
+        if (_somarMais1EVoltarCodigo && _deveColetarLoteValidade) {
+          _focarQtde();
+        } else if (!_somarMais1EVoltarCodigo) {
           _focarQtde();
         }
       }
@@ -228,7 +317,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     return int.tryParse(v);
   }
 
-  Future<void> _salvarColeta() async {
+  Future<void> _salvarColeta({bool ignorarBuscandoProduto = false}) async {
     final codigo = _codigoController.text.trim();
     if (codigo.isEmpty) {
       AppSnackBar.erro(context, 'Informe o código para coletar.');
@@ -238,6 +327,29 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
       AppSnackBar.erro(context, 'O código deve conter apenas números.');
       return;
     }
+    if (!_validarCodigoBarra(codigo)) {
+      _focarCodigo();
+      return;
+    }
+
+    if (_buscandoProduto && !ignorarBuscandoProduto) return;
+    if (!_produtoColetadoCorrespondeAoCodigo(codigo)) {
+      setState(() {
+        _buscandoProduto = true;
+        _produtoNaoCadastrado = false;
+        _produtoColetado = null;
+      });
+      try {
+        await _buscarProdutoSilent(codigo);
+      } catch (_) {
+        if (mounted) {
+          setState(() {
+            _buscandoProduto = false;
+          });
+        }
+      }
+    }
+    if (!mounted) return;
 
     final pecas = _controlePecasAtivo ? _parseInt(_pecasController.text) : 0;
     if (_controlePecasAtivo) {
@@ -320,6 +432,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
         _produtoColetado = null;
         _produtoNaoCadastrado = false;
       });
+      _focarCodigo();
     } catch (e) {
       if (!mounted) return;
       AppSnackBar.erro(context, 'Erro ao salvar coleta: $e');
@@ -338,9 +451,10 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
             onSubmitted: (_) => _buscarProduto(disparadoPorCodigo: true),
             onChanged: (value) {
               final v = value.trim();
-              if (v.length >= 13 && StringSanitizer.isDigits(v)) {
-                _buscarProduto(disparadoPorCodigo: true);
-              }
+              if (!StringSanitizer.isDigits(v)) return;
+              if (v.length != 13 && v.length != 14) return;
+              if (!StringSanitizer.isValidGtin(v, length: v.length)) return;
+              _buscarProduto(disparadoPorCodigo: true);
             },
             decoration: InputDecoration(
               labelText: 'Código de barras',
@@ -488,7 +602,15 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
             inputFormatters: _decQtde == 0
                 ? [FilteringTextInputFormatter.digitsOnly]
                 : [
-                    FilteringTextInputFormatter.allow(RegExp(r'[\d,]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      final text = newValue.text;
+                      for (final unit in text.codeUnits) {
+                        final isDigit = unit >= 48 && unit <= 57;
+                        final isComma = unit == 44;
+                        if (!isDigit && !isComma) return oldValue;
+                      }
+                      return newValue;
+                    }),
                     DecimalMaxDigitsFormatter(_decQtde),
                   ],
             decoration: const InputDecoration(
@@ -541,7 +663,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            'Contagem pela digitação do código:',
+            'Contagem rapida por código:',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,

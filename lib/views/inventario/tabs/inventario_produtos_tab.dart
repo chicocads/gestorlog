@@ -9,7 +9,12 @@ import '../../../services/cadastro/produto/request_produto.dart';
 import '../widgets/inventario_produto_card.dart';
 
 class InventarioProdutosTab extends StatefulWidget {
-  const InventarioProdutosTab({super.key});
+  const InventarioProdutosTab({
+    super.key,
+    this.sincronizandoNotifier,
+  });
+
+  final ValueNotifier<bool>? sincronizandoNotifier;
 
   @override
   State<InventarioProdutosTab> createState() => InventarioProdutosTabState();
@@ -20,6 +25,8 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
   final _buscaController = TextEditingController();
   final _localService = ProdutoLocalService();
   late final _controller = InventarioProdutoController(_localService);
+  late final ValueNotifier<bool> _sincronizandoNotifier;
+  late final bool _ownsSincronizandoNotifier;
 
   bool _sincronizando = false;
   int _produtosBaixados = 0;
@@ -29,6 +36,8 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
   @override
   void initState() {
     super.initState();
+    _ownsSincronizandoNotifier = widget.sincronizandoNotifier == null;
+    _sincronizandoNotifier = widget.sincronizandoNotifier ?? ValueNotifier(false);
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => _buscar());
   }
@@ -38,6 +47,9 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
     _scrollController.dispose();
     _buscaController.dispose();
     _controller.dispose();
+    if (_ownsSincronizandoNotifier) {
+      _sincronizandoNotifier.dispose();
+    }
     super.dispose();
   }
 
@@ -74,6 +86,7 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
 
     setState(() {
       _sincronizando = true;
+      _sincronizandoNotifier.value = true;
       _produtosBaixados = 0;
     });
 
@@ -135,6 +148,7 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
       if (mounted) {
         setState(() {
           _sincronizando = false;
+          _sincronizandoNotifier.value = false;
         });
       }
     }

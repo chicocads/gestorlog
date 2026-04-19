@@ -17,4 +17,29 @@ class StringSanitizer {
     }
     return b.toString();
   }
+
+  static bool isValidEan13(String value) => isValidGtin(value, length: 13);
+
+  static bool isValidDun14(String value) => isValidGtin(value, length: 14);
+
+  static bool isValidGtin(
+    String value, {
+    required int length,
+  }) {
+    final digits = digitsOnly(value.trim());
+    if (digits.length != length) return false;
+    if (!isDigits(digits)) return false;
+
+    var sum = 0;
+    for (var i = 0; i < length - 1; i++) {
+      final index = length - 2 - i;
+      final digit = digits.codeUnitAt(index) - 48;
+      final weight = i.isEven ? 3 : 1;
+      sum += digit * weight;
+    }
+
+    final expected = (10 - (sum % 10)) % 10;
+    final actual = digits.codeUnitAt(length - 1) - 48;
+    return expected == actual;
+  }
 }

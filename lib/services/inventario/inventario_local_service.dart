@@ -50,8 +50,8 @@ class InventarioLocalService {
         InventarioModel.colPecas,
       ],
       where:
-          '${InventarioModel.colProduto} = ? AND ${InventarioModel.colBarra} = ? AND ${InventarioModel.colLote} = ? AND ${InventarioModel.colValidade} = ? AND ${InventarioModel.colNomePro} = ?',
-      whereArgs: [item.produto, codigoBarra, lote, validade, nomePro],
+          '${InventarioModel.colProduto} = ? AND ${InventarioModel.colBarra} = ? AND ${InventarioModel.colLote} = ? AND ${InventarioModel.colNomePro} = ?',
+      whereArgs: [item.produto, codigoBarra, lote, nomePro],
       limit: 1,
     );
 
