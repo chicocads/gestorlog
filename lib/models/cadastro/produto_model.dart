@@ -340,7 +340,7 @@ class ProdutoModel {
   };
 
   @override
-  String toString() => 'ProdutoModel(codigo: $codigo, nome: $nome)';
+  String toString() => '$codigo-$nome';
 }
 
 enum TabelaPreco {

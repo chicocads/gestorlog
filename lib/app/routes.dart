@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/parametro_controller.dart';
 import '../controllers/cadastro/filial_controller.dart';
+import '../controllers/cadastro/produto_controller.dart';
 import '../controllers/cadastro/usuario_controller.dart';
 import '../controllers/separacao/pvseparacao_controller.dart';
 import '../controllers/prevenda/prevenda_controller.dart';
@@ -8,6 +9,7 @@ import '../core/constants/app_theme.dart';
 import '../core/http/api_client.dart';
 import '../core/http/dio_client.dart';
 import '../services/cadastro/filial/filial_service.dart';
+import '../services/cadastro/produto/produto_service.dart';
 import '../services/cadastro/usuario/usuario_service.dart';
 import '../services/separacao/separacao_local_service.dart';
 import '../services/separacao/separacao_remote_service.dart';
@@ -23,6 +25,7 @@ import '../views/separacao/pvseparacao_list_view.dart';
 import '../views/home/home_view.dart';
 import '../views/auditoria/auditoria_view.dart';
 import '../views/inventario/inventario_view.dart';
+import '../views/cadastro/produto/produto_view.dart';
 import '../views/parametro/parametro_view.dart';
 
 class AppScope extends InheritedWidget {
@@ -91,6 +94,12 @@ class AppDependencies {
       filialService,
       () => parametroController.parametro.url,
     );
+
+    produtoService = ProdutoService(this.apiClient);
+    produtoController = ProdutoController(
+      produtoService,
+      () => parametroController.parametro.url,
+    );
   }
 
   late final ApiClient apiClient;
@@ -116,6 +125,9 @@ class AppDependencies {
 
   late final FilialService filialService;
   late final FilialController filialController;
+
+  late final ProdutoService produtoService;
+  late final ProdutoController produtoController;
 }
 
 class AppRoutes {
@@ -129,6 +141,7 @@ class AppRoutes {
   static const separacaoCarga = '/separacao-carga';
   static const inventario = '/inventario';
   static const auditoriaEstoque = '/auditoria-estoque';
+  static const produtos = '/produtos';
 
   static final ThemeData theme = AppTheme.light;
 
@@ -167,6 +180,7 @@ class AppRoutes {
       ),
       inventario => _route(const InventarioView()),
       auditoriaEstoque => _route(const AuditoriaView()),
+      produtos => _route(ProdutoView(controller: deps.produtoController)),
       _ => _route(const LoginView()),
     };
   }

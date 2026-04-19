@@ -1,4 +1,5 @@
 import '../../../core/http/api_client.dart';
+import '../../../core/http/http_retry.dart';
 import '../../../models/cadastro/usuario_model.dart';
 
 class UsuarioService {
@@ -11,9 +12,11 @@ class UsuarioService {
     required String login,
     required String senha,
   }) async {
-    final response = await _client.get(
-      '$baseUrl/v1/usuarios/login/$login/senha/$senha',
-      headers: AuthHeaders.basicCads1(),
+    final response = await HttpRetry.run(
+      () => _client.get(
+        '$baseUrl/v1/usuarios/login/$login/senha/$senha',
+        headers: AuthHeaders.basicCads1(),
+      ),
     );
 
     if (response.statusCode == 200) {

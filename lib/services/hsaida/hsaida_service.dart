@@ -1,4 +1,5 @@
 import '../../core/http/api_client.dart';
+import '../../core/http/http_retry.dart';
 import '../../models/hsaida/hsaida_model.dart';
 import 'request_hsaida.dart';
 import 'response_hsaida.dart';
@@ -12,10 +13,12 @@ class HSaidaService {
     required String baseUrl,
     required RequestHSaida request,
   }) async {
-    final response = await _client.post(
-      '$baseUrl/v1/hsaida/consultar',
-      headers: AuthHeaders.basicCads1(),
-      body: request.toMap(),
+    final response = await HttpRetry.run(
+      () => _client.post(
+        '$baseUrl/v1/hsaida/consultar',
+        headers: AuthHeaders.basicCads1(),
+        body: request.toMap(),
+      ),
     );
 
     if (response.statusCode == 200) {
@@ -44,9 +47,11 @@ class HSaidaService {
     required int loja,
     required int numero,
   }) async {
-    final response = await _client.get(
-      '$baseUrl/v1/hsaida/$loja/$numero',
-      headers: AuthHeaders.basicCads1(),
+    final response = await HttpRetry.run(
+      () => _client.get(
+        '$baseUrl/v1/hsaida/$loja/$numero',
+        headers: AuthHeaders.basicCads1(),
+      ),
     );
 
     if (response.statusCode == 200) {

@@ -1,4 +1,5 @@
 import '../../core/http/api_client.dart';
+import '../../core/http/http_retry.dart';
 import '../../models/carga/carga_model.dart';
 import 'request_carga.dart';
 import 'request_pv_carga.dart';
@@ -13,10 +14,12 @@ class CarregamentoService {
     required String baseUrl,
     required RequestCarregamento request,
   }) async {
-    final response = await _client.post(
-      '$baseUrl/v1/carregamento/consultar',
-      headers: AuthHeaders.basicCads1(),
-      body: request.toMap(),
+    final response = await HttpRetry.run(
+      () => _client.post(
+        '$baseUrl/v1/carregamento/consultar',
+        headers: AuthHeaders.basicCads1(),
+        body: request.toMap(),
+      ),
     );
 
     if (response.statusCode == 200) {
@@ -45,9 +48,11 @@ class CarregamentoService {
     required int loja,
     required int numero,
   }) async {
-    final response = await _client.get(
-      '$baseUrl/v1/carregamento/$loja/$numero',
-      headers: AuthHeaders.basicCads1(),
+    final response = await HttpRetry.run(
+      () => _client.get(
+        '$baseUrl/v1/carregamento/$loja/$numero',
+        headers: AuthHeaders.basicCads1(),
+      ),
     );
 
     if (response.statusCode == 200) {
@@ -61,10 +66,12 @@ class CarregamentoService {
     required String baseUrl,
     required PvCargaRequest request,
   }) async {
-    final response = await _client.put(
-      '$baseUrl/v1/pvcarga/salvar',
-      headers: AuthHeaders.basicCads1(),
-      body: request.toMap(),
+    final response = await HttpRetry.run(
+      () => _client.put(
+        '$baseUrl/v1/pvcarga/salvar',
+        headers: AuthHeaders.basicCads1(),
+        body: request.toMap(),
+      ),
     );
 
     if (response.statusCode != 201) {

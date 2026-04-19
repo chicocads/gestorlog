@@ -1,4 +1,5 @@
 import '../../core/http/api_client.dart';
+import '../../core/http/http_retry.dart';
 import '../../models/prevenda/prevenda_model.dart';
 import 'request_prevenda.dart';
 import 'response_prevenda.dart';
@@ -12,10 +13,12 @@ class PreVendaService {
     required String baseUrl,
     required RequestPreVenda request,
   }) async {
-    final response = await _client.post(
-      '$baseUrl/v1/prevenda/consultar',
-      headers: AuthHeaders.basicCads1(),
-      body: request.toMap(),
+    final response = await HttpRetry.run(
+      () => _client.post(
+        '$baseUrl/v1/prevenda/consultar',
+        headers: AuthHeaders.basicCads1(),
+        body: request.toMap(),
+      ),
     );
 
     if (response.statusCode == 200) {
@@ -44,9 +47,11 @@ class PreVendaService {
     required int loja,
     required int numero,
   }) async {
-    final response = await _client.get(
-      '$baseUrl/v1/prevendas/$loja/$numero',
-      headers: AuthHeaders.basicCads1(),
+    final response = await HttpRetry.run(
+      () => _client.get(
+        '$baseUrl/v1/prevendas/$loja/$numero',
+        headers: AuthHeaders.basicCads1(),
+      ),
     );
 
     if (response.statusCode == 200) {

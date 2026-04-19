@@ -1,21 +1,21 @@
 import '../../../core/http/api_client.dart';
 import '../../../core/http/http_retry.dart';
-import '../../../models/cadastro/filial_model.dart';
-import 'request_filial.dart';
-import 'response_filial.dart';
+import '../../../models/cadastro/produto_model.dart';
+import 'request_produto.dart';
+import 'response_produto.dart';
 
-class FilialService {
-  const FilialService(this._client);
+class ProdutoService {
+  const ProdutoService(this._client);
 
   final ApiClient _client;
 
-  Future<ResponseFilial> consultar({
+  Future<ResponseProduto> consultar({
     required String baseUrl,
-    required RequestFilial request,
+    required RequestProduto request,
   }) async {
     final response = await HttpRetry.run(
       () => _client.post(
-        '$baseUrl/v1/empresas/consultar',
+        '$baseUrl/v1/produtos/consultar',
         headers: AuthHeaders.basicCads1(),
         body: request.toMap(),
       ),
@@ -29,9 +29,9 @@ class FilialService {
       final qtdPaginas = data['qtdPaginas'] as int? ?? 1;
       final paginaAtual = int.tryParse(request.paginaAtual) ?? 1;
 
-      return ResponseFilial(
+      return ResponseProduto(
         itens: lista
-            .map((e) => FilialModel.fromMap(e as Map<String, dynamic>))
+            .map((e) => ProdutoModel.fromMap(e as Map<String, dynamic>))
             .toList(),
         paginaAtual: paginaAtual,
         proximaPagina: proximaPagina,
@@ -39,6 +39,6 @@ class FilialService {
       );
     }
 
-    throw Exception('Erro ao consultar filiais (${response.statusCode})');
+    throw Exception('Erro ao consultar produtos (${response.statusCode})');
   }
 }

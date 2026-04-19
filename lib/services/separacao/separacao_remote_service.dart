@@ -1,4 +1,5 @@
 import '../../core/http/api_client.dart';
+import '../../core/http/http_retry.dart';
 import 'request_separacao.dart';
 
 class SeparacaoRemoteService {
@@ -10,10 +11,12 @@ class SeparacaoRemoteService {
     required String baseUrl,
     required RequestSeparacao request,
   }) async {
-    final response = await _client.post(
-      '$baseUrl/v1/prevenda/separacao',
-      headers: AuthHeaders.basicCads1(),
-      body: request.toMap(),
+    final response = await HttpRetry.run(
+      () => _client.post(
+        '$baseUrl/v1/prevenda/separacao',
+        headers: AuthHeaders.basicCads1(),
+        body: request.toMap(),
+      ),
     );
 
     if (response.statusCode != 201) {
@@ -21,4 +24,3 @@ class SeparacaoRemoteService {
     }
   }
 }
-

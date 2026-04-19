@@ -142,6 +142,14 @@ class _AppDrawer extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 DrawerMenuItem(
+                  icon: Icons.tune,
+                  label: 'Parâmetros',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, AppRoutes.parametros);
+                  },
+                ),
+                DrawerMenuItem(
                   icon: Icons.local_shipping_outlined,
                   label: 'Entrega de Carga',
                   onTap: () {
@@ -159,6 +167,14 @@ class _AppDrawer extends StatelessWidget {
                 ),
                 DrawerMenuItem(
                   icon: Icons.inventory_2_outlined,
+                  label: 'Produtos Online',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, AppRoutes.produtos);
+                  },
+                ),
+                DrawerMenuItem(
+                  icon: Icons.qr_code_scanner_outlined,
                   label: 'Inventário',
                   onTap: () {
                     Navigator.pop(context);
@@ -171,14 +187,6 @@ class _AppDrawer extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, AppRoutes.auditoriaEstoque);
-                  },
-                ),
-                DrawerMenuItem(
-                  icon: Icons.tune,
-                  label: 'Parâmetros',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppRoutes.parametros);
                   },
                 ),
               ],
