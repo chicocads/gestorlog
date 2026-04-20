@@ -4,13 +4,13 @@ import 'inventario_local_service.dart';
 import 'request_inventario.dart';
 
 class InventarioService {
-  InventarioService(
-    this._client, {
-    InventarioLocalService? localService,
-  }) : _localService = localService ?? InventarioLocalService();
+  InventarioService(this._client, {InventarioLocalService? localService})
+    : _localService = localService ?? InventarioLocalService();
 
   final ApiClient _client;
   final InventarioLocalService _localService;
+
+  static const int _batchSize = 500;
 
   String _dataAtualIso() {
     final now = DateTime.now();
@@ -30,40 +30,49 @@ class InventarioService {
 
     var enviados = 0;
 
-    for (final item in itens) {
-      final validade = item.validade.trim().isEmpty
-          ? _dataAtualIso()
-          : item.validade.trim();
+    for (var offset = 0; offset < itens.length; offset += _batchSize) {
+      final end = (offset + _batchSize) > itens.length
+          ? itens.length
+          : offset + _batchSize;
+      final batch = itens.sublist(offset, end);
 
-      final request = RequestInventario(
-        id: item.id,
-        idFilial: idFilial,
-        produto: item.produto,
-        codigoBarra: item.codigoBarra.trim(),
-        qtde: item.qtde,
-        pecas: item.pecas,
-        lote: item.lote.trim(),
-        validade: validade,
-        nomePro: item.nomePro.trim(),
-        idInventario: idInventario,
-        idPda: idPda,
-      );
+      final requests = batch
+          .map((item) {
+            final validade = item.validade.trim().isEmpty
+                ? _dataAtualIso()
+                : item.validade.trim();
+
+            return RequestInventario(
+              id: item.id,
+              idFilial: idFilial,
+              produto: item.produto,
+              codigoBarra: item.codigoBarra.trim(),
+              qtde: item.qtde,
+              pecas: item.pecas,
+              lote: item.lote.trim(),
+              validade: validade,
+              nomePro: item.nomePro.trim(),
+              idInventario: idInventario,
+              idPda: idPda,
+            );
+          })
+          .toList(growable: false);
 
       final response = await HttpRetry.run(
         () => _client.post(
           '$baseUrl/v1/inventario',
           headers: AuthHeaders.basicCads1(),
-          body: request.toMap(),
+          body: requests.map((e) => e.toMap()).toList(),
         ),
       );
 
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw Exception(
-          'Erro ao enviar item de inventário ${item.id} (${response.statusCode})',
+          'Erro ao enviar inventário (itens ${offset + 1}-$end) (${response.statusCode})',
         );
       }
 
-      enviados++;
+      enviados += batch.length;
     }
 
     return enviados;
