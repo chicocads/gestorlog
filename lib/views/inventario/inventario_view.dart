@@ -52,7 +52,7 @@ class _InventarioViewState extends State<InventarioView>
     final mostrandoAcaoProdutos = _tabController.index == 0;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Conferência de Inventário'),
+        title: const Text('Inventário'),
         elevation: 1,
         actions: [
           if (mostrandoAcaoProdutos)

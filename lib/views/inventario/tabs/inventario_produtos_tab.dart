@@ -195,6 +195,21 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
                       style: const TextStyle(fontSize: 13),
                     ),
                   ),
+                  const SizedBox(width: 12),
+                  ListenableBuilder(
+                    listenable: _controller,
+                    builder: (context, _) {
+                      final total = _controller.totalItens;
+                      return Text(
+                        'Total: $total',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ],
@@ -218,9 +233,17 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
                       (_controller.temMaisPaginas ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == _controller.itens.length) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Center(child: CircularProgressIndicator()),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: _controller.isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
                       );
                     }
 

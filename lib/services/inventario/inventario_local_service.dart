@@ -135,6 +135,7 @@ class InventarioLocalService {
 
   Future<List<InventarioColetadoItem>> listarColetadosComNome({
     int limit = 500,
+    int offset = 0,
   }) async {
     final database = await _db.db;
     final rows = await database.rawQuery(
@@ -145,8 +146,9 @@ class InventarioLocalService {
         ON p.${ProdutoModel.colCodigo} = i.${InventarioModel.colProduto}
       ORDER BY i.${InventarioModel.colId} DESC
       LIMIT ?
+      OFFSET ?
       ''',
-      [limit],
+      [limit, offset],
     );
 
     return rows.map((row) {

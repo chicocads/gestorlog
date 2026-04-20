@@ -6,25 +6,30 @@ class DrawerMenuItem extends StatelessWidget {
     super.key,
     required this.icon,
     required this.label,
-    required this.onTap,
+    this.onTap,
     this.color,
+    this.enabled = true,
   });
 
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Color? color;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
-    final itemColor = color ?? AppColors.textPrimary;
+    final isEnabled = enabled && onTap != null;
+    final itemColor = isEnabled
+        ? (color ?? AppColors.textPrimary)
+        : AppColors.textSecondary;
     return ListTile(
       leading: Icon(icon, color: itemColor),
       title: Text(
         label,
         style: TextStyle(color: itemColor, fontWeight: FontWeight.w500),
       ),
-      onTap: onTap,
+      onTap: isEnabled ? onTap : null,
       horizontalTitleGap: 8,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20),

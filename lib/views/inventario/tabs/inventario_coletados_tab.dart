@@ -17,10 +17,16 @@ class InventarioColetadosTab extends StatefulWidget {
 }
 
 class _InventarioColetadosTabState extends State<InventarioColetadosTab> {
+  static const _pageSize = 50;
+
   final _service = InventarioLocalService();
+  final _scrollController = ScrollController();
   bool _isLoading = true;
+  bool _isLoadingMore = false;
+  bool _temMais = true;
   String? _error;
   List<InventarioColetadoItem> _itens = const [];
+  int _offset = 0;
 
   int get _decQtde =>
       AppScope.of(context).parametroController.parametro.decQtde;
@@ -38,19 +44,44 @@ class _InventarioColetadosTabState extends State<InventarioColetadosTab> {
   void initState() {
     super.initState();
     _carregar();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_temMais || _isLoading || _isLoadingMore) return;
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 300) {
+      _carregarMais();
+    }
   }
 
   Future<void> _carregar() async {
     setState(() {
       _isLoading = true;
+      _isLoadingMore = false;
+      _temMais = true;
       _error = null;
+      _itens = const [];
+      _offset = 0;
     });
 
     try {
-      final itens = await _service.listarColetadosComNome();
+      final itens = await _service.listarColetadosComNome(
+        limit: _pageSize,
+        offset: 0,
+      );
       if (!mounted) return;
       setState(() {
         _itens = itens;
+        _offset = itens.length;
+        _temMais = itens.length == _pageSize;
       });
     } catch (e) {
       if (!mounted) return;
@@ -66,6 +97,29 @@ class _InventarioColetadosTabState extends State<InventarioColetadosTab> {
     }
   }
 
+  Future<void> _carregarMais() async {
+    if (_isLoading || _isLoadingMore || !_temMais) return;
+    setState(() => _isLoadingMore = true);
+
+    try {
+      final novos = await _service.listarColetadosComNome(
+        limit: _pageSize,
+        offset: _offset,
+      );
+      if (!mounted) return;
+      setState(() {
+        _itens = [..._itens, ...novos];
+        _offset = _itens.length;
+        _temMais = novos.length == _pageSize;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      AppSnackBar.erro(context, 'Erro ao carregar mais itens: $e');
+    } finally {
+      if (mounted) setState(() => _isLoadingMore = false);
+    }
+  }
+
   Future<void> _excluirItem(InventarioColetadoItem item) async {
     final id = item.inventario.id;
     if (id <= 0) return;
@@ -73,6 +127,7 @@ class _InventarioColetadosTabState extends State<InventarioColetadosTab> {
     if (!mounted) return;
     setState(() {
       _itens = _itens.where((e) => e.inventario.id != id).toList();
+      _offset = _itens.length;
     });
     AppSnackBar.sucesso(context, 'Item excluído.');
   }
@@ -220,10 +275,23 @@ class _InventarioColetadosTabState extends State<InventarioColetadosTab> {
         emptyMessage: 'Nenhum item coletado no inventário.',
         emptyIcon: Icons.fact_check_outlined,
         builder: () => ListView.builder(
+          controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 24),
-          itemCount: _itens.length,
-          itemBuilder: (context, index) => _buildCard(_itens[index]),
+          itemCount: _itens.length + (_isLoadingMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index < _itens.length) return _buildCard(_itens[index]);
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

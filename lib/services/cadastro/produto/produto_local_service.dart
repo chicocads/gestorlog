@@ -76,6 +76,46 @@ class ProdutoLocalService {
     return rows.map(ProdutoModel.fromMap).toList();
   }
 
+  Future<int> contar({
+    int? codigo,
+    String termoBarra = '',
+    String termoNome = '',
+  }) async {
+    final database = await _db.db;
+    final termoBarraLimpo = termoBarra.trim();
+    final termoNomeLimpo = termoNome.trim();
+    final whereParts = <String>[];
+    final whereArgs = <Object?>[];
+
+    if (codigo != null) {
+      whereParts.add('${ProdutoModel.colCodigo} = ?');
+      whereArgs.add(codigo);
+    }
+
+    if (termoBarraLimpo.isNotEmpty) {
+      whereParts.add(
+        '(${ProdutoModel.colDun14} LIKE ? OR ${ProdutoModel.colCodigoAlfa} LIKE ?)',
+      );
+      whereArgs
+        ..add('%$termoBarraLimpo%')
+        ..add('%$termoBarraLimpo%');
+    }
+
+    if (termoNomeLimpo.isNotEmpty) {
+      whereParts.add('${ProdutoModel.colNome} LIKE ?');
+      whereArgs.add('%$termoNomeLimpo%');
+    }
+
+    final whereSql =
+        whereParts.isEmpty ? '' : 'WHERE ${whereParts.join(' AND ')}';
+
+    final rows = await database.rawQuery(
+      'SELECT COUNT(*) as total FROM ${ProdutoModel.tblNome} $whereSql',
+      whereArgs,
+    );
+    return Sqflite.firstIntValue(rows) ?? 0;
+  }
+
   Future<void> limpar() async {
     final database = await _db.db;
     await database.delete(ProdutoModel.tblNome);

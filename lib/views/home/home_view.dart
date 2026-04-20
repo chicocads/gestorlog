@@ -68,6 +68,7 @@ class _HomeViewState extends State<HomeView> {
         }
 
         final usuario = widget.usuarioController.usuario;
+        final inventarioOnly = usuario.id == 0;
 
         return Scaffold(
           appBar: AppBar(title: const Text(AppStrings.appName), elevation: 0),
@@ -75,11 +76,13 @@ class _HomeViewState extends State<HomeView> {
             usuarioController: widget.usuarioController,
             parametroController: widget.parametroController,
             filialController: widget.filialController,
+            inventarioOnly: inventarioOnly,
           ),
           body: _HomeBody(
             login: usuario.login,
             filialController: widget.filialController,
             idFilialParametro: widget.parametroController.parametro.idFilial,
+            inventarioOnly: inventarioOnly,
           ),
         );
       },
@@ -94,11 +97,13 @@ class _AppDrawer extends StatelessWidget {
     required this.usuarioController,
     required this.parametroController,
     required this.filialController,
+    required this.inventarioOnly,
   });
 
   final UsuarioController usuarioController;
   final ParametroController parametroController;
   final FilialController filialController;
+  final bool inventarioOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -151,34 +156,46 @@ class _AppDrawer extends StatelessWidget {
                 DrawerMenuItem(
                   icon: Icons.tune,
                   label: 'Parâmetros',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppRoutes.parametros);
-                  },
+                  enabled: !inventarioOnly,
+                  onTap: inventarioOnly
+                      ? null
+                      : () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, AppRoutes.parametros);
+                        },
                 ),
                 DrawerMenuItem(
                   icon: Icons.local_shipping_outlined,
                   label: 'Entrega de Carga',
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await _abrirEntregaCargaComValidacaoGps(context);
-                  },
+                  enabled: !inventarioOnly,
+                  onTap: inventarioOnly
+                      ? null
+                      : () async {
+                          Navigator.pop(context);
+                          await _abrirEntregaCargaComValidacaoGps(context);
+                        },
                 ),
                 DrawerMenuItem(
                   icon: Icons.warehouse_outlined,
                   label: 'Separação de Carga',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppRoutes.separacaoCarga);
-                  },
+                  enabled: !inventarioOnly,
+                  onTap: inventarioOnly
+                      ? null
+                      : () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, AppRoutes.separacaoCarga);
+                        },
                 ),
                 DrawerMenuItem(
                   icon: Icons.inventory_2_outlined,
                   label: 'Produtos Online',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppRoutes.produtos);
-                  },
+                  enabled: !inventarioOnly,
+                  onTap: inventarioOnly
+                      ? null
+                      : () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, AppRoutes.produtos);
+                        },
                 ),
                 DrawerMenuItem(
                   icon: Icons.qr_code_scanner_outlined,
@@ -191,10 +208,13 @@ class _AppDrawer extends StatelessWidget {
                 DrawerMenuItem(
                   icon: Icons.fact_check_outlined,
                   label: 'Auditoria de Estoque',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppRoutes.auditoriaEstoque);
-                  },
+                  enabled: !inventarioOnly,
+                  onTap: inventarioOnly
+                      ? null
+                      : () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, AppRoutes.auditoriaEstoque);
+                        },
                 ),
               ],
             ),
@@ -229,11 +249,13 @@ class _HomeBody extends StatelessWidget {
     required this.login,
     required this.filialController,
     required this.idFilialParametro,
+    required this.inventarioOnly,
   });
 
   final String login;
   final FilialController filialController;
   final int idFilialParametro;
+  final bool inventarioOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -328,8 +350,11 @@ class _HomeBody extends StatelessWidget {
                           icon: Icons.local_shipping_outlined,
                           label: 'Entrega de Carga',
                           color: AppColors.success,
-                          onTap: () async =>
-                              _abrirEntregaCargaComValidacaoGps(context),
+                          enabled: !inventarioOnly,
+                          onTap: inventarioOnly
+                              ? null
+                              : () async =>
+                                  _abrirEntregaCargaComValidacaoGps(context),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -338,10 +363,13 @@ class _HomeBody extends StatelessWidget {
                           icon: Icons.warehouse_outlined,
                           label: 'Separação de Carga',
                           color: AppColors.primary,
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            AppRoutes.separacaoCarga,
-                          ),
+                          enabled: !inventarioOnly,
+                          onTap: inventarioOnly
+                              ? null
+                              : () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.separacaoCarga,
+                                  ),
                         ),
                       ),
                     ],
@@ -366,10 +394,13 @@ class _HomeBody extends StatelessWidget {
                           icon: Icons.fact_check_outlined,
                           label: 'Auditoria de Estoque',
                           color: AppColors.accent,
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            AppRoutes.auditoriaEstoque,
-                          ),
+                          enabled: !inventarioOnly,
+                          onTap: inventarioOnly
+                              ? null
+                              : () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.auditoriaEstoque,
+                                  ),
                         ),
                       ),
                     ],

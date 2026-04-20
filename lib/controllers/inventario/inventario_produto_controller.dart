@@ -11,6 +11,7 @@ class InventarioProdutoController extends BaseController {
 
   final List<ProdutoModel> _itens = [];
   ProdutoModel _selecionado = ProdutoModel.empty();
+  int _totalItens = 0;
   int _offset = 0;
   bool _temMaisPaginas = true;
   int? _codigoFiltro;
@@ -19,6 +20,7 @@ class InventarioProdutoController extends BaseController {
 
   List<ProdutoModel> get itens => List.unmodifiable(_itens);
   ProdutoModel get selecionado => _selecionado;
+  int get totalItens => _totalItens;
   bool get temMaisPaginas => _temMaisPaginas;
   int? get codigoFiltro => _codigoFiltro;
   String get termoBarra => _termoBarra;
@@ -29,11 +31,17 @@ class InventarioProdutoController extends BaseController {
   }) async {
     _offset = 0;
     _temMaisPaginas = true;
+    _totalItens = 0;
     _aplicarFiltroBusca(termoBusca);
     _itens.clear();
     notifyListeners();
 
     await runAsync(() async {
+      _totalItens = await _service.contar(
+        codigo: _codigoFiltro,
+        termoBarra: _termoBarra,
+        termoNome: _termoNome,
+      );
       final itens = await _service.listar(
         limit: _pageSize,
         offset: 0,
@@ -79,7 +87,8 @@ class InventarioProdutoController extends BaseController {
 
     if (termo.isEmpty) return;
 
-    final somenteDigitos = RegExp(r'^\d+$').hasMatch(termo);
+    final somenteDigitos =
+        termo.isNotEmpty && termo.codeUnits.every((c) => c >= 48 && c <= 57);
     if (somenteDigitos) {
       if (termo.length > 10) {
         _termoBarra = termo;
