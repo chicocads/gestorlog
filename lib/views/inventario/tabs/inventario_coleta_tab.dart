@@ -684,7 +684,8 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
   }
 
   Widget _buildUltimoLancamento() {
-    if (_ultimoCodigoLancado.isEmpty) return const SizedBox.shrink();
+    final codigo = _ultimoCodigoLancado.isNotEmpty ? _ultimoCodigoLancado : '-';
+    final qtde = _ultimaQtdeLancada.isNotEmpty ? _ultimaQtdeLancada : '-';
     return Padding(
       padding: const EdgeInsets.only(top: 40),
       child: Container(
@@ -707,7 +708,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Último código: $_ultimoCodigoLancado',
+                'Último código: $codigo',
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -729,7 +730,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
                 ),
               ),
               child: Text(
-                'Qtde: $_ultimaQtdeLancada',
+                'Qtde: $qtde',
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,

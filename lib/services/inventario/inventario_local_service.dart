@@ -11,6 +11,18 @@ class InventarioTotais {
   final int pecas;
 }
 
+class InventarioResumo {
+  const InventarioResumo({
+    required this.itens,
+    required this.qtde,
+    required this.pecas,
+  });
+
+  final int itens;
+  final double qtde;
+  final int pecas;
+}
+
 class InventarioColetadoItem {
   const InventarioColetadoItem({
     required this.inventario,
@@ -25,6 +37,29 @@ class InventarioColetadoItem {
 
 class InventarioLocalService {
   final _db = DatabaseHelper.instance;
+
+  Future<InventarioResumo> buscarResumoGeral() async {
+    final database = await _db.db;
+    final rows = await database.rawQuery(
+      '''
+      SELECT
+        COALESCE(SUM(${InventarioModel.colQtde}), 0) AS qtdeTotal,
+        COALESCE(SUM(${InventarioModel.colPecas}), 0) AS pecasTotal,
+        COUNT(*) AS itensTotal
+      FROM ${InventarioModel.tblNome}
+      ''',
+    );
+
+    if (rows.isEmpty) {
+      return const InventarioResumo(itens: 0, qtde: 0, pecas: 0);
+    }
+    final row = rows.first;
+    return InventarioResumo(
+      itens: (row['itensTotal'] as num?)?.toInt() ?? 0,
+      qtde: (row['qtdeTotal'] as num?)?.toDouble() ?? 0,
+      pecas: (row['pecasTotal'] as num?)?.toInt() ?? 0,
+    );
+  }
 
   Future<void> excluirPorId(int id) async {
     final database = await _db.db;
