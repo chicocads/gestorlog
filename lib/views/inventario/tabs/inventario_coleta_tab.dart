@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/constants/app_colors.dart';
@@ -12,6 +11,7 @@ import '../../../models/cadastro/produto_model.dart';
 import '../../../models/inventario/inventario_model.dart';
 import '../../../services/cadastro/produto/produto_local_service.dart';
 import '../../../services/inventario/inventario_local_service.dart';
+import '../../widget/scanner_view.dart';
 
 class InventarioColetaTab extends StatefulWidget {
   const InventarioColetaTab({super.key});
@@ -74,61 +74,19 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
   }
 
   void _abrirScanner() {
-    bool scanned = false;
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.black,
-      builder: (_) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.45,
-        child: Stack(
-          children: [
-            MobileScanner(
-              onDetect: (capture) {
-                if (scanned) return;
-                final rawValue = capture.barcodes.firstOrNull?.rawValue;
-                if (rawValue == null || rawValue.isEmpty) return;
-                scanned = true;
-                Navigator.of(context).pop();
-                final codigo = StringSanitizer.digitsOnly(rawValue.trim());
-                if (codigo.isEmpty) return;
-                if (!_validarCodigoBarra(codigo)) {
-                  _focarCodigo(limpar: true);
-                  return;
-                }
-                _codigoController.text = codigo;
-                _buscarProduto(disparadoPorCodigo: true);
-              },
-            ),
-            Center(
-              child: Container(
-                width: 240,
-                height: 120,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            const Align(
-              alignment: Alignment(0, 0.85),
-              child: Text(
-                'Aponte para o código de barra',
-                style: TextStyle(color: Colors.white, fontSize: 13),
-              ),
-            ),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    showBarcodeScannerBottomSheet(context).then((rawValue) {
+      if (!mounted) return;
+      if (rawValue == null || rawValue.isEmpty) return;
+
+      final codigo = StringSanitizer.digitsOnly(rawValue.trim());
+      if (codigo.isEmpty) return;
+      if (!_validarCodigoBarra(codigo)) {
+        _focarCodigo(limpar: true);
+        return;
+      }
+      _codigoController.text = codigo;
+      _buscarProduto(disparadoPorCodigo: true);
+    });
   }
 
   bool _validarCodigoBarra(String codigo) {
@@ -350,6 +308,11 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
       }
     }
     if (!mounted) return;
+    
+    if (_nomeProdutoManualController.text.isEmpty) {
+      AppSnackBar.erro(context, 'Informe o nome para coletar.');
+      return;
+    }
 
     final pecas = _controlePecasAtivo ? _parseInt(_pecasController.text) : 0;
     if (_controlePecasAtivo) {
@@ -545,7 +508,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
         child: Text(
           '${produto.codigo} - ${produto.nome}',
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),

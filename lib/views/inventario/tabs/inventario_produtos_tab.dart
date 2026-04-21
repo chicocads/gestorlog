@@ -99,9 +99,9 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
           baseUrl: baseUrl,
           request: RequestProduto.empty().copyWith(
             paginaAtual: pagina.toString(),
-            qtdTotal: '800',
+            qtdTotal: '1000',
             idFilial: idFilial,
-            situacao: 1,
+            situacao: 2,
             saldo: 2,
           ),
         );

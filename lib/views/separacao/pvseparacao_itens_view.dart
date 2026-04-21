@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../controllers/separacao/pvseparacao_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_snack_bar.dart';
@@ -9,6 +8,7 @@ import '../../models/Separacao/separacao_model.dart';
 import '../../models/prevenda/prevenda_model.dart';
 import '../../app/routes.dart';
 import '../../services/separacao/request_separacao.dart';
+import '../widget/scanner_view.dart';
 import 'widgets/pvseparacao_item_card.dart';
 
 class PvSeparacaoItensView extends StatefulWidget {
@@ -221,54 +221,11 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
   }
 
   void _abrirScanner() {
-    bool scanned = false;
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.black,
-      builder: (_) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.45,
-        child: Stack(
-          children: [
-            MobileScanner(
-              onDetect: (capture) {
-                if (scanned) return;
-                final rawValue = capture.barcodes.firstOrNull?.rawValue;
-                if (rawValue == null || rawValue.isEmpty) return;
-                scanned = true;
-                Navigator.of(context).pop();
-                _processarBarcode(rawValue, incrementar: true);
-              },
-            ),
-            Center(
-              child: Container(
-                width: 240,
-                height: 120,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            const Align(
-              alignment: Alignment(0, 0.85),
-              child: Text(
-                'Aponte para o código de barra',
-                style: TextStyle(color: Colors.white, fontSize: 13),
-              ),
-            ),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    showBarcodeScannerBottomSheet(context).then((rawValue) {
+      if (!mounted) return;
+      if (rawValue == null || rawValue.isEmpty) return;
+      _processarBarcode(rawValue, incrementar: true);
+    });
   }
 
   void _toggleLeitor() {

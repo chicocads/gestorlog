@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+void selectAllText(TextEditingController controller) {
+  controller.selection = TextSelection(
+    baseOffset: 0,
+    extentOffset: controller.text.length,
+  );
+}
+
 class AppIntField extends StatelessWidget {
   const AppIntField({super.key, required this.controller, required this.label});
 
@@ -14,10 +21,7 @@ class AppIntField extends StatelessWidget {
       decoration: InputDecoration(labelText: label),
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      onTap: () => controller.selection = TextSelection(
-        baseOffset: 0,
-        extentOffset: controller.text.length,
-      ),
+      onTap: () => selectAllText(controller),
       validator: (v) =>
           (v == null || v.trim().isEmpty) ? 'Informe $label.' : null,
     );

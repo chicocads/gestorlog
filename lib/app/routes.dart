@@ -11,6 +11,7 @@ import '../core/http/dio_client.dart';
 import '../services/cadastro/filial/filial_service.dart';
 import '../services/cadastro/produto/produto_service.dart';
 import '../services/cadastro/usuario/usuario_service.dart';
+import '../services/auditoria/auditoria_service.dart';
 import '../services/separacao/separacao_local_service.dart';
 import '../services/separacao/separacao_remote_service.dart';
 import '../services/prevenda/prevenda_service.dart';
@@ -100,6 +101,8 @@ class AppDependencies {
       produtoService,
       () => parametroController.parametro.url,
     );
+
+    auditoriaService = AuditoriaService(this.apiClient);
   }
 
   late final ApiClient apiClient;
@@ -128,6 +131,8 @@ class AppDependencies {
 
   late final ProdutoService produtoService;
   late final ProdutoController produtoController;
+
+  late final AuditoriaService auditoriaService;
 }
 
 class AppRoutes {

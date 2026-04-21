@@ -12,6 +12,12 @@ class ProdutoModel {
   static const colWmsniv = 'wmsniv';
   static const colWmsapt = 'wmsapt';
   static const colWmsgvt = 'wmsgvt';
+  static const colWmsmod2 = 'wmsmod2';
+  static const colWmsrua2 = 'wmsrua2';
+  static const colWmsblc2 = 'wmsblc2';
+  static const colWmsniv2 = 'wmsniv2';
+  static const colWmsapt2 = 'wmsapt2';
+  static const colWmsgvt2 = 'wmsgvt2';
   static const colSecao = 'secao';
   static const colGrupo = 'grupo';
   static const colSgrupo = 'sgrupo';
@@ -53,6 +59,12 @@ class ProdutoModel {
     required this.wmsniv,
     required this.wmsapt,
     required this.wmsgvt,
+    required this.wmsmod2,
+    required this.wmsrua2,
+    required this.wmsblc2,
+    required this.wmsniv2,
+    required this.wmsapt2,
+    required this.wmsgvt2,
     required this.secao,
     required this.grupo,
     required this.sgrupo,
@@ -94,6 +106,12 @@ class ProdutoModel {
   final int wmsniv;
   final int wmsapt;
   final int wmsgvt;
+  final int wmsmod2;
+  final int wmsrua2;
+  final int wmsblc2;
+  final int wmsniv2;
+  final int wmsapt2;
+  final int wmsgvt2;
   final int secao;
   final int grupo;
   final int sgrupo;
@@ -135,6 +153,12 @@ class ProdutoModel {
     wmsniv: 0,
     wmsapt: 0,
     wmsgvt: 0,
+    wmsmod2: 0,
+    wmsrua2: 0,
+    wmsblc2: 0,
+    wmsniv2: 0,
+    wmsapt2: 0,
+    wmsgvt2: 0,
     secao: 0,
     grupo: 0,
     sgrupo: 0,
@@ -177,6 +201,12 @@ class ProdutoModel {
     int? wmsniv,
     int? wmsapt,
     int? wmsgvt,
+    int? wmsmod2,
+    int? wmsrua2,
+    int? wmsblc2,
+    int? wmsniv2,
+    int? wmsapt2,
+    int? wmsgvt2,
     int? secao,
     int? grupo,
     int? sgrupo,
@@ -218,6 +248,12 @@ class ProdutoModel {
       wmsniv: wmsniv ?? this.wmsniv,
       wmsapt: wmsapt ?? this.wmsapt,
       wmsgvt: wmsgvt ?? this.wmsgvt,
+      wmsmod2: wmsmod2 ?? this.wmsmod2,
+      wmsrua2: wmsrua2 ?? this.wmsrua2,
+      wmsblc2: wmsblc2 ?? this.wmsblc2,
+      wmsniv2: wmsniv2 ?? this.wmsniv2,
+      wmsapt2: wmsapt2 ?? this.wmsapt2,
+      wmsgvt2: wmsgvt2 ?? this.wmsgvt2,
       secao: secao ?? this.secao,
       grupo: grupo ?? this.grupo,
       sgrupo: sgrupo ?? this.sgrupo,
@@ -264,6 +300,12 @@ class ProdutoModel {
       wmsniv: map[colWmsniv] as int? ?? 0,
       wmsapt: map[colWmsapt] as int? ?? 0,
       wmsgvt: map[colWmsgvt] as int? ?? 0,
+      wmsmod2: map[colWmsmod2] as int? ?? 0,
+      wmsrua2: map[colWmsrua2] as int? ?? 0,
+      wmsblc2: map[colWmsblc2] as int? ?? 0,
+      wmsniv2: map[colWmsniv2] as int? ?? 0,
+      wmsapt2: map[colWmsapt2] as int? ?? 0,
+      wmsgvt2: map[colWmsgvt2] as int? ?? 0,
       secao: map[colSecao] as int? ?? 0,
       grupo: map[colGrupo] as int? ?? 0,
       sgrupo: map[colSgrupo] as int? ?? 0,
@@ -310,6 +352,11 @@ class ProdutoModel {
     colWmsniv: wmsniv,
     colWmsapt: wmsapt,
     colWmsgvt: wmsgvt,
+    colWmsmod2: wmsmod2,
+    colWmsrua2: wmsrua2,
+    colWmsblc2: wmsblc2,
+    colWmsniv2: wmsniv2,
+    colWmsapt2: wmsapt2,
     colSecao: secao,
     colGrupo: grupo,
     colSgrupo: sgrupo,

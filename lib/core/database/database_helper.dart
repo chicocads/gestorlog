@@ -21,7 +21,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     return openDatabase(
       join(dbPath, 'gestorlog.db'),
-      version: 9,
+      version: 10,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -127,6 +127,47 @@ class DatabaseHelper {
         definition: 'INTEGER NOT NULL DEFAULT 0',
       );
     }
+    if (oldVersion < 10) {
+      if (!await _tableExists(db, ProdutoModel.tblNome)) {
+        await _createProdutoTable(db);
+      }
+      await _addColumnIfMissing(
+        db,
+        table: ProdutoModel.tblNome,
+        column: ProdutoModel.colWmsmod2,
+        definition: 'INTEGER NOT NULL DEFAULT 0',
+      );
+      await _addColumnIfMissing(
+        db,
+        table: ProdutoModel.tblNome,
+        column: ProdutoModel.colWmsrua2,
+        definition: 'INTEGER NOT NULL DEFAULT 0',
+      );
+      await _addColumnIfMissing(
+        db,
+        table: ProdutoModel.tblNome,
+        column: ProdutoModel.colWmsblc2,
+        definition: 'INTEGER NOT NULL DEFAULT 0',
+      );
+      await _addColumnIfMissing(
+        db,
+        table: ProdutoModel.tblNome,
+        column: ProdutoModel.colWmsniv2,
+        definition: 'INTEGER NOT NULL DEFAULT 0',
+      );
+      await _addColumnIfMissing(
+        db,
+        table: ProdutoModel.tblNome,
+        column: ProdutoModel.colWmsapt2,
+        definition: 'INTEGER NOT NULL DEFAULT 0',
+      );
+      await _addColumnIfMissing(
+        db,
+        table: ProdutoModel.tblNome,
+        column: ProdutoModel.colWmsgvt2,
+        definition: 'INTEGER NOT NULL DEFAULT 0',
+      );
+    }
   }
 
   Future<void> _createProdutoTable(Database db) async {
@@ -144,6 +185,12 @@ class DatabaseHelper {
         ${ProdutoModel.colWmsniv}         INTEGER NOT NULL DEFAULT 0,
         ${ProdutoModel.colWmsapt}         INTEGER NOT NULL DEFAULT 0,
         ${ProdutoModel.colWmsgvt}         INTEGER NOT NULL DEFAULT 0,
+        ${ProdutoModel.colWmsmod2}        INTEGER NOT NULL DEFAULT 0,
+        ${ProdutoModel.colWmsrua2}        INTEGER NOT NULL DEFAULT 0,
+        ${ProdutoModel.colWmsblc2}        INTEGER NOT NULL DEFAULT 0,
+        ${ProdutoModel.colWmsniv2}         INTEGER NOT NULL DEFAULT 0,
+        ${ProdutoModel.colWmsapt2}        INTEGER NOT NULL DEFAULT 0,
+        ${ProdutoModel.colWmsgvt2}        INTEGER NOT NULL DEFAULT 0,
         ${ProdutoModel.colSecao}          INTEGER NOT NULL DEFAULT 0,
         ${ProdutoModel.colGrupo}          INTEGER NOT NULL DEFAULT 0,
         ${ProdutoModel.colSgrupo}         INTEGER NOT NULL DEFAULT 0,

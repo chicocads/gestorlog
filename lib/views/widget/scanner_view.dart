@@ -1,6 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+Future<String?> showBarcodeScannerBottomSheet(
+  BuildContext context, {
+  double heightFactor = 0.45,
+  String helperText = 'Aponte para o código de barra',
+}) {
+  bool scanned = false;
+  return showModalBottomSheet<String>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.black,
+    builder: (_) => SizedBox(
+      height: MediaQuery.of(context).size.height * heightFactor,
+      child: Stack(
+        children: [
+          MobileScanner(
+            onDetect: (capture) {
+              if (scanned) return;
+              final rawValue = capture.barcodes.firstOrNull?.rawValue;
+              if (rawValue == null || rawValue.isEmpty) return;
+              scanned = true;
+              Navigator.of(context).pop(rawValue);
+            },
+          ),
+          Center(
+            child: Container(
+              width: 240,
+              height: 120,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white, width: 2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          Align(
+            alignment: const Alignment(0, 0.85),
+            child: Text(
+              helperText,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 class ScannerView extends StatefulWidget {
   const ScannerView({super.key});
 
