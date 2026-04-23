@@ -17,6 +17,7 @@ class InventarioProdutoController extends BaseController {
   int? _codigoFiltro;
   String _termoBarra = '';
   String _termoNome = '';
+  int? _situacao;
 
   List<ProdutoModel> get itens => List.unmodifiable(_itens);
   ProdutoModel get selecionado => _selecionado;
@@ -28,10 +29,12 @@ class InventarioProdutoController extends BaseController {
 
   Future<void> consultar({
     String termoBusca = '',
+    int? situacao,
   }) async {
     _offset = 0;
     _temMaisPaginas = true;
     _totalItens = 0;
+    _situacao = situacao;
     _aplicarFiltroBusca(termoBusca);
     _itens.clear();
     notifyListeners();
@@ -41,6 +44,7 @@ class InventarioProdutoController extends BaseController {
         codigo: _codigoFiltro,
         termoBarra: _termoBarra,
         termoNome: _termoNome,
+        situacao: _situacao,
       );
       final itens = await _service.listar(
         limit: _pageSize,
@@ -48,6 +52,7 @@ class InventarioProdutoController extends BaseController {
         codigo: _codigoFiltro,
         termoBarra: _termoBarra,
         termoNome: _termoNome,
+        situacao: _situacao,
       );
       _itens
         ..clear()
@@ -67,6 +72,7 @@ class InventarioProdutoController extends BaseController {
         codigo: _codigoFiltro,
         termoBarra: _termoBarra,
         termoNome: _termoNome,
+        situacao: _situacao,
       );
       _itens.addAll(itens);
       _offset = _itens.length;

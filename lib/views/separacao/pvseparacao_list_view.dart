@@ -176,16 +176,41 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
                       final pv = ctrl.itens[index];
                       return PvSeparacaoCard(
                         prevenda: pv,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PvSeparacaoItensView(
-                              prevenda: pv,
-                              pvseparacaoController:
-                                  AppScope.of(context).conferenciaController,
+                        onTap: () async {
+                          if (pv.status == StatusPV.cancelado) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'PV cancelada. Não é possível separar itens.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+                          final finalizou = await Navigator.push<bool>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PvSeparacaoItensView(
+                                prevenda: pv,
+                                pvseparacaoController:
+                                    AppScope.of(context).conferenciaController,
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                          if (!context.mounted) return;
+                          if (finalizou == true) {
+                            widget.controller.removerDaLista(
+                              loja: pv.idFilial,
+                              numero: pv.idPrevenda,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text('Separação finalizada com sucesso.'),
+                              ),
+                            );
+                          }
+                        },
                       );
                     },
                   ),

@@ -15,17 +15,19 @@ class DataFormatar {
     if (v.isEmpty) return '';
     if (v.contains('/')) return v;
 
-    final match = RegExp(
-      r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})',
-    ).firstMatch(v);
-    if (match == null) return raw;
+    if (v.length < 19) return raw;
+    if (v.codeUnitAt(4) != 45) return raw;
+    if (v.codeUnitAt(7) != 45) return raw;
+    if (v.codeUnitAt(10) != 84) return raw;
+    if (v.codeUnitAt(13) != 58) return raw;
+    if (v.codeUnitAt(16) != 58) return raw;
 
-    final y = match.group(1)!;
-    final mo = match.group(2)!;
-    final d = match.group(3)!;
-    final h = match.group(4)!;
-    final mi = match.group(5)!;
-    final s = match.group(6)!;
+    final y = v.substring(0, 4);
+    final mo = v.substring(5, 7);
+    final d = v.substring(8, 10);
+    final h = v.substring(11, 13);
+    final mi = v.substring(14, 16);
+    final s = v.substring(17, 19);
     return '$d/$mo/$y $h:$mi:$s';
   }
 
@@ -50,7 +52,32 @@ class DataFormatar {
     final m = int.tryParse(parts[1]);
     final y = int.tryParse(parts[2]);
     if (d == null || m == null || y == null) return null;
-    if (y < 1 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+    if (parts[2].length != 4) return null;
+    if (y < 1900 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+    final dt = DateTime(y, m, d);
+    if (dt.year != y || dt.month != m || dt.day != d) return null;
+    return dt;
+  }
+
+  static DateTime? parseDdMmYyOrYyyy(String value) {
+    final parts = value.split('/');
+    if (parts.length != 3) return null;
+    final d = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    final rawY = parts[2].trim();
+    final yParsed = int.tryParse(rawY);
+    if (d == null || m == null || yParsed == null) return null;
+
+    final int y;
+    if (rawY.length == 2) {
+      y = 2000 + yParsed;
+    } else if (rawY.length == 4) {
+      y = yParsed;
+    } else {
+      return null;
+    }
+
+    if (y < 1900 || m < 1 || m > 12 || d < 1 || d > 31) return null;
     final dt = DateTime(y, m, d);
     if (dt.year != y || dt.month != m || dt.day != d) return null;
     return dt;
@@ -59,12 +86,39 @@ class DataFormatar {
   static String toIsoDateFromDdMmYyyy(String raw) {
     final v = raw.trim();
     if (v.isEmpty) return '';
-    final dt = parseDdMmYyyy(v);
+    final dt = parseDdMmYyOrYyyy(v);
     if (dt == null) return v;
     final y = dt.year.toString().padLeft(4, '0');
     final m = dt.month.toString().padLeft(2, '0');
     final d = dt.day.toString().padLeft(2, '0');
     return '$y-$m-$d';
+  }
+
+  static String formatDateShort(DateTime date) {
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final y = (date.year % 100).toString().padLeft(2, '0');
+    return '$d/$m/$y';
+  }
+
+  static String toIsoDate(String raw) {
+    final v = raw.trim();
+    if (v.isEmpty) return '';
+
+    if (v.contains('/')) {
+      return toIsoDateFromDdMmYyyy(v);
+    }
+
+    final dt = DateTime.tryParse(v);
+    if (dt != null) {
+      return dt.toIso8601String().substring(0, 10);
+    }
+
+    if (v.length >= 10 && v.codeUnitAt(4) == 45 && v.codeUnitAt(7) == 45) {
+      return v.substring(0, 10);
+    }
+
+    return v;
   }
 
   static String _offsetString(DateTime date) {

@@ -65,6 +65,23 @@ class PreVendaController extends BaseController {
     });
   }
 
+  void removerDaLista({
+    required int loja,
+    required int numero,
+  }) {
+    final atual = _response.itens;
+    final atualizado = atual
+        .where((e) => !(e.idFilial == loja && e.idPrevenda == numero))
+        .toList();
+    if (atualizado.length == atual.length) return;
+
+    _response = _response.copyWith(itens: atualizado);
+    if (_selecionado.idFilial == loja && _selecionado.idPrevenda == numero) {
+      _selecionado = PreVendaModel.empty();
+    }
+    notifyListeners();
+  }
+
   void limpar() {
     _response = ResponsePreVenda.empty();
     _filtro = RequestPreVenda.empty();

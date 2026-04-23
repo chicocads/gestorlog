@@ -38,7 +38,9 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
   int? _salvandoIndex;
   bool _apagando = false;
   bool _finalizando = false;
-  bool _finalizado = false;
+
+  bool get _bloqueado =>
+      widget.prevenda.romaneio == 2 || widget.prevenda.status == StatusPV.fechado;
 
   Future<void> _destacarItem(int index) async {
     setState(() => _highlightedIndex = index);
@@ -229,7 +231,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
   }
 
   void _toggleLeitor() {
-    if (_finalizado || widget.prevenda.romaneio == 2) return;
+    if (_bloqueado) return;
     setState(() {
       _mostrandoLeitor = !_mostrandoLeitor;
       if (_mostrandoLeitor) {
@@ -244,7 +246,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
   }
 
   void _onBarcodeSubmitted(String barcode) {
-    if (_finalizado || widget.prevenda.romaneio == 2) {
+    if (_bloqueado) {
       AppSnackBar.erro(
         context,
         'Pedido finalizado. Não é possível alterar quantidades.',
@@ -259,7 +261,9 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
 
   void _onBarcodeChanged(String value) {
     final codigo = value.trim();
-    if (codigo.length == 13 && RegExp(r'^\d{13}$').hasMatch(codigo)) {
+    final somenteDigitos =
+        codigo.isNotEmpty && codigo.codeUnits.every((c) => c >= 48 && c <= 57);
+    if (codigo.length == 13 && somenteDigitos) {
       _onBarcodeSubmitted(codigo);
     }
   }
@@ -269,7 +273,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
     bool incrementar = false,
     bool manterFocoBarcode = false,
   }) {
-    if (_finalizado || widget.prevenda.romaneio == 2) {
+    if (_bloqueado) {
       AppSnackBar.erro(
         context,
         'Pedido finalizado. Não é possível alterar quantidades.',
@@ -497,11 +501,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
           numero: widget.prevenda.idPrevenda,
         );
         if (!mounted) return;
-        AppSnackBar.sucesso(context, 'Separação finalizada com sucesso.');
-        setState(() {
-          _finalizando = false;
-          _finalizado = true;
-        });
+        Navigator.of(context).pop(true);
       }
     });
   }
@@ -565,7 +565,20 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('PV Nº ${widget.prevenda.idPrevenda}'),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('PV Nº ${widget.prevenda.idPrevenda}'),
+                      const SizedBox(width: 8),
+                      Text(
+                        '# ${itens.length}',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                   Text(
                     widget.prevenda.cliente.nome.isNotEmpty
                         ? widget.prevenda.cliente.nome
@@ -585,16 +598,12 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
             tooltip: _mostrandoLeitor
                 ? 'Fechar campo'
                 : 'Digitar código de barra',
-            onPressed: _finalizado || widget.prevenda.romaneio == 2
-                ? null
-                : _toggleLeitor,
+            onPressed: _bloqueado ? null : _toggleLeitor,
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _finalizado || widget.prevenda.romaneio == 2
-            ? null
-            : _abrirScanner,
+        onPressed: _bloqueado ? null : _abrirScanner,
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.qr_code_scanner, color: Colors.white),
       ),
@@ -607,9 +616,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed:
-                        _finalizando ||
-                            _finalizado ||
-                            widget.prevenda.romaneio == 2
+                        _finalizando || _bloqueado
                         ? null
                         : _confirmarFinalizarSeparacao,
                     style: ElevatedButton.styleFrom(
@@ -642,9 +649,9 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
                   onPressed:
-                      _apagando || _finalizado || widget.prevenda.romaneio == 2
-                      ? null
-                      : _confirmarApagarSeparacao,
+                      _apagando || _bloqueado
+                          ? null
+                          : _confirmarApagarSeparacao,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.error,
                     foregroundColor: Colors.white,
@@ -686,7 +693,8 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
                     controller: _scrollController,
                     padding: const EdgeInsets.fromLTRB(12, 8, 12, 60),
                     itemCount: itens.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    separatorBuilder: (_, index) =>
+                        const SizedBox(height: 8),
                     itemBuilder: (_, i) {
                       final idx = _sortedIndices[i];
                       final item = itens[idx];
@@ -716,7 +724,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
                           itens[idx].qtde,
                         ),
                         isSalvando: _salvandoIndex == idx,
-                        romaneio: _finalizado ? 2 : widget.prevenda.romaneio,
+                        romaneio: _bloqueado ? 2 : widget.prevenda.romaneio,
                         decQtde: AppScope.of(
                           context,
                         ).parametroController.parametro.decQtde,
@@ -749,7 +757,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
           controller: _barcodeController,
           focusNode: _barcodeFocus,
           autofocus: true,
-          enabled: !_finalizado && widget.prevenda.romaneio != 2,
+          enabled: !_bloqueado,
           keyboardType: TextInputType.text,
           textInputAction: TextInputAction.search,
           onChanged: _onBarcodeChanged,

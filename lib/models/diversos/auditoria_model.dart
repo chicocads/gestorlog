@@ -243,6 +243,7 @@ class AuditoriaLogisticaLoteModel {
   static const colLoja = 'loja';
   static const colProduto = 'produto';
   static const colLote = 'lote';
+  static const colFabricacao = 'fabricacao';
   static const colValidade = 'validade';
   static const colSaldo = 'saldo';
 
@@ -250,6 +251,7 @@ class AuditoriaLogisticaLoteModel {
     required this.idFilial,
     required this.idProduto,
     required this.lote,
+    required this.fabricacao,
     required this.validade,
     required this.saldo,
   });
@@ -257,13 +259,15 @@ class AuditoriaLogisticaLoteModel {
   final int idFilial;
   final int idProduto;
   final String lote;
-  final String validade;
+  final String fabricacao;
+  final String validade; 
   final double saldo;
 
   factory AuditoriaLogisticaLoteModel.empty() => AuditoriaLogisticaLoteModel(
     idFilial: 0,
     idProduto: 0,
     lote: '',
+    fabricacao: '',
     validade: '',
     saldo: 0.0,
   );
@@ -272,6 +276,7 @@ class AuditoriaLogisticaLoteModel {
     int? idFilial,
     int? idProduto,
     String? lote,
+    String? fabricacao,
     String? validade,
     double? saldo,
   }) {
@@ -279,6 +284,7 @@ class AuditoriaLogisticaLoteModel {
       idFilial: idFilial ?? this.idFilial,
       idProduto: idProduto ?? this.idProduto,
       lote: lote ?? this.lote,
+      fabricacao: fabricacao ?? this.fabricacao,
       validade: validade ?? this.validade,
       saldo: saldo ?? this.saldo,
     );
@@ -286,6 +292,16 @@ class AuditoriaLogisticaLoteModel {
 
   factory AuditoriaLogisticaLoteModel.fromMap(Map<String, dynamic> map) {
     if (map.isEmpty) return AuditoriaLogisticaLoteModel.empty();
+
+    final rawFabricacao = map[colFabricacao];
+    String fabricacao;
+    if (rawFabricacao is String) {
+      fabricacao = rawFabricacao;
+    } else if (rawFabricacao is DateTime) {
+      fabricacao = rawFabricacao.toIso8601String();
+    } else {
+      fabricacao = rawFabricacao?.toString() ?? '';
+    }
 
     final rawValidade = map[colValidade];
     String validade;
@@ -301,6 +317,7 @@ class AuditoriaLogisticaLoteModel {
       idFilial: (map[colLoja] as num?)?.toInt() ?? 0,
       idProduto: (map[colProduto] as num?)?.toInt() ?? 0,
       lote: map[colLote] as String? ?? '',
+      fabricacao: fabricacao,
       validade: validade,
       saldo: (map[colSaldo] as num?)?.toDouble() ?? 0.0,
     );
@@ -310,6 +327,7 @@ class AuditoriaLogisticaLoteModel {
     colLoja: idFilial,
     colProduto: idProduto,
     colLote: lote,
+    colFabricacao: fabricacao,
     colValidade: validade,
     colSaldo: saldo,
   };

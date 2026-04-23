@@ -188,7 +188,8 @@ class _AuditoriaViewState extends State<AuditoriaView> {
     });
 
     try {
-      final auditoria = await deps.auditoriaService.consultarLogisticaPorCodigoBarras(
+      final auditoria = await deps.auditoriaService
+          .consultarAuditoriaLogisticaPorCodigoBarras(
         baseUrl: baseUrl,
         idFilial: idFilial,
         chave: termo,
@@ -260,7 +261,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
 
     setState(() => _salvandoCodigoBarra = true);
     try {
-      final ok = await deps.auditoriaService.alterarCodigoBarraProduto(
+      final ok = await deps.auditoriaService.alterarAuditoriaLogisticaCodigoBarraProduto(
         baseUrl: baseUrl,
         request: RequestAlterarCodigoBarraProduto(
           codigo: auditoria.codigo,
@@ -303,7 +304,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
 
     setState(() => _salvandoEndereco = true);
     try {
-      final ok = await deps.auditoriaService.alterarEnderecoPorCodigo(
+      final ok = await deps.auditoriaService.alterarAuditoriaLogisticaEnderecoPorCodigo(
         baseUrl: baseUrl,
         idProduto: auditoria.codigo,
         request: RequestAlterarEnderecoProduto(

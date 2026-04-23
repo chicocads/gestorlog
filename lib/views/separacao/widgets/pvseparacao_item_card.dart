@@ -562,9 +562,9 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                   tilePadding: EdgeInsets.zero,
                   childrenPadding: EdgeInsets.zero,
                   initiallyExpanded: false,
-                  title: const Text(
-                    'Lotes',
-                    style: TextStyle(
+                  title: Text(
+                    'Lotes # ${_loteRows.length}',
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,

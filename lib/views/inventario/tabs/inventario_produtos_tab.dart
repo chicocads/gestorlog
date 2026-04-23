@@ -30,6 +30,7 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
 
   bool _sincronizando = false;
   int _produtosBaixados = 0;
+  bool _mostrarAtivos = true;
 
   bool get sincronizando => _sincronizando;
 
@@ -61,7 +62,10 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
   }
 
   Future<void> _buscar() async {
-    await _controller.consultar(termoBusca: _buscaController.text);
+    await _controller.consultar(
+      termoBusca: _buscaController.text,
+      situacao: _mostrarAtivos ? 1 : 0,
+    );
 
     if (_scrollController.hasClients) {
       _scrollController.jumpTo(0);
@@ -195,17 +199,43 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
                       style: const TextStyle(fontSize: 13),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 6),
                   ListenableBuilder(
                     listenable: _controller,
                     builder: (context, _) {
                       final total = _controller.totalItens;
-                      return Text(
-                        'Total: $total',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                      return TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _mostrarAtivos = !_mostrarAtivos;
+                          });
+                          _buscar();
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        icon: Icon(
+                          _mostrarAtivos
+                              ? Icons.check_circle_outline
+                              : Icons.cancel_outlined,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        label: Text(
+                          '# $total',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
                         ),
                       );
                     },

@@ -39,12 +39,18 @@ class ProdutoLocalService {
     int? codigo,
     String termoBarra = '',
     String termoNome = '',
+    int? situacao,
   }) async {
     final database = await _db.db;
     final termoBarraLimpo = termoBarra.trim();
     final termoNomeLimpo = termoNome.trim();
     final whereParts = <String>[];
     final whereArgs = <Object?>[];
+
+    if (situacao != null) {
+      whereParts.add('${ProdutoModel.colSituacao} = ?');
+      whereArgs.add(situacao);
+    }
 
     if (codigo != null) {
       whereParts.add('${ProdutoModel.colCodigo} = ?');
@@ -80,12 +86,18 @@ class ProdutoLocalService {
     int? codigo,
     String termoBarra = '',
     String termoNome = '',
+    int? situacao,
   }) async {
     final database = await _db.db;
     final termoBarraLimpo = termoBarra.trim();
     final termoNomeLimpo = termoNome.trim();
     final whereParts = <String>[];
     final whereArgs = <Object?>[];
+
+    if (situacao != null) {
+      whereParts.add('${ProdutoModel.colSituacao} = ?');
+      whereArgs.add(situacao);
+    }
 
     if (codigo != null) {
       whereParts.add('${ProdutoModel.colCodigo} = ?');
