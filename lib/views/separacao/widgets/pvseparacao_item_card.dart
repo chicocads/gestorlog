@@ -112,10 +112,36 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
   }
 
   bool get _conferido {
-    final separado = double.tryParse(
+    const eps = 0.000001;
+
+    double? salvo;
+    for (final r in widget.pvSeparacaoController.itens) {
+      if (r.loja == widget.idFilial &&
+          r.numero == widget.idPrevenda &&
+          r.ordem == widget.item.ordem &&
+          r.idproduto == widget.item.idproduto) {
+        salvo = r.qtde;
+        break;
+      }
+    }
+    if (salvo == null) return false;
+    if ((salvo - widget.item.qtde).abs() > eps) return false;
+
+    final lotesSalvos = widget.pvSeparacaoController
+        .lotesDoProduto(widget.item.idproduto)
+        .where((e) => e.lote.isNotEmpty && e.qtde > 0)
+        .toList();
+    if (widget.item.produto.controlelote == 1 || lotesSalvos.isNotEmpty) {
+      if (lotesSalvos.isEmpty) return false;
+      final somaLotes = lotesSalvos.fold<double>(0.0, (sum, l) => sum + l.qtde);
+      if ((somaLotes - salvo).abs() > eps) return false;
+    }
+
+    final digitado = double.tryParse(
       widget.qtdeController.text.replaceAll(',', '.'),
     );
-    return separado != null && separado > 0 && separado == widget.item.qtde;
+    if (digitado == null) return false;
+    return (digitado - salvo).abs() <= eps;
   }
 
   bool get _temWms {

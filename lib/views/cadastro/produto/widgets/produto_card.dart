@@ -77,7 +77,8 @@ class ProdutoCard extends StatelessWidget {
           width: 52,
           height: 52,
           fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => _buildImagemPlaceholder(),
+          errorBuilder: (context, error, stackTrace) =>
+              _buildImagemPlaceholder(),
         ),
       ),
     );

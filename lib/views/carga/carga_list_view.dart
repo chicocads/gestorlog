@@ -6,6 +6,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/functions/geolocalizacao.dart';
 import '../../core/utils/data_formatar.dart';
 import '../../core/widgets/list_state_builder.dart';
+import '../../models/carga/carga_model.dart';
 import '../../services/carga/request_carga.dart';
 import '../../services/hsaida/request_hsaida.dart';
 import '../entrega/hsaida/hsentrega_list_view.dart';
@@ -79,7 +80,7 @@ class _CargaListViewState extends State<CargaListView> {
             : deps.parametroController.parametro.idFilial,
         idCarga: int.tryParse(_numeroController.text) ?? 0,
         frota: deps.parametroController.parametro.idFrota,
-        status: 1,
+        status: StatusCarregamento.entregando.value,
       ),
     );
   }

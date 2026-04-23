@@ -57,7 +57,8 @@ class HsEntregaItensView extends StatelessWidget {
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(12, 8, 12, 60),
                     itemCount: itens.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
                     itemBuilder: (_, i) {
                       return HsEntregaItemCard(item: itens[i]);
                     },

@@ -23,6 +23,36 @@ class HSaidaController extends BaseController {
   HSaidaModel get selecionado => _selecionado;
   bool get temMaisPaginas => _response.paginaAtual < _response.qtdPaginas;
 
+  List<HSaidaModel> _ordenarPorEndereco(List<HSaidaModel> itens) {
+    String n(String v) => v.trim().toLowerCase();
+
+    final list = List<HSaidaModel>.of(itens);
+    list.sort((a, b) {
+      final aUf = n(a.cliente.uf);
+      final bUf = n(b.cliente.uf);
+      final c1 = aUf.compareTo(bUf);
+      if (c1 != 0) return c1;
+
+      final aCidade = n(a.cliente.cidade);
+      final bCidade = n(b.cliente.cidade);
+      final c2 = aCidade.compareTo(bCidade);
+      if (c2 != 0) return c2;
+
+      final aBairro = n(a.cliente.bairro);
+      final bBairro = n(b.cliente.bairro);
+      final c3 = aBairro.compareTo(bBairro);
+      if (c3 != 0) return c3;
+
+      final aEndereco = n(a.cliente.endereco);
+      final bEndereco = n(b.cliente.endereco);
+      final c4 = aEndereco.compareTo(bEndereco);
+      if (c4 != 0) return c4;
+
+      return a.idPrevenda.compareTo(b.idPrevenda);
+    });
+    return list;
+  }
+
   void setFiltro(RequestHSaida filtro) {
     _filtro = filtro;
     notifyListeners();
@@ -37,10 +67,11 @@ class HSaidaController extends BaseController {
     _filtro = filtro.copyWith(paginaAtual: '1');
     _response = ResponseHSaida.empty();
     await runAsync(() async {
-      _response = await _service.buscar(
+      final r = await _service.buscar(
         baseUrl: _getBaseUrl(),
         request: _filtro,
       );
+      _response = r.copyWith(itens: _ordenarPorEndereco(r.itens));
     });
   }
 
@@ -54,7 +85,9 @@ class HSaidaController extends BaseController {
       );
       _filtro = _filtro.copyWith(paginaAtual: proximaPagina);
       _response = _response.copyWith(
-        itens: [..._response.itens, ...novaResposta.itens],
+        itens: _ordenarPorEndereco(
+          [..._response.itens, ...novaResposta.itens],
+        ),
         paginaAtual: novaResposta.paginaAtual,
         proximaPagina: novaResposta.proximaPagina,
         qtdPaginas: novaResposta.qtdPaginas,

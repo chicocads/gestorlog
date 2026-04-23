@@ -14,12 +14,14 @@ class CargaCard extends StatelessWidget {
   Color get _statusColor => switch (carregamento.status) {
     StatusCarregamento.aberto => AppColors.warning,
     StatusCarregamento.fechado => AppColors.success,
+    StatusCarregamento.entregando => AppColors.entrega,
     StatusCarregamento.encerrado => AppColors.primary,
   };
 
   String get _statusLabel => switch (carregamento.status) {
     StatusCarregamento.aberto => 'Aberto',
     StatusCarregamento.fechado => 'Fechado',
+    StatusCarregamento.entregando => 'Entregando',
     StatusCarregamento.encerrado => 'Encerrado',
   };
 

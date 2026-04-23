@@ -1,7 +1,8 @@
 enum StatusCarregamento {
   aberto(0),
   fechado(1),
-  encerrado(2);
+  entregando(2),
+  encerrado(3);
 
   const StatusCarregamento(this.value);
   final int value;
