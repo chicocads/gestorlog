@@ -9,10 +9,16 @@ void selectAllText(TextEditingController controller) {
 }
 
 class AppIntField extends StatelessWidget {
-  const AppIntField({super.key, required this.controller, required this.label});
+  const AppIntField({
+    super.key,
+    required this.controller,
+    required this.label,
+    this.readOnly = false,
+  });
 
   final TextEditingController controller;
   final String label;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +28,7 @@ class AppIntField extends StatelessWidget {
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       onTap: () => selectAllText(controller),
+      readOnly: readOnly,
       validator: (v) =>
           (v == null || v.trim().isEmpty) ? 'Informe $label.' : null,
     );

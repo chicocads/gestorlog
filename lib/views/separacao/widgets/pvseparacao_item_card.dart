@@ -127,13 +127,55 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     if (salvo == null) return false;
     if ((salvo - widget.item.qtde).abs() > eps) return false;
 
-    final lotesSalvos = widget.pvSeparacaoController
+    final apiLotes = widget.item.lotesaida.isNotEmpty
+        ? widget.item.lotesaida
+            .map(
+              (e) => e.copyWith(
+                idFilial: widget.idFilial,
+                idPrevenda: widget.idPrevenda,
+                idProduto: widget.item.idproduto,
+              ),
+            )
+            .where((e) => e.lote.trim().isNotEmpty && e.qtde > 0)
+            .toList()
+        : (widget.item.lote.trim().isNotEmpty ||
+                widget.item.validade.trim().isNotEmpty)
+            ? [
+                LoteSaidaModel(
+                  idFilial: widget.idFilial,
+                  idPrevenda: widget.idPrevenda,
+                  idProduto: widget.item.idproduto,
+                  lote: widget.item.lote,
+                  validade: widget.item.validade,
+                  fabricacao: DateTime.now()
+                      .subtract(const Duration(days: 365))
+                      .toIso8601String()
+                      .substring(0, 10),
+                  qtde: salvo,
+                ),
+              ]
+            : const <LoteSaidaModel>[];
+
+    final localLotes = widget.pvSeparacaoController
         .lotesDoProduto(widget.item.idproduto)
-        .where((e) => e.lote.isNotEmpty && e.qtde > 0)
+        .where((e) => e.lote.trim().isNotEmpty && e.qtde > 0)
         .toList();
-    if (widget.item.produto.controlelote == 1 || lotesSalvos.isNotEmpty) {
-      if (lotesSalvos.isEmpty) return false;
-      final somaLotes = lotesSalvos.fold<double>(0.0, (sum, l) => sum + l.qtde);
+
+    final mergedMap = <String, LoteSaidaModel>{
+      for (final l in apiLotes) '${l.lote}__${l.validade}': l,
+      for (final l in localLotes) '${l.lote}__${l.validade}': l,
+    };
+    final lotesParaConferencia = mergedMap.values
+        .where((e) => e.lote.trim().isNotEmpty && e.qtde > 0)
+        .toList();
+
+    if (widget.item.produto.controlelote == 1 ||
+        lotesParaConferencia.isNotEmpty) {
+      if (lotesParaConferencia.isEmpty) return false;
+      final somaLotes = lotesParaConferencia.fold<double>(
+        0.0,
+        (sum, l) => sum + l.qtde,
+      );
       if ((somaLotes - salvo).abs() > eps) return false;
     }
 

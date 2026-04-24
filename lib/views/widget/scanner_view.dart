@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 Future<String?> showBarcodeScannerBottomSheet(
@@ -21,6 +22,8 @@ Future<String?> showBarcodeScannerBottomSheet(
               final rawValue = capture.barcodes.firstOrNull?.rawValue;
               if (rawValue == null || rawValue.isEmpty) return;
               scanned = true;
+              SystemSound.play(SystemSoundType.alert);
+              HapticFeedback.selectionClick();
               Navigator.of(context).pop(rawValue);
             },
           ),
@@ -70,6 +73,8 @@ class _ScannerViewState extends State<ScannerView> {
     final rawValue = capture.barcodes.firstOrNull?.rawValue;
     if (rawValue == null || rawValue.isEmpty) return;
     _scanned = true;
+    SystemSound.play(SystemSoundType.alert);
+    HapticFeedback.selectionClick();
     Navigator.of(context).pop(rawValue);
   }
 

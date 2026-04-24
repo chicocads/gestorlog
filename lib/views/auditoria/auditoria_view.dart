@@ -27,6 +27,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
   final _eanController = TextEditingController();
   final _dun14Controller = TextEditingController();
   final _localizacaoController = TextEditingController();
+  String? _ultimoCodigoScanner;
 
   final _apanhaRuaController = TextEditingController();
   final _apanhaBlcController = TextEditingController();
@@ -121,6 +122,29 @@ class _AuditoriaViewState extends State<AuditoriaView> {
       _focarCodigo(limpar: true);
       return;
     }
+
+    final termoAtual = _codigoController.text.trim();
+    final auditoriaAtual = _auditoria;
+    final eanAtual = _eanController.text.trim();
+    final dun14Atual = _dun14Controller.text.trim();
+    if (auditoriaAtual != null &&
+        termoAtual.isNotEmpty &&
+        StringSanitizer.isDigits(termoAtual) &&
+        termoAtual.length <= 10 &&
+        StringSanitizer.isValidEan(codigo)) {
+      if (codigo.length == 14 && dun14Atual.isEmpty) {
+        _dun14Controller.text = codigo;
+        _ultimoCodigoScanner = null;
+        return;
+      }
+      if (eanAtual.isEmpty) {
+        _eanController.text = codigo;
+        _ultimoCodigoScanner = null;
+        return;
+      }
+    }
+
+    _ultimoCodigoScanner = codigo;
     _codigoController.text = codigo;
     _buscarProduto();
   }
@@ -139,7 +163,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
       return false;
     }
 
-    if (!StringSanitizer.isValidGtin(v, length: v.length)) {
+    if (!StringSanitizer.isValidEan(v)) {
       _mostrarDialogoCodigoBarrasInvalido('Código de barras inválido.');
       return false;
     }
@@ -198,6 +222,10 @@ class _AuditoriaViewState extends State<AuditoriaView> {
       setState(() {
         _auditoria = auditoria;
         _preencherCampos(auditoria);
+        _autoPreencherCodigosComScanner(
+          termoPesquisado: termo,
+          auditoria: auditoria,
+        );
       });
     } catch (e) {
       if (!mounted) return;
@@ -207,6 +235,33 @@ class _AuditoriaViewState extends State<AuditoriaView> {
     }
   }
 
+  void _autoPreencherCodigosComScanner({
+    required String termoPesquisado,
+    required AuditoriaLogisticaModel auditoria,
+  }) {
+    final scanner = _ultimoCodigoScanner;
+    if (scanner == null) return;
+    if (scanner != termoPesquisado) return;
+
+    final eanAtual = _eanController.text.trim();
+    final dun14Atual = _dun14Controller.text.trim();
+
+    if (scanner.length <= 10) {
+      if (eanAtual.isEmpty) {
+        _eanController.text = scanner;
+      }
+      _ultimoCodigoScanner = null;
+      return;
+    }
+
+    final isDun14 = StringSanitizer.isValidDun14(scanner);
+    if (isDun14 && eanAtual.isNotEmpty && dun14Atual.isEmpty) {
+      _dun14Controller.text = scanner;
+    }
+
+    _ultimoCodigoScanner = null;
+  }
+
   void _limparTela() {
     if (_buscando) return;
     setState(() {
@@ -214,6 +269,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
       _codigoController.clear();
       _limparCampos();
     });
+    _ultimoCodigoScanner = null;
     _focarCodigo();
   }
 
@@ -226,30 +282,14 @@ class _AuditoriaViewState extends State<AuditoriaView> {
     final ean = _eanController.text.trim();
     final dun14 = _dun14Controller.text.trim();
 
-    if (ean.isNotEmpty) {
-      if (ean.length != 13 && ean.length != 14) {
-        _mostrarDialogoCodigoBarrasInvalido(
-          'EAN deve ter 13 ou 14 dígitos.',
-        );
-        return;
-      }
-      if (!StringSanitizer.isValidGtin(ean, length: ean.length)) {
-        _mostrarDialogoCodigoBarrasInvalido('EAN inválido.');
-        return;
-      }
+    if (ean.isNotEmpty && !StringSanitizer.isValidEan(ean)) {
+      _mostrarDialogoCodigoBarrasInvalido('EAN inválido.');
+      return;
     }
 
-    if (dun14.isNotEmpty) {
-      if (dun14.length != 14) {
-        _mostrarDialogoCodigoBarrasInvalido(
-          'DUN14 deve ter 14 dígitos.',
-        );
-        return;
-      }
-      if (!StringSanitizer.isValidGtin(dun14, length: 14)) {
-        _mostrarDialogoCodigoBarrasInvalido('DUN14 inválido.');
-        return;
-      }
+    if (dun14.isNotEmpty && !StringSanitizer.isValidDun14(dun14)) {
+      _mostrarDialogoCodigoBarrasInvalido('DUN14 inválido.');
+      return;
     }
 
     final deps = AppScope.of(context);
@@ -352,7 +392,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
               final v = value.trim();
               if (!StringSanitizer.isDigits(v)) return;
               if (v.length != 13 && v.length != 14) return;
-              if (!StringSanitizer.isValidGtin(v, length: v.length)) return;
+              if (!StringSanitizer.isValidEan(v)) return;
               _buscarProduto();
             },
             decoration: InputDecoration(

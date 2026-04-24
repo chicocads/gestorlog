@@ -20,6 +20,12 @@ class StringSanitizer {
 
   static bool isValidEan13(String value) => isValidGtin(value, length: 13);
 
+  static bool isValidEan(String value) {
+    final digits = digitsOnly(value.trim());
+    if (digits.length != 13 && digits.length != 14) return false;
+    return isValidGtin(digits, length: digits.length);
+  }
+
   static bool isValidDun14(String value) => isValidGtin(value, length: 14);
 
   static bool isValidGtin(

@@ -5,6 +5,7 @@ import '../../core/utils/app_snack_bar.dart';
 import '../../core/utils/numero_formatar.dart';
 import '../../core/functions/separacao_lotes_utils.dart';
 import '../../models/Separacao/separacao_model.dart';
+import '../../models/diversos/lote_saida_model.dart';
 import '../../models/prevenda/prevenda_model.dart';
 import '../../app/routes.dart';
 import '../../services/separacao/request_separacao.dart';
@@ -108,6 +109,27 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       widget.prevenda.idPrevenda,
     );
     if (!mounted) return;
+
+    for (final item in widget.prevenda.itens) {
+      if (item.produto.controlelote != 1) continue;
+      if (item.lotesaida.isNotEmpty) continue;
+      if (item.lote.trim().isEmpty && item.validade.trim().isEmpty) continue;
+      item.lotesaida.add(
+        LoteSaidaModel(
+          idFilial: widget.prevenda.idFilial,
+          idPrevenda: widget.prevenda.idPrevenda,
+          idProduto: item.idproduto,
+          lote: item.lote,
+          validade: item.validade,
+          fabricacao: DateTime.now()
+              .subtract(const Duration(days: 365))
+              .toIso8601String()
+              .substring(0, 10),
+          qtde: item.qtde,
+        ),
+      );
+    }
+
     final decQtde = AppScope.of(context).parametroController.parametro.decQtde;
     final registros = widget.pvseparacaoController.itens;
     final mapa = <String, double>{
@@ -197,6 +219,13 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       if (digitado) {
         AppSnackBar.sucesso(context, 'Quantidade salva com sucesso.');
       }
+    }
+    if (item.produto.controlelote == 1) {
+      await widget.pvseparacaoController.listarLotes(
+        widget.prevenda.idFilial,
+        widget.prevenda.idPrevenda,
+      );
+      if (!mounted) return;
     }
     if (mounted) {
       setState(() => _salvandoIndex = null);

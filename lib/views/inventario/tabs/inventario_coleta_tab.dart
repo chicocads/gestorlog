@@ -103,7 +103,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
       return false;
     }
 
-    if (!StringSanitizer.isValidGtin(v, length: v.length)) {
+    if (!StringSanitizer.isValidEan(v)) {
       _mostrarDialogoCodigoBarrasInvalido('Código de barras inválido.');
       return false;
     }
@@ -416,7 +416,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
               final v = value.trim();
               if (!StringSanitizer.isDigits(v)) return;
               if (v.length != 13 && v.length != 14) return;
-              if (!StringSanitizer.isValidGtin(v, length: v.length)) return;
+              if (!StringSanitizer.isValidEan(v)) return;
               _buscarProduto(disparadoPorCodigo: true);
             },
             decoration: InputDecoration(

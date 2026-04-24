@@ -111,6 +111,7 @@ class _ParametroViewState extends State<ParametroView> {
                     child: AppIntField(
                       controller: _idCadsCtrl,
                       label: 'ID CADS',
+                      readOnly: !widget.isAdmin,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -118,11 +119,16 @@ class _ParametroViewState extends State<ParametroView> {
                     child: AppIntField(
                       controller: _idFilialCtrl,
                       label: 'ID Filial',
+                      readOnly: !widget.isAdmin,
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: AppIntField(controller: _idPdaCtrl, label: 'ID PDA'),
+                    child: AppIntField(
+                      controller: _idPdaCtrl,
+                      label: 'ID PDA',
+                      readOnly: !widget.isAdmin,
+                    ),
                   ),
                 ],
               ),
@@ -133,6 +139,7 @@ class _ParametroViewState extends State<ParametroView> {
                     child: AppIntField(
                       controller: _idFrotaCtrl,
                       label: 'ID Frota',
+                      readOnly: !widget.isAdmin,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -147,6 +154,7 @@ class _ParametroViewState extends State<ParametroView> {
                     child: AppIntField(
                       controller: _decPrecoCtrl,
                       label: 'Dec. Preço',
+                      readOnly: !widget.isAdmin,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -154,6 +162,7 @@ class _ParametroViewState extends State<ParametroView> {
                     child: AppIntField(
                       controller: _decQtdeCtrl,
                       label: 'Dec. Qtde',
+                      readOnly: !widget.isAdmin,
                     ),
                   ),
                 ],
@@ -161,7 +170,8 @@ class _ParametroViewState extends State<ParametroView> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _urlCtrl,
-                obscureText: _obscureUrl,
+                obscureText: widget.isAdmin ? _obscureUrl : true,
+                readOnly: !widget.isAdmin,
                 decoration: InputDecoration(
                   labelText: 'URL do servidor',
                   hintText: 'http://endereco:porta',

@@ -7,6 +7,7 @@ List<LoteSaidaModel> mergeLotesForItem({
   required int idPrevenda,
   required List<LoteSaidaModel> localLotes,
 }) {
+  final allowZeroQtde = item.produto.controlelote == 1;
   final apiLotes = item.lotesaida.isNotEmpty
       ? item.lotesaida
             .map(
@@ -16,10 +17,14 @@ List<LoteSaidaModel> mergeLotesForItem({
                 idProduto: item.idproduto,
               ),
             )
-            .where((e) => e.lote.trim().isNotEmpty && e.qtde > 0)
+            .where(
+              (e) =>
+                  e.lote.trim().isNotEmpty &&
+                  (allowZeroQtde ? e.qtde >= 0 : e.qtde > 0),
+            )
             .toList()
       : (item.lote.trim().isNotEmpty || item.validade.trim().isNotEmpty) &&
-            item.qtdesep > 0
+            (allowZeroQtde || item.qtdesep > 0)
       ? [
           LoteSaidaModel(
             idFilial: idFilial,
@@ -31,7 +36,7 @@ List<LoteSaidaModel> mergeLotesForItem({
                 .subtract(const Duration(days: 365))
                 .toIso8601String()
                 .substring(0, 10),
-            qtde: item.qtdesep,
+            qtde: item.qtde,
           ),
         ]
       : const <LoteSaidaModel>[];
@@ -44,7 +49,12 @@ List<LoteSaidaModel> mergeLotesForItem({
       '${l.lote}__${l.validade}': l,
   };
   return mergedMap.values.toList()
-    ..removeWhere((e) => e.lote.trim().isEmpty || e.qtde <= 0);
+    ..removeWhere(
+      (e) =>
+          e.lote.trim().isEmpty ||
+          e.qtde < 0 ||
+          (!allowZeroQtde && e.qtde <= 0),
+    );
 }
 
 double sumQtdeLotes(List<LoteSaidaModel> lotes) =>
