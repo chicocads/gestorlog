@@ -1,54 +1,53 @@
 class SeparacaoModel {
   static const tblNome = 'Separacao';
-  static const colLoja = 'loja';
-  static const colNumero = 'numero';
+  static const colLoja = 'idfilial';
+  static const colNumero = 'idprevenda';
   static const colOrdem = 'ordem';
   static const colIdProduto = 'idproduto';
   static const colQtde = 'qtde';
   static const colPecas = 'pecas';
 
   SeparacaoModel({
-    required this.loja,
-    required this.numero,
+    required this.idFilial,
+    required this.idPrevenda,
     required this.ordem,
-    required this.idproduto,
+    required this.idProduto,
     required this.qtde,
     required this.pecas,
   });
 
   // chave primária
-  final int loja;
-  final int numero;
+  final int idFilial;
+  final int idPrevenda;
   final int ordem;
-  final int idproduto;
+  final int idProduto;
 
   // dados
   final double qtde;
   final int pecas;
 
-  factory SeparacaoModel.empty() =>
-      SeparacaoModel(
-        loja: 0,
-        numero: 0,
-        ordem: 0,
-        idproduto: 0,
-        qtde: 0,
-        pecas: 0,
-      );
+  factory SeparacaoModel.empty() => SeparacaoModel(
+    idFilial: 0,
+    idPrevenda: 0,
+    ordem: 0,
+    idProduto: 0,
+    qtde: 0,
+    pecas: 0,
+  );
 
   SeparacaoModel copyWith({
-    int? loja,
-    int? numero,
+    int? idFilial,
+    int? idPrevenda,
     int? ordem,
-    int? idproduto,
+    int? idProduto,
     double? qtde,
     int? pecas,
   }) {
     return SeparacaoModel(
-      loja: loja ?? this.loja,
-      numero: numero ?? this.numero,
+      idFilial: idFilial ?? this.idFilial,
+      idPrevenda: idPrevenda ?? this.idPrevenda,
       ordem: ordem ?? this.ordem,
-      idproduto: idproduto ?? this.idproduto,
+      idProduto: idProduto ?? this.idProduto,
       qtde: qtde ?? this.qtde,
       pecas: pecas ?? this.pecas,
     );
@@ -57,25 +56,25 @@ class SeparacaoModel {
   factory SeparacaoModel.fromMap(Map<String, dynamic> map) {
     if (map.isEmpty) return SeparacaoModel.empty();
     return SeparacaoModel(
-      loja: map[colLoja] ?? 0,
-      numero: map[colNumero] ?? 0,
+      idFilial: map[colLoja] ?? 0,
+      idPrevenda: map[colNumero] ?? 0,
       ordem: map[colOrdem] ?? 0,
-      idproduto: map[colIdProduto] ?? 0,
+      idProduto: map[colIdProduto] ?? 0,
       qtde: (map[colQtde] as num?)?.toDouble() ?? 0.0,
       pecas: map[colPecas] ?? 0,
     );
   }
 
   Map<String, dynamic> toMap() => {
-    colLoja: loja,
-    colNumero: numero,
+    colLoja: idFilial,
+    colNumero: idPrevenda,
     colOrdem: ordem,
-    colIdProduto: idproduto,
+    colIdProduto: idProduto,
     colQtde: qtde,
     colPecas: pecas,
   };
 
   @override
   String toString() =>
-      'SeparacaoModel(loja: $loja, numero: $numero, idproduto: $idproduto, qtde: $qtde, peca: $pecas)';
+      'SeparacaoModel(loja: $idFilial, numero: $idPrevenda, idproduto: $idProduto, qtde: $qtde, peca: $pecas)';
 }

@@ -2,8 +2,8 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../models/Separacao/separacao_model.dart';
 import '../../models/cadastro/produto_model.dart';
-import '../../models/diversos/lote_saida_model.dart';
-import '../../models/diversos/parametro_model.dart';
+import '../../models/hsaida/lote_saida_model.dart';
+import '../../models/parametros/parametro_model.dart';
 import '../../models/inventario/inventario_model.dart';
 
 class DatabaseHelper {

@@ -1,4 +1,4 @@
-import '../../models/diversos/lote_saida_model.dart';
+import '../../models/hsaida/lote_saida_model.dart';
 import '../../models/prevenda/prevenda2_model.dart';
 
 List<LoteSaidaModel> mergeLotesForItem({
@@ -14,7 +14,7 @@ List<LoteSaidaModel> mergeLotesForItem({
               (e) => e.copyWith(
                 idFilial: idFilial,
                 idPrevenda: idPrevenda,
-                idProduto: item.idproduto,
+                idProduto: item.idProduto,
               ),
             )
             .where(
@@ -29,7 +29,7 @@ List<LoteSaidaModel> mergeLotesForItem({
           LoteSaidaModel(
             idFilial: idFilial,
             idPrevenda: idPrevenda,
-            idProduto: item.idproduto,
+            idProduto: item.idProduto,
             lote: item.lote,
             validade: item.validade,
             fabricacao: DateTime.now()
@@ -48,13 +48,10 @@ List<LoteSaidaModel> mergeLotesForItem({
     ))
       '${l.lote}__${l.validade}': l,
   };
-  return mergedMap.values.toList()
-    ..removeWhere(
-      (e) =>
-          e.lote.trim().isEmpty ||
-          e.qtde < 0 ||
-          (!allowZeroQtde && e.qtde <= 0),
-    );
+  return mergedMap.values.toList()..removeWhere(
+    (e) =>
+        e.lote.trim().isEmpty || e.qtde < 0 || (!allowZeroQtde && e.qtde <= 0),
+  );
 }
 
 double sumQtdeLotes(List<LoteSaidaModel> lotes) =>

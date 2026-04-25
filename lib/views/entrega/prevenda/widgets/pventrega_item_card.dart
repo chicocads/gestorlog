@@ -46,7 +46,7 @@ class PvEntregaItemCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: InfoRow(label: 'Código:', value: '${item.idproduto}'),
+                  child: InfoRow(label: 'Código:', value: '${item.idProduto}'),
                 ),
                 Expanded(
                   child: InfoRow(label: 'Unidade:', value: item.und),

@@ -17,6 +17,7 @@ class _InventarioViewState extends State<InventarioView>
   late final TabController _tabController;
   final _produtosTabKey = GlobalKey<InventarioProdutosTabState>();
   final _sincronizandoProdutos = ValueNotifier<bool>(false);
+  final _codigoParaColeta = ValueNotifier<String?>(null);
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _InventarioViewState extends State<InventarioView>
       ..removeListener(_handleTabChanged)
       ..dispose();
     _sincronizandoProdutos.dispose();
+    _codigoParaColeta.dispose();
     super.dispose();
   }
 
@@ -97,8 +99,15 @@ class _InventarioViewState extends State<InventarioView>
           InventarioProdutosTab(
             key: _produtosTabKey,
             sincronizandoNotifier: _sincronizandoProdutos,
+            onAbrirColeta: (codigoProduto) {
+              _tabController.animateTo(1);
+              _codigoParaColeta.value = null;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _codigoParaColeta.value = '$codigoProduto';
+              });
+            },
           ),
-          const InventarioColetaTab(),
+          InventarioColetaTab(codigoParaPesquisa: _codigoParaColeta),
           const InventarioColetadosTab(),
           const InventarioTotalTab(),
         ],

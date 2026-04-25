@@ -8,7 +8,7 @@ import '../../../core/utils/input_formatters.dart';
 import '../../../core/utils/numero_formatar.dart';
 import '../../../core/widgets/info_row.dart';
 import '../../../core/functions/lotes_card_helpers.dart';
-import '../../../models/diversos/lote_saida_model.dart';
+import '../../../models/hsaida/lote_saida_model.dart';
 import '../../../models/prevenda/prevenda2_model.dart';
 
 part 'pvseparacao_item_card_lote_row.dart';
@@ -116,10 +116,10 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
 
     double? salvo;
     for (final r in widget.pvSeparacaoController.itens) {
-      if (r.loja == widget.idFilial &&
-          r.numero == widget.idPrevenda &&
+      if (r.idFilial == widget.idFilial &&
+          r.idPrevenda == widget.idPrevenda &&
           r.ordem == widget.item.ordem &&
-          r.idproduto == widget.item.idproduto) {
+          r.idProduto == widget.item.idProduto) {
         salvo = r.qtde;
         break;
       }
@@ -129,35 +129,35 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
 
     final apiLotes = widget.item.lotesaida.isNotEmpty
         ? widget.item.lotesaida
-            .map(
-              (e) => e.copyWith(
-                idFilial: widget.idFilial,
-                idPrevenda: widget.idPrevenda,
-                idProduto: widget.item.idproduto,
-              ),
-            )
-            .where((e) => e.lote.trim().isNotEmpty && e.qtde > 0)
-            .toList()
-        : (widget.item.lote.trim().isNotEmpty ||
-                widget.item.validade.trim().isNotEmpty)
-            ? [
-                LoteSaidaModel(
+              .map(
+                (e) => e.copyWith(
                   idFilial: widget.idFilial,
                   idPrevenda: widget.idPrevenda,
-                  idProduto: widget.item.idproduto,
-                  lote: widget.item.lote,
-                  validade: widget.item.validade,
-                  fabricacao: DateTime.now()
-                      .subtract(const Duration(days: 365))
-                      .toIso8601String()
-                      .substring(0, 10),
-                  qtde: salvo,
+                  idProduto: widget.item.idProduto,
                 ),
-              ]
-            : const <LoteSaidaModel>[];
+              )
+              .where((e) => e.lote.trim().isNotEmpty && e.qtde > 0)
+              .toList()
+        : (widget.item.lote.trim().isNotEmpty ||
+              widget.item.validade.trim().isNotEmpty)
+        ? [
+            LoteSaidaModel(
+              idFilial: widget.idFilial,
+              idPrevenda: widget.idPrevenda,
+              idProduto: widget.item.idProduto,
+              lote: widget.item.lote,
+              validade: widget.item.validade,
+              fabricacao: DateTime.now()
+                  .subtract(const Duration(days: 365))
+                  .toIso8601String()
+                  .substring(0, 10),
+              qtde: salvo,
+            ),
+          ]
+        : const <LoteSaidaModel>[];
 
     final localLotes = widget.pvSeparacaoController
-        .lotesDoProduto(widget.item.idproduto)
+        .lotesDoProduto(widget.item.idProduto)
         .where((e) => e.lote.trim().isNotEmpty && e.qtde > 0)
         .toList();
 
@@ -309,7 +309,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     final model = LoteSaidaModel(
       idFilial: widget.idFilial,
       idPrevenda: widget.idPrevenda,
-      idProduto: widget.item.idproduto,
+      idProduto: widget.item.idProduto,
       lote: lote,
       validade: validade,
       fabricacao: DateTime.now()
@@ -343,7 +343,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     if (!mounted) return;
 
     final atualizados = widget.pvSeparacaoController
-        .lotesDoProduto(widget.item.idproduto)
+        .lotesDoProduto(widget.item.idProduto)
         .where((e) => e.lote.isNotEmpty && e.qtde > 0)
         .toList();
 
@@ -392,7 +392,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       LoteSaidaModel(
         idFilial: widget.idFilial,
         idPrevenda: widget.idPrevenda,
-        idProduto: widget.item.idproduto,
+        idProduto: widget.item.idProduto,
         lote: row.originalLote,
         validade: row.originalValidade,
         fabricacao: DateTime.now()
@@ -416,7 +416,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     }
 
     final atualizados = widget.pvSeparacaoController
-        .lotesDoProduto(widget.item.idproduto)
+        .lotesDoProduto(widget.item.idProduto)
         .where((e) => e.lote.isNotEmpty && e.qtde > 0)
         .toList();
 
@@ -480,7 +480,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                 Expanded(
                   child: InfoRow(
                     label: 'Código:',
-                    value: '${widget.item.idproduto}',
+                    value: '${widget.item.idProduto}',
                   ),
                 ),
                 Expanded(

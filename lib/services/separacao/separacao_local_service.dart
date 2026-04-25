@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../core/database/database_helper.dart';
 import '../../models/Separacao/separacao_model.dart';
-import '../../models/diversos/lote_saida_model.dart';
+import '../../models/hsaida/lote_saida_model.dart';
 
 class SeparacaoLocalService {
   final _db = DatabaseHelper.instance;

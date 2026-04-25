@@ -6,7 +6,7 @@ import '../../core/utils/app_snack_bar.dart';
 import '../../core/utils/data_formatar.dart';
 import '../../core/utils/string_sanitizer.dart';
 import '../../core/widgets/app_int_field.dart';
-import '../../models/diversos/auditoria_model.dart';
+import '../../models/auditoria/auditoria_model.dart';
 import '../../services/auditoria/request_alterar_barra_produto.dart';
 import '../../services/auditoria/request_endereco_produto.dart';
 import '../widget/scanner_view.dart';
@@ -214,10 +214,10 @@ class _AuditoriaViewState extends State<AuditoriaView> {
     try {
       final auditoria = await deps.auditoriaService
           .consultarAuditoriaLogisticaPorCodigoBarras(
-        baseUrl: baseUrl,
-        idFilial: idFilial,
-        chave: termo,
-      );
+            baseUrl: baseUrl,
+            idFilial: idFilial,
+            chave: termo,
+          );
       if (!mounted) return;
       setState(() {
         _auditoria = auditoria;
@@ -301,14 +301,15 @@ class _AuditoriaViewState extends State<AuditoriaView> {
 
     setState(() => _salvandoCodigoBarra = true);
     try {
-      final ok = await deps.auditoriaService.alterarAuditoriaLogisticaCodigoBarraProduto(
-        baseUrl: baseUrl,
-        request: RequestAlterarCodigoBarraProduto(
-          codigo: auditoria.codigo,
-          codigoAlfa: ean,
-          dun14: dun14,
-        ),
-      );
+      final ok = await deps.auditoriaService
+          .alterarAuditoriaLogisticaCodigoBarraProduto(
+            baseUrl: baseUrl,
+            request: RequestAlterarCodigoBarraProduto(
+              codigo: auditoria.codigo,
+              codigoAlfa: ean,
+              dun14: dun14,
+            ),
+          );
       if (!mounted) return;
       if (ok) {
         AppSnackBar.sucesso(context, 'Códigos de barra atualizados.');
@@ -336,7 +337,10 @@ class _AuditoriaViewState extends State<AuditoriaView> {
 
     final localizacao = _localizacaoController.text.trim();
     if (localizacao.length > 60) {
-      AppSnackBar.erro(context, 'Localização deve ter no máximo 60 caracteres.');
+      AppSnackBar.erro(
+        context,
+        'Localização deve ter no máximo 60 caracteres.',
+      );
       return;
     }
 
@@ -344,27 +348,28 @@ class _AuditoriaViewState extends State<AuditoriaView> {
 
     setState(() => _salvandoEndereco = true);
     try {
-      final ok = await deps.auditoriaService.alterarAuditoriaLogisticaEnderecoPorCodigo(
-        baseUrl: baseUrl,
-        idProduto: auditoria.codigo,
-        request: RequestAlterarEnderecoProduto(
-          codigoalfa: _eanController.text.trim(),
-          dun14: _dun14Controller.text.trim(),
-          localizacao: localizacao,
-          wmsrua: n(_apanhaRuaController),
-          wmsblc: n(_apanhaBlcController),
-          wmsmod: n(_apanhaModController),
-          wmsniv: n(_apanhaNivController),
-          wmsapt: n(_apanhaAptController),
-          wmsgvt: 0,
-          wmsrua2: n(_pulmaoRuaController),
-          wmsblc2: n(_pulmaoBlcController),
-          wmsmod2: n(_pulmaoModController),
-          wmsniv2: n(_pulmaoNivController),
-          wmsapt2: n(_pulmaoAptController),
-          wmsgvt2: 0,
-        ),
-      );
+      final ok = await deps.auditoriaService
+          .alterarAuditoriaLogisticaEnderecoPorCodigo(
+            baseUrl: baseUrl,
+            idProduto: auditoria.codigo,
+            request: RequestAlterarEnderecoProduto(
+              codigoalfa: _eanController.text.trim(),
+              dun14: _dun14Controller.text.trim(),
+              localizacao: localizacao,
+              wmsrua: n(_apanhaRuaController),
+              wmsblc: n(_apanhaBlcController),
+              wmsmod: n(_apanhaModController),
+              wmsniv: n(_apanhaNivController),
+              wmsapt: n(_apanhaAptController),
+              wmsgvt: 0,
+              wmsrua2: n(_pulmaoRuaController),
+              wmsblc2: n(_pulmaoBlcController),
+              wmsmod2: n(_pulmaoModController),
+              wmsniv2: n(_pulmaoNivController),
+              wmsapt2: n(_pulmaoAptController),
+              wmsgvt2: 0,
+            ),
+          );
       if (!mounted) return;
       if (ok) {
         AppSnackBar.sucesso(context, 'Endereço atualizado.');
@@ -534,10 +539,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: child,
-      ),
+      child: Padding(padding: const EdgeInsets.all(10), child: child),
     );
   }
 
@@ -597,9 +599,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
       decoration: BoxDecoration(
         color: AppColors.success.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.success.withValues(alpha: 0.25),
-        ),
+        border: Border.all(color: AppColors.success.withValues(alpha: 0.25)),
       ),
       child: Text(
         '${auditoria.codigo} - ${auditoria.nome}',
@@ -640,7 +640,8 @@ class _AuditoriaViewState extends State<AuditoriaView> {
               ),
               const SizedBox(width: 6),
               IconButton(
-                onPressed: (_buscando || _salvandoEndereco || _auditoria == null)
+                onPressed:
+                    (_buscando || _salvandoEndereco || _auditoria == null)
                     ? null
                     : _salvarEndereco,
                 icon: _salvandoEndereco
@@ -825,7 +826,8 @@ class _AuditoriaViewState extends State<AuditoriaView> {
                       ),
                     ),
                     IconButton(
-                      onPressed: (_buscando ||
+                      onPressed:
+                          (_buscando ||
                               _salvandoCodigoBarra ||
                               _auditoria == null)
                           ? null
@@ -925,7 +927,10 @@ class _AuditoriaViewState extends State<AuditoriaView> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: TabBar(
-                labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                labelStyle: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
                 tabs: [
                   Tab(text: 'Ficha'),
                   Tab(text: 'Endereço'),
@@ -938,7 +943,9 @@ class _AuditoriaViewState extends State<AuditoriaView> {
               child: TabBarView(
                 children: [
                   AuditoriaFichaTab(
-                    produtoLabel: auditoria != null ? _buildProdutoLabel(auditoria) : null,
+                    produtoLabel: auditoria != null
+                        ? _buildProdutoLabel(auditoria)
+                        : null,
                     resultado: _buildResultado(),
                   ),
                   AuditoriaEnderecoTab(

@@ -1,12 +1,14 @@
-import '../../models/diversos/lote_saida_model.dart';
+import '../../models/hsaida/lote_saida_model.dart';
 
 bool sameLotes(List<LoteSaidaModel> a, List<LoteSaidaModel> b) {
   if (identical(a, b)) return true;
   if (a.length != b.length) return false;
-  final sa =
-      a.map((e) => '${e.idProduto}|${e.lote}|${e.validade}|${e.qtde}').toSet();
-  final sb =
-      b.map((e) => '${e.idProduto}|${e.lote}|${e.validade}|${e.qtde}').toSet();
+  final sa = a
+      .map((e) => '${e.idProduto}|${e.lote}|${e.validade}|${e.qtde}')
+      .toSet();
+  final sb = b
+      .map((e) => '${e.idProduto}|${e.lote}|${e.validade}|${e.qtde}')
+      .toSet();
   return sa.length == sb.length && sa.containsAll(sb);
 }
 
@@ -32,4 +34,3 @@ double sumLotesExcept(List<String> values, int exceptIndex) {
 
 double chooseMax(double separado, double pedido) =>
     separado > 0 ? separado : pedido;
-

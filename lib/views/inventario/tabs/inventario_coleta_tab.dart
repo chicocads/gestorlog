@@ -14,7 +14,12 @@ import '../../../services/inventario/inventario_local_service.dart';
 import '../../widget/scanner_view.dart';
 
 class InventarioColetaTab extends StatefulWidget {
-  const InventarioColetaTab({super.key});
+  const InventarioColetaTab({
+    super.key,
+    required this.codigoParaPesquisa,
+  });
+
+  final ValueNotifier<String?> codigoParaPesquisa;
 
   @override
   State<InventarioColetaTab> createState() => _InventarioColetaTabState();
@@ -49,7 +54,15 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
       AppScope.of(context).parametroController.parametro.decQtde;
 
   @override
+  void initState() {
+    super.initState();
+    widget.codigoParaPesquisa.addListener(_onCodigoParaPesquisaChanged);
+    _onCodigoParaPesquisaChanged();
+  }
+
+  @override
   void dispose() {
+    widget.codigoParaPesquisa.removeListener(_onCodigoParaPesquisaChanged);
     _codigoController.dispose();
     _codigoFocus.dispose();
     _nomeProdutoManualController.dispose();
@@ -60,6 +73,19 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     _loteController.dispose();
     _validadeController.dispose();
     super.dispose();
+  }
+
+  void _onCodigoParaPesquisaChanged() {
+    final codigo = widget.codigoParaPesquisa.value?.trim();
+    if (codigo == null || codigo.isEmpty) return;
+    if (!StringSanitizer.isDigits(codigo)) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _codigoController.text = codigo;
+      _buscarProduto(disparadoPorCodigo: true);
+      widget.codigoParaPesquisa.value = null;
+    });
   }
 
   void _focarQtde() {
@@ -96,9 +122,9 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
 
     if (v.length <= 10) return true;
 
-    if (v.length != 13 && v.length != 14) {
+    if (v.length > 14) {
       _mostrarDialogoCodigoBarrasInvalido(
-        'Código de barras deve ter 13 ou 14 dígitos.',
+        'Código de barras deve ter 11 a 14 dígitos.',
       );
       return false;
     }
@@ -226,10 +252,22 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
         _qtdeController.text = '1';
       }
       if (produto == null && mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (disparadoPorCodigo &&
+            _somarMais1EVoltarCodigo &&
+            !_controlePecasAtivo) {
+          await _salvarColeta(ignorarBuscandoProduto: true);
           if (!mounted) return;
-          _nomeProdutoManualFocus.requestFocus();
-        });
+          _focarCodigo(limpar: true);
+          return;
+        }
+        if (disparadoPorCodigo) {
+          _focarQtde();
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _nomeProdutoManualFocus.requestFocus();
+          });
+        }
       } else if (produto != null && disparadoPorCodigo) {
         if (_somarMais1EVoltarCodigo &&
             !_controlePecasAtivo &&
@@ -309,10 +347,10 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     }
     if (!mounted) return;
     
-    if (_nomeProdutoManualController.text.isEmpty) {
-      AppSnackBar.erro(context, 'Informe o nome para coletar.');
-      return;
-    }
+    // if (_nomeProdutoManualController.text.isEmpty) {
+    //   AppSnackBar.erro(context, 'Informe o nome para coletar.');
+    //   return;
+    // }
 
     final pecas = _controlePecasAtivo ? _parseInt(_pecasController.text) : 0;
     if (_controlePecasAtivo) {
@@ -337,7 +375,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     }
 
     final produto = _produtoColetado;
-    final nomeInformado = _nomeProdutoManualController.text.trim().toUpperCase();
+    final nomeInformado = _produtoColetado?.nome ==null ? "" :_nomeProdutoManualController.text.trim().toUpperCase();
     final codigoBarraCadastro = produto != null
         ? (produto.codigoalfa.trim().isNotEmpty
               ? produto.codigoalfa.trim()
@@ -415,7 +453,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
             onChanged: (value) {
               final v = value.trim();
               if (!StringSanitizer.isDigits(v)) return;
-              if (v.length != 13 && v.length != 14) return;
+              if (v.length < 11 || v.length > 14) return;
               if (!StringSanitizer.isValidEan(v)) return;
               _buscarProduto(disparadoPorCodigo: true);
             },

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/diversos/auditoria_model.dart';
+import '../../../models/auditoria/auditoria_model.dart';
 
 class AuditoriaEnderecoTab extends StatelessWidget {
   const AuditoriaEnderecoTab({

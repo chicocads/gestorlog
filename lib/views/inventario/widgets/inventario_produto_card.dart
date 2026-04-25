@@ -12,10 +12,12 @@ class InventarioProdutoCard extends StatelessWidget {
     super.key,
     required this.produto,
     this.onTap,
+    this.onDoubleTap,
   });
 
   final ProdutoModel produto;
   final VoidCallback? onTap;
+  final VoidCallback? onDoubleTap;
 
   bool get _temWms => produto.wmsrua > 0;
 
@@ -107,6 +109,7 @@ class InventarioProdutoCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
+        onDoubleTap: onDoubleTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(14),

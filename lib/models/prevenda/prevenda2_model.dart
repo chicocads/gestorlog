@@ -1,11 +1,11 @@
 import '../cadastro/produto_model.dart';
-import '../diversos/lote_saida_model.dart';
+import '../hsaida/lote_saida_model.dart';
 
 class PreVenda2Model {
   static const tblNome = 'PreVenda2';
 
-  static const colLoja = 'loja';
-  static const colNumero = 'numero';
+  static const colLoja = 'idfilial';
+  static const colNumero = 'idprevenda';
   static const colOrdem = 'ordem';
   static const colTipo = 'tipo';
   static const colIdProduto = 'idproduto';
@@ -37,11 +37,11 @@ class PreVenda2Model {
   static const colLotesaida = 'lotesaida';
 
   PreVenda2Model({
-    required this.loja,
-    required this.numero,
+    required this.idFilial,
+    required this.idPrevenda,
     required this.ordem,
     required this.tipo,
-    required this.idproduto,
+    required this.idProduto,
     required this.lote,
     required this.validade,
     required this.nomeProduto,
@@ -71,12 +71,12 @@ class PreVenda2Model {
   });
 
   // chave primária
-  final int loja;
-  final int numero;
+  final int idFilial;
+  final int idPrevenda;
   final int ordem;
 
   // identificação do produto
-  final int idproduto;
+  final int idProduto;
   final String nomeProduto;
   final String und;
   final String lote;
@@ -117,11 +117,11 @@ class PreVenda2Model {
   final List<LoteSaidaModel> lotesaida;
 
   factory PreVenda2Model.empty() => PreVenda2Model(
-    loja: 0,
-    numero: 0,
+    idFilial: 0,
+    idPrevenda: 0,
     ordem: 0,
     tipo: 0,
-    idproduto: 0,
+    idProduto: 0,
     lote: '',
     validade: '',
     nomeProduto: '',
@@ -151,11 +151,11 @@ class PreVenda2Model {
   );
 
   PreVenda2Model copyWith({
-    int? loja,
-    int? numero,
+    int? idFilial,
+    int? idPrevenda,
     int? ordem,
     int? tipo,
-    int? idproduto,
+    int? idProduto,
     String? lote,
     String? validade,
     String? nomeProduto,
@@ -184,11 +184,11 @@ class PreVenda2Model {
     List<LoteSaidaModel>? lotesaida,
   }) {
     return PreVenda2Model(
-      loja: loja ?? this.loja,
-      numero: numero ?? this.numero,
+      idFilial: idFilial ?? this.idFilial,
+      idPrevenda: idPrevenda ?? this.idPrevenda,
       ordem: ordem ?? this.ordem,
       tipo: tipo ?? this.tipo,
-      idproduto: idproduto ?? this.idproduto,
+      idProduto: idProduto ?? this.idProduto,
       lote: lote ?? this.lote,
       validade: validade ?? this.validade,
       nomeProduto: nomeProduto ?? this.nomeProduto,
@@ -221,11 +221,11 @@ class PreVenda2Model {
   factory PreVenda2Model.fromMap(Map<String, dynamic> map) {
     if (map.isEmpty) return PreVenda2Model.empty();
     return PreVenda2Model(
-      loja: map[colLoja] ?? 0,
-      numero: map[colNumero] ?? 0,
+      idFilial: map[colLoja] ?? 0,
+      idPrevenda: map[colNumero] ?? 0,
       ordem: map[colOrdem] ?? 0,
       tipo: map[colTipo] ?? 0,
-      idproduto: map[colIdProduto] ?? 0,
+      idProduto: map[colIdProduto] ?? 0,
       lote: map[colLote] ?? '',
       validade: map[colValidade] ?? '',
       nomeProduto: map[colNomeProduto] ?? '',
@@ -260,11 +260,11 @@ class PreVenda2Model {
   }
 
   Map<String, dynamic> toMap() => {
-    colLoja: loja,
-    colNumero: numero,
+    colLoja: idFilial,
+    colNumero: idPrevenda,
     colOrdem: ordem,
     colTipo: tipo,
-    colIdProduto: idproduto,
+    colIdProduto: idProduto,
     colLote: lote,
     colValidade: validade,
     colNomeProduto: nomeProduto,
@@ -295,5 +295,5 @@ class PreVenda2Model {
 
   @override
   String toString() =>
-      'PreVenda2Model(loja: $loja, numero: $numero, ordem: $ordem, idproduto: $idproduto, qtde: $qtde, qtdesep: $qtdesep)';
+      'PreVenda2Model(loja: $idFilial, numero: $idPrevenda, ordem: $ordem, idproduto: $idProduto, qtde: $qtde, qtdesep: $qtdesep)';
 }

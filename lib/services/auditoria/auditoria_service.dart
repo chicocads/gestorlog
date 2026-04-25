@@ -1,7 +1,7 @@
 import '../../core/http/api_client.dart';
 import '../../core/http/http_retry.dart';
 import '../../core/utils/data_formatar.dart';
-import '../../models/diversos/auditoria_model.dart';
+import '../../models/auditoria/auditoria_model.dart';
 import 'request_alterar_barra_produto.dart';
 import 'request_endereco_produto.dart';
 
@@ -111,8 +111,6 @@ class AuditoriaService {
       throw Exception('Sr(a). Usuário, recurso não encontrado!');
     }
 
-    throw Exception(
-      'Erro ao salvar lote do produto (${response.statusCode})',
-    );
+    throw Exception('Erro ao salvar lote do produto (${response.statusCode})');
   }
 }

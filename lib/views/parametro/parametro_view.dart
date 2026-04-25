@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../controllers/parametro_controller.dart';
+import '../../controllers/parametros/parametro_controller.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/app_snack_bar.dart';
 import '../../core/widgets/app_int_field.dart';
@@ -114,7 +114,11 @@ class _ParametroViewState extends State<ParametroView> {
                       readOnly: !widget.isAdmin,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
                   Expanded(
                     child: AppIntField(
                       controller: _idFilialCtrl,
@@ -130,11 +134,7 @@ class _ParametroViewState extends State<ParametroView> {
                       readOnly: !widget.isAdmin,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
+                  const SizedBox(width: 12),
                   Expanded(
                     child: AppIntField(
                       controller: _idFrotaCtrl,
@@ -142,7 +142,11 @@ class _ParametroViewState extends State<ParametroView> {
                       readOnly: !widget.isAdmin,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
                   Expanded(
                     child: AppIntField(
                       controller: _idInventarioCtrl,

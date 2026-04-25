@@ -12,9 +12,11 @@ class InventarioProdutosTab extends StatefulWidget {
   const InventarioProdutosTab({
     super.key,
     this.sincronizandoNotifier,
+    this.onAbrirColeta,
   });
 
   final ValueNotifier<bool>? sincronizandoNotifier;
+  final ValueChanged<int>? onAbrirColeta;
 
   @override
   State<InventarioProdutosTab> createState() => InventarioProdutosTabState();
@@ -281,6 +283,9 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
                     return InventarioProdutoCard(
                       produto: produto,
                       onTap: () => _controller.selecionar(produto),
+                      onDoubleTap: widget.onAbrirColeta == null
+                          ? null
+                          : () => widget.onAbrirColeta!(produto.codigo),
                     );
                   },
                 ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../app/routes.dart';
 import '../../controllers/cadastro/filial_controller.dart';
 import '../../controllers/cadastro/usuario_controller.dart';
-import '../../controllers/parametro_controller.dart';
+import '../../controllers/parametros/parametro_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/functions/geolocalizacao.dart';
@@ -183,7 +183,10 @@ class _AppDrawer extends StatelessWidget {
                       ? null
                       : () {
                           Navigator.pop(context);
-                          Navigator.pushNamed(context, AppRoutes.separacaoCarga);
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.separacaoCarga,
+                          );
                         },
                 ),
                 DrawerMenuItem(
@@ -213,7 +216,10 @@ class _AppDrawer extends StatelessWidget {
                       ? null
                       : () {
                           Navigator.pop(context);
-                          Navigator.pushNamed(context, AppRoutes.auditoriaEstoque);
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.auditoriaEstoque,
+                          );
                         },
                 ),
               ],
@@ -354,7 +360,7 @@ class _HomeBody extends StatelessWidget {
                           onTap: inventarioOnly
                               ? null
                               : () async =>
-                                  _abrirEntregaCargaComValidacaoGps(context),
+                                    _abrirEntregaCargaComValidacaoGps(context),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -367,9 +373,9 @@ class _HomeBody extends StatelessWidget {
                           onTap: inventarioOnly
                               ? null
                               : () => Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.separacaoCarga,
-                                  ),
+                                  context,
+                                  AppRoutes.separacaoCarga,
+                                ),
                         ),
                       ),
                     ],
@@ -398,9 +404,9 @@ class _HomeBody extends StatelessWidget {
                           onTap: inventarioOnly
                               ? null
                               : () => Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.auditoriaEstoque,
-                                  ),
+                                  context,
+                                  AppRoutes.auditoriaEstoque,
+                                ),
                         ),
                       ),
                     ],

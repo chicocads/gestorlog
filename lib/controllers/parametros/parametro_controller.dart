@@ -1,6 +1,6 @@
-import '../core/controllers/base_controller.dart';
-import '../models/diversos/parametro_model.dart';
-import '../services/parametro_service.dart';
+import '../../core/controllers/base_controller.dart';
+import '../../models/parametros/parametro_model.dart';
+import '../../services/parametros/parametro_service.dart';
 
 class ParametroController extends BaseController {
   ParametroController(this._service) {

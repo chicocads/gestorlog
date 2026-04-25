@@ -7,7 +7,7 @@ import '../../../core/utils/data_formatar.dart';
 import '../../../core/utils/input_formatters.dart';
 import '../../../core/widgets/app_int_field.dart';
 import '../../../core/widgets/info_row.dart';
-import '../../../models/diversos/auditoria_model.dart';
+import '../../../models/auditoria/auditoria_model.dart';
 
 typedef AuditoriaCardBuilder = Widget Function(Widget child);
 
@@ -79,9 +79,7 @@ class _AuditoriaLotesTabState extends State<AuditoriaLotesTab> {
             fabricacao: TextEditingController(
               text: _formatDateShort(l.fabricacao),
             ),
-            validade: TextEditingController(
-              text: _formatDateShort(l.validade),
-            ),
+            validade: TextEditingController(text: _formatDateShort(l.validade)),
             saldo: TextEditingController(text: widget.formatQtd(l.saldo)),
           ),
         )
@@ -106,7 +104,9 @@ class _AuditoriaLotesTabState extends State<AuditoriaLotesTab> {
         final dd = parts[0].padLeft(2, '0');
         final mm = parts[1].padLeft(2, '0');
         final yyRaw = parts[2];
-        final yy = yyRaw.length >= 2 ? yyRaw.substring(yyRaw.length - 2) : yyRaw;
+        final yy = yyRaw.length >= 2
+            ? yyRaw.substring(yyRaw.length - 2)
+            : yyRaw;
         return '$dd/$mm/$yy';
       }
       return v;
@@ -166,10 +166,11 @@ class _AuditoriaLotesTabState extends State<AuditoriaLotesTab> {
 
     setState(() => _savingIndexes.add(index));
     try {
-      final ok = await deps.auditoriaService.salvarAuditoriaLogisticaLoteProduto(
-        baseUrl: baseUrl,
-        lote: atualizado,
-      );
+      final ok = await deps.auditoriaService
+          .salvarAuditoriaLogisticaLoteProduto(
+            baseUrl: baseUrl,
+            lote: atualizado,
+          );
       if (!mounted) return;
       if (ok) {
         AppSnackBar.sucesso(context, 'Lote salvo com sucesso.');

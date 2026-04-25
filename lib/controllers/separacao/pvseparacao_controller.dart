@@ -1,6 +1,6 @@
 import '../../core/controllers/base_controller.dart';
 import '../../models/Separacao/separacao_model.dart';
-import '../../models/diversos/lote_saida_model.dart';
+import '../../models/hsaida/lote_saida_model.dart';
 import '../../services/separacao/request_separacao.dart';
 import '../../services/separacao/separacao_local_service.dart';
 import '../../services/separacao/separacao_remote_service.dart';
@@ -31,10 +31,10 @@ class PvSeparacaoController extends BaseController {
     _selecionado = conferencia;
     final idx = _itens.indexWhere(
       (e) =>
-          e.loja == conferencia.loja &&
-          e.numero == conferencia.numero &&
+          e.idFilial == conferencia.idFilial &&
+          e.idPrevenda == conferencia.idPrevenda &&
           e.ordem == conferencia.ordem &&
-          e.idproduto == conferencia.idproduto,
+          e.idProduto == conferencia.idProduto,
     );
     if (idx >= 0) {
       _itens = [..._itens]..[idx] = conferencia;
@@ -75,16 +75,16 @@ class PvSeparacaoController extends BaseController {
     _itens = _itens
         .where(
           (e) =>
-              !(e.loja == loja &&
-                  e.numero == numero &&
+              !(e.idFilial == loja &&
+                  e.idPrevenda == numero &&
                   e.ordem == ordem &&
-                  e.idproduto == idproduto),
+                  e.idProduto == idproduto),
         )
         .toList();
-    if (_selecionado?.loja == loja &&
-        _selecionado?.numero == numero &&
+    if (_selecionado?.idFilial == loja &&
+        _selecionado?.idPrevenda == numero &&
         _selecionado?.ordem == ordem &&
-        _selecionado?.idproduto == idproduto) {
+        _selecionado?.idProduto == idproduto) {
       _selecionado = null;
     }
   });

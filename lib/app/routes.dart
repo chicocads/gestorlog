@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../controllers/parametro_controller.dart';
+import '../controllers/parametros/parametro_controller.dart';
 import '../controllers/cadastro/filial_controller.dart';
 import '../controllers/cadastro/produto_controller.dart';
 import '../controllers/cadastro/usuario_controller.dart';
@@ -15,7 +15,7 @@ import '../services/auditoria/auditoria_service.dart';
 import '../services/separacao/separacao_local_service.dart';
 import '../services/separacao/separacao_remote_service.dart';
 import '../services/prevenda/prevenda_service.dart';
-import '../services/parametro_service.dart';
+import '../services/parametros/parametro_service.dart';
 import '../views/auth/login_view.dart';
 import '../controllers/carga/carga_controller.dart';
 import '../controllers/hsaida/hsaida_controller.dart';
@@ -30,11 +30,7 @@ import '../views/cadastro/produto/produto_view.dart';
 import '../views/parametro/parametro_view.dart';
 
 class AppScope extends InheritedWidget {
-  const AppScope({
-    super.key,
-    required this.deps,
-    required super.child,
-  });
+  const AppScope({super.key, required this.deps, required super.child});
 
   final AppDependencies deps;
 
@@ -49,10 +45,7 @@ class AppScope extends InheritedWidget {
 }
 
 class AppDependencies {
-  AppDependencies({
-    ApiClient? apiClient,
-    ParametroService? parametroService,
-  }) {
+  AppDependencies({ApiClient? apiClient, ParametroService? parametroService}) {
     this.apiClient = apiClient ?? DioApiClient();
     this.parametroService = parametroService ?? ParametroService();
 
