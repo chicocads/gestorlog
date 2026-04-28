@@ -97,6 +97,7 @@ class _CargaListViewState extends State<CargaListView> {
       ),
       initialEntryMode: DatePickerEntryMode.calendar,
       locale: const Locale('pt', 'BR'),
+      confirmText: 'Aplicar',
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
           colorScheme: const ColorScheme.light(primary: AppColors.primary),

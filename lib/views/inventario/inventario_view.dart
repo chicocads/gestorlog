@@ -52,65 +52,77 @@ class _InventarioViewState extends State<InventarioView>
   @override
   Widget build(BuildContext context) {
     final mostrandoAcaoProdutos = _tabController.index == 0;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inventário'),
-        elevation: 1,
-        actions: [
-          if (mostrandoAcaoProdutos)
-            ValueListenableBuilder<bool>(
-              valueListenable: _sincronizandoProdutos,
-              builder: (context, sincronizando, _) {
-                return IconButton(
-                  onPressed: sincronizando ? null : _baixarProdutosNoAppBar,
-                  tooltip: 'Baixar produtos',
-                  icon: sincronizando
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.download_outlined),
-                );
+    return PopScope(
+      canPop: _tabController.index == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (_tabController.index != 0) {
+          _tabController.animateTo(0);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Inventário de Estoque'),
+          elevation: 1,
+          actions: [
+            if (mostrandoAcaoProdutos)
+              ValueListenableBuilder<bool>(
+                valueListenable: _sincronizandoProdutos,
+                builder: (context, sincronizando, _) {
+                  return IconButton(
+                    onPressed: sincronizando ? null : _baixarProdutosNoAppBar,
+                    tooltip: 'Baixar produtos',
+                    icon: sincronizando
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.download_outlined),
+                  );
+                },
+              ),
+          ],
+          bottom: TabBar(
+            controller: _tabController,
+            isScrollable: false,
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white,
+            labelStyle: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+            tabs: const [
+              Tab(text: 'Produtos', icon: Icon(Icons.inventory_2_outlined)),
+              Tab(text: 'Coleta', icon: Icon(Icons.qr_code_scanner_outlined)),
+              Tab(text: 'Coletados', icon: Icon(Icons.fact_check_outlined)),
+              Tab(text: 'Total', icon: Icon(Icons.calculate_outlined)),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            InventarioProdutosTab(
+              key: _produtosTabKey,
+              sincronizandoNotifier: _sincronizandoProdutos,
+              onAbrirColeta: (codigoProduto) {
+                _tabController.animateTo(1);
+                _codigoParaColeta.value = null;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _codigoParaColeta.value = '$codigoProduto';
+                });
               },
             ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: false,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white,
-          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          tabs: const [
-            Tab(text: 'Produtos', icon: Icon(Icons.inventory_2_outlined)),
-            Tab(text: 'Coleta', icon: Icon(Icons.qr_code_scanner_outlined)),
-            Tab(text: 'Coletados', icon: Icon(Icons.fact_check_outlined)),
-            Tab(text: 'Total', icon: Icon(Icons.calculate_outlined)),
+            InventarioColetaTab(codigoParaPesquisa: _codigoParaColeta),
+            const InventarioColetadosTab(),
+            const InventarioTotalTab(),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          InventarioProdutosTab(
-            key: _produtosTabKey,
-            sincronizandoNotifier: _sincronizandoProdutos,
-            onAbrirColeta: (codigoProduto) {
-              _tabController.animateTo(1);
-              _codigoParaColeta.value = null;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _codigoParaColeta.value = '$codigoProduto';
-              });
-            },
-          ),
-          InventarioColetaTab(codigoParaPesquisa: _codigoParaColeta),
-          const InventarioColetadosTab(),
-          const InventarioTotalTab(),
-        ],
       ),
     );
   }

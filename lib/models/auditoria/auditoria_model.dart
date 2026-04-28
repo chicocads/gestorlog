@@ -1,6 +1,7 @@
 class AuditoriaLogisticaModel {
   static const colCodigo = 'codigo';
   static const colNome = 'nome';
+  static const colSituacao = 'situacao';
   static const colUndvenda = 'undvenda';
   static const colCodigoAlfa = 'codigoalfa';
   static const colDun14 = 'dun14';
@@ -31,6 +32,7 @@ class AuditoriaLogisticaModel {
   AuditoriaLogisticaModel({
     required this.codigo,
     required this.nome,
+    required this.situacao,
     required this.undvenda,
     required this.codigoalfa,
     required this.dun14,
@@ -57,6 +59,7 @@ class AuditoriaLogisticaModel {
 
   final int codigo;
   final String nome;
+  final int situacao;
   final String undvenda;
   final String codigoalfa;
   final String dun14;
@@ -80,9 +83,12 @@ class AuditoriaLogisticaModel {
   final double qtsc;
   final List<AuditoriaLogisticaLoteModel> lotes;
 
+  bool get ativo => situacao != 0;
+
   factory AuditoriaLogisticaModel.empty() => AuditoriaLogisticaModel(
     codigo: 0,
     nome: '',
+    situacao: 1,
     undvenda: '',
     codigoalfa: '',
     dun14: '',
@@ -110,6 +116,7 @@ class AuditoriaLogisticaModel {
   AuditoriaLogisticaModel copyWith({
     int? codigo,
     String? nome,
+    int? situacao,
     String? undvenda,
     String? codigoalfa,
     String? dun14,
@@ -136,6 +143,7 @@ class AuditoriaLogisticaModel {
     return AuditoriaLogisticaModel(
       codigo: codigo ?? this.codigo,
       nome: nome ?? this.nome,
+      situacao: situacao ?? this.situacao,
       undvenda: undvenda ?? this.undvenda,
       codigoalfa: codigoalfa ?? this.codigoalfa,
       dun14: dun14 ?? this.dun14,
@@ -163,6 +171,20 @@ class AuditoriaLogisticaModel {
 
   static int _asInt(dynamic value) => (value as num?)?.toInt() ?? 0;
   static double _asDouble(dynamic value) => (value as num?)?.toDouble() ?? 0.0;
+  static int _asSituacao(Map<String, dynamic> map) {
+    final raw =
+        map[colSituacao] ??
+        map['SITUACAO'] ??
+        map['situacao_produto'] ??
+        map['situacaoProduto'];
+    if (raw is num) return raw.toInt();
+    if (raw is String) return int.tryParse(raw.trim()) ?? 1;
+    final ativo = map['ativo'];
+    if (ativo is bool) return ativo ? 1 : 0;
+    final inativo = map['inativo'];
+    if (inativo is bool) return inativo ? 0 : 1;
+    return 1;
+  }
 
   factory AuditoriaLogisticaModel.fromMap(Map<String, dynamic> map) {
     if (map.isEmpty) return AuditoriaLogisticaModel.empty();
@@ -183,6 +205,7 @@ class AuditoriaLogisticaModel {
     return AuditoriaLogisticaModel(
       codigo: _asInt(map[colCodigo]),
       nome: map[colNome] as String? ?? '',
+      situacao: _asSituacao(map),
       undvenda: map[colUndvenda] as String? ?? '',
       codigoalfa: map[colCodigoAlfa] as String? ?? '',
       dun14: map[colDun14] as String? ?? '',
@@ -211,6 +234,7 @@ class AuditoriaLogisticaModel {
   Map<String, dynamic> toMap() => {
     colCodigo: codigo,
     colNome: nome,
+    colSituacao: situacao,
     colUndvenda: undvenda,
     colCodigoAlfa: codigoalfa,
     colDun14: dun14,

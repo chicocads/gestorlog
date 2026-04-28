@@ -587,76 +587,125 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
   @override
   Widget build(BuildContext context) {
     final itens = widget.prevenda.itens;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: _mostrandoLeitor
-            ? _buildCampoBarcodeInline()
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    final bloqueadoPop = _salvandoIndex != null || _apagando || _finalizando;
+    return PopScope(
+      canPop: !bloqueadoPop && !_mostrandoLeitor,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (bloqueadoPop) {
+          FocusScope.of(context).unfocus();
+          AppSnackBar.erro(context, 'Aguarde finalizar a operação antes de sair.');
+          return;
+        }
+        if (_mostrandoLeitor) {
+          setState(() {
+            _mostrandoLeitor = false;
+            _barcodeFocus.unfocus();
+          });
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: _mostrandoLeitor
+              ? _buildCampoBarcodeInline()
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('PV Nº ${widget.prevenda.idPrevenda}'),
+                        const SizedBox(width: 8),
+                        Text(
+                          '# ${itens.length}',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      widget.prevenda.cliente.nome.isNotEmpty
+                          ? widget.prevenda.cliente.nome
+                          : 'Cliente ${widget.prevenda.idCliente}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: Icon(_mostrandoLeitor ? Icons.close : Icons.keyboard),
+              tooltip:
+                  _mostrandoLeitor ? 'Fechar campo' : 'Digitar código de barra',
+              onPressed: _bloqueado ? null : _toggleLeitor,
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _bloqueado ? null : _abrirScanner,
+          backgroundColor: AppColors.primary,
+          child: const Icon(Icons.qr_code_scanner, color: Colors.white),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+              child: Row(
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('PV Nº ${widget.prevenda.idPrevenda}'),
-                      const SizedBox(width: 8),
-                      Text(
-                        '# ${itens.length}',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _finalizando || _bloqueado
+                          ? null
+                          : _confirmarFinalizarSeparacao,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.success,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                    ],
-                  ),
-                  Text(
-                    widget.prevenda.cliente.nome.isNotEmpty
-                        ? widget.prevenda.cliente.nome
-                        : 'Cliente ${widget.prevenda.idCliente}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
+                      icon: _finalizando
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.check_circle_outline, size: 20),
+                      label: const Text(
+                        'Finalizar Separação',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ],
-              ),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(_mostrandoLeitor ? Icons.close : Icons.keyboard),
-            tooltip: _mostrandoLeitor
-                ? 'Fechar campo'
-                : 'Digitar código de barra',
-            onPressed: _bloqueado ? null : _toggleLeitor,
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _bloqueado ? null : _abrirScanner,
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.qr_code_scanner, color: Colors.white),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _finalizando || _bloqueado
-                        ? null
-                        : _confirmarFinalizarSeparacao,
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed:
+                        _apagando || _bloqueado ? null : _confirmarApagarSeparacao,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.success,
+                      backgroundColor: AppColors.error,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    icon: _finalizando
+                    icon: _apagando
                         ? const SizedBox(
                             width: 18,
                             height: 18,
@@ -665,101 +714,68 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
                               color: Colors.white,
                             ),
                           )
-                        : const Icon(Icons.check_circle_outline, size: 20),
+                        : const Icon(Icons.delete_outline, size: 20),
                     label: const Text(
-                      'Finalizar Separação',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                      ),
+                      'Apagar Qtde',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  onPressed: _apagando || _bloqueado
-                      ? null
-                      : _confirmarApagarSeparacao,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.error,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  icon: _apagando
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.delete_outline, size: 20),
-                  label: const Text(
-                    'Apagar Qtde',
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: itens.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Nenhum item encontrado.',
-                      style: TextStyle(color: AppColors.textSecondary),
+            Expanded(
+              child: itens.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Nenhum item encontrado.',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    )
+                  : ListView.separated(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 60),
+                      itemCount: itens.length,
+                      separatorBuilder: (_, index) => const SizedBox(height: 8),
+                      itemBuilder: (_, i) {
+                        final idx = _sortedIndices[i];
+                        final item = itens[idx];
+                        final idFilial = widget.prevenda.idFilial;
+                        final idPrevenda = widget.prevenda.idPrevenda;
+                        final localLotes = widget.pvseparacaoController
+                            .lotesDoProduto(item.idProduto);
+                        final lotes = mergeLotesForItem(
+                          item: item,
+                          idFilial: idFilial,
+                          idPrevenda: idPrevenda,
+                          localLotes: localLotes,
+                        );
+                        return PvSeparacaoItemCard(
+                          key: _cardKeys[idx],
+                          idFilial: idFilial,
+                          idPrevenda: idPrevenda,
+                          item: item,
+                          pvSeparacaoController: widget.pvseparacaoController,
+                          lotes: lotes,
+                          qtdeController: _qtdeControllers[idx],
+                          qtdeFocusNode: _qtdeFocusNodes[idx],
+                          highlighted: _highlightedIndex == idx,
+                          onSalvar: () => _salvarQtde(idx, true),
+                          onQtdeExcedida: () => _mostrarAlertaQtdeExcedida(
+                            itens[idx].produto.nome,
+                            itens[idx].qtde,
+                          ),
+                          isSalvando: _salvandoIndex == idx,
+                          romaneio: _bloqueado ? 2 : widget.prevenda.romaneio,
+                          decQtde: AppScope.of(
+                            context,
+                          ).parametroController.parametro.decQtde,
+                        );
+                      },
                     ),
-                  )
-                : ListView.separated(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 60),
-                    itemCount: itens.length,
-                    separatorBuilder: (_, index) => const SizedBox(height: 8),
-                    itemBuilder: (_, i) {
-                      final idx = _sortedIndices[i];
-                      final item = itens[idx];
-                      final idFilial = widget.prevenda.idFilial;
-                      final idPrevenda = widget.prevenda.idPrevenda;
-                      final localLotes = widget.pvseparacaoController
-                          .lotesDoProduto(item.idProduto);
-                      final lotes = mergeLotesForItem(
-                        item: item,
-                        idFilial: idFilial,
-                        idPrevenda: idPrevenda,
-                        localLotes: localLotes,
-                      );
-                      return PvSeparacaoItemCard(
-                        key: _cardKeys[idx],
-                        idFilial: idFilial,
-                        idPrevenda: idPrevenda,
-                        item: item,
-                        pvSeparacaoController: widget.pvseparacaoController,
-                        lotes: lotes,
-                        qtdeController: _qtdeControllers[idx],
-                        qtdeFocusNode: _qtdeFocusNodes[idx],
-                        highlighted: _highlightedIndex == idx,
-                        onSalvar: () => _salvarQtde(idx, true),
-                        onQtdeExcedida: () => _mostrarAlertaQtdeExcedida(
-                          itens[idx].produto.nome,
-                          itens[idx].qtde,
-                        ),
-                        isSalvando: _salvandoIndex == idx,
-                        romaneio: _bloqueado ? 2 : widget.prevenda.romaneio,
-                        decQtde: AppScope.of(
-                          context,
-                        ).parametroController.parametro.decQtde,
-                      );
-                    },
-                  ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

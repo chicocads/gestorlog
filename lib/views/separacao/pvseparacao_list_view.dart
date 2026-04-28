@@ -81,6 +81,7 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
         start: _data1 ?? hoje.subtract(const Duration(days: 10)),
         end: _data2 ?? hoje,
       ),
+      confirmText: 'Aplicar',
       initialEntryMode: DatePickerEntryMode.calendar,
       locale: const Locale('pt', 'BR'),
       builder: (context, child) => Theme(

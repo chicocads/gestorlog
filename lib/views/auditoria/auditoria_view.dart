@@ -593,21 +593,50 @@ class _AuditoriaViewState extends State<AuditoriaView> {
   }
 
   Widget _buildProdutoLabel(AuditoriaLogisticaModel auditoria) {
+    final inativo = !auditoria.ativo;
+    final cor = inativo ? AppColors.warning : AppColors.success;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: 0.08),
+        color: cor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.success.withValues(alpha: 0.25)),
+        border: Border.all(color: cor.withValues(alpha: 0.25)),
       ),
-      child: Text(
-        '${auditoria.codigo} - ${auditoria.nome}',
-        style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-        ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '${auditoria.codigo} - ${auditoria.nome}',
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+          if (inativo) ...[
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: AppColors.error.withValues(alpha: 0.45),
+                ),
+              ),
+              child: const Text(
+                'INATIVO',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.error,
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -901,69 +930,82 @@ class _AuditoriaViewState extends State<AuditoriaView> {
   @override
   Widget build(BuildContext context) {
     final auditoria = _auditoria;
-    return Scaffold(
-      appBar: AppBar(title: const Text('Auditoria de Estoque'), elevation: 0),
-      body: DefaultTabController(
-        length: 3,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCodigoRow(),
-                  if (!_buscando && _auditoria == null) ...[
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Informe o código e pesquise para iniciar a auditoria.',
-                      style: TextStyle(color: AppColors.textSecondary),
+    final bloqueado =
+        _buscando || _salvandoCodigoBarra || _salvandoEndereco;
+
+    return PopScope(
+      canPop: !bloqueado,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (bloqueado) {
+          FocusScope.of(context).unfocus();
+          AppSnackBar.erro(context, 'Aguarde finalizar a operação antes de sair.');
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Auditoria de Estoque'), elevation: 0),
+        body: DefaultTabController(
+          length: 3,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildCodigoRow(),
+                    if (!_buscando && _auditoria == null) ...[
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Informe o código e pesquise para iniciar a auditoria.',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ],
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: TabBar(
+                  labelStyle: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  tabs: [
+                    Tab(text: 'Ficha'),
+                    Tab(text: 'Endereço'),
+                    Tab(text: 'Lotes'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    AuditoriaFichaTab(
+                      produtoLabel: auditoria != null
+                          ? _buildProdutoLabel(auditoria)
+                          : null,
+                      resultado: _buildResultado(),
+                    ),
+                    AuditoriaEnderecoTab(
+                      buscando: _buscando,
+                      auditoria: auditoria,
+                      enderecoCard: _buildEnderecoCard,
+                    ),
+                    AuditoriaLotesTab(
+                      buscando: _buscando,
+                      auditoria: auditoria,
+                      cardBuilder: (child) => _buildCard(child: child),
+                      formatValidade: _formatValidade,
+                      formatQtd: _formatQtd,
                     ),
                   ],
-                  const SizedBox(height: 10),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: TabBar(
-                labelStyle: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
                 ),
-                tabs: [
-                  Tab(text: 'Ficha'),
-                  Tab(text: 'Endereço'),
-                  Tab(text: 'Lotes'),
-                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  AuditoriaFichaTab(
-                    produtoLabel: auditoria != null
-                        ? _buildProdutoLabel(auditoria)
-                        : null,
-                    resultado: _buildResultado(),
-                  ),
-                  AuditoriaEnderecoTab(
-                    buscando: _buscando,
-                    auditoria: auditoria,
-                    enderecoCard: _buildEnderecoCard,
-                  ),
-                  AuditoriaLotesTab(
-                    buscando: _buscando,
-                    auditoria: auditoria,
-                    cardBuilder: (child) => _buildCard(child: child),
-                    formatValidade: _formatValidade,
-                    formatQtd: _formatQtd,
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

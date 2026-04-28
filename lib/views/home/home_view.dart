@@ -190,19 +190,8 @@ class _AppDrawer extends StatelessWidget {
                         },
                 ),
                 DrawerMenuItem(
-                  icon: Icons.inventory_2_outlined,
-                  label: 'Produtos Online',
-                  enabled: !inventarioOnly,
-                  onTap: inventarioOnly
-                      ? null
-                      : () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, AppRoutes.produtos);
-                        },
-                ),
-                DrawerMenuItem(
                   icon: Icons.qr_code_scanner_outlined,
-                  label: 'Inventário',
+                  label: 'Inventário de Estoque',
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, AppRoutes.inventario);
@@ -220,6 +209,17 @@ class _AppDrawer extends StatelessWidget {
                             context,
                             AppRoutes.auditoriaEstoque,
                           );
+                        },
+                ),
+                DrawerMenuItem(
+                  icon: Icons.inventory_2_outlined,
+                  label: 'Produtos Online',
+                  enabled: !inventarioOnly,
+                  onTap: inventarioOnly
+                      ? null
+                      : () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, AppRoutes.produtos);
                         },
                 ),
               ],
@@ -386,7 +386,7 @@ class _HomeBody extends StatelessWidget {
                       Expanded(
                         child: QuickActionCard(
                           icon: Icons.inventory_2_outlined,
-                          label: 'Inventário',
+                          label: 'Inventário de Estoque',
                           color: AppColors.warning,
                           onTap: () => Navigator.pushNamed(
                             context,
