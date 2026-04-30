@@ -46,7 +46,7 @@ class ParametroModel {
     decPreco: 2,
     decQtde: 0,
     controlePecas: 0,
-    url: 'http://45.224.122.64:5000',
+    url: 'http://192.168.1.126:5002',
   );
 
   ParametroModel copyWith({
@@ -84,7 +84,7 @@ class ParametroModel {
       idPda: map[colIdPda] as int? ?? 0,
       idFrota: map[colIdFrota] as int? ?? 0,
       idInventario: map[colIdInventario] as int? ?? 0,
-      url: map[colUrl] as String? ?? 'http://45.224.122.64:5000',
+      url: map[colUrl] as String? ?? 'http://192.168.1.126:5002',
       decPreco: map[colDecPreco] as int? ?? 2,
       decQtde: map[colDecQtde] as int? ?? 0,
       controlePecas: map[colControlePecas] as int? ?? 0,

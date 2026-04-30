@@ -104,7 +104,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
 
   void _syncLastValidValue() {
     final value = widget.qtdeController.text;
-    final entered = double.tryParse(value.replaceAll(',', '.'));
+    final entered = NumeroFormatar.tryParse(value);
     if (entered == null || entered <= widget.item.qtde) {
       _lastValidValue = value;
     }
@@ -179,9 +179,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       if ((somaLotes - salvo).abs() > eps) return false;
     }
 
-    final digitado = double.tryParse(
-      widget.qtdeController.text.replaceAll(',', '.'),
-    );
+    final digitado = NumeroFormatar.tryParse(widget.qtdeController.text);
     if (digitado == null) return false;
     return (digitado - salvo).abs() <= eps;
   }
@@ -205,7 +203,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
   }
 
   void _onQtdeChanged(String value) {
-    final entered = double.tryParse(value.replaceAll(',', '.'));
+    final entered = NumeroFormatar.tryParse(value);
     if (entered != null && entered > widget.item.qtde) {
       widget.qtdeController.text = _lastValidValue;
       widget.qtdeController.selection = TextSelection.fromPosition(
@@ -229,15 +227,14 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       return;
     }
 
-    final entered = double.tryParse(value.replaceAll(',', '.'));
+    final entered = NumeroFormatar.tryParse(value);
     if (entered == null) return;
 
     final somaOutros = sumLotesExcept(
       _loteRows.map((r) => r.qtdeController.text.trim()).toList(),
       index,
     );
-    final separado =
-        double.tryParse(widget.qtdeController.text.replaceAll(',', '.')) ?? 0.0;
+    final separado = NumeroFormatar.parseOrZero(widget.qtdeController.text);
     final max = separado > 0 ? separado : widget.item.qtde;
 
     if (somaOutros + entered > max) {
@@ -273,7 +270,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       return;
     }
 
-    final qtde = double.tryParse(qtdeTxt.replaceAll(',', '.'));
+    final qtde = NumeroFormatar.tryParse(qtdeTxt);
     if (qtde == null || qtde <= 0) {
       AppSnackBar.erro(context, 'Quantidade do lote inválida.');
       return;
@@ -291,8 +288,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       _loteRows.map((r) => r.qtdeController.text.trim()).toList(),
       index,
     );
-    final separado =
-        double.tryParse(widget.qtdeController.text.replaceAll(',', '.')) ?? 0.0;
+    final separado = NumeroFormatar.parseOrZero(widget.qtdeController.text);
     final max = separado > 0 ? separado : widget.item.qtde;
     if (somaOutros + qtde > max) {
       AppSnackBar.erro(

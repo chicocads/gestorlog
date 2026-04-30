@@ -3,6 +3,7 @@ import '../../controllers/separacao/pvseparacao_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/app_snack_bar.dart';
 import '../../core/utils/numero_formatar.dart';
+import '../../core/utils/string_sanitizer.dart';
 import '../../core/functions/separacao_lotes_utils.dart';
 import '../../models/Separacao/separacao_model.dart';
 import '../../models/hsaida/lote_saida_model.dart';
@@ -169,7 +170,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       AppSnackBar.erro(context, 'Informe a quantidade para salvar.');
       return;
     }
-    final qtde = double.tryParse(texto.replaceAll(',', '.'));
+    final qtde = NumeroFormatar.tryParse(texto);
     if (qtde == null) {
       AppSnackBar.erro(context, 'Quantidade inválida.');
       return;
@@ -291,9 +292,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
 
   void _onBarcodeChanged(String value) {
     final codigo = value.trim();
-    final somenteDigitos =
-        codigo.isNotEmpty && codigo.codeUnits.every((c) => c >= 48 && c <= 57);
-    if (codigo.length == 13 && somenteDigitos) {
+    if (codigo.length == 13 && StringSanitizer.isDigits(codigo)) {
       _onBarcodeSubmitted(codigo);
     }
   }
@@ -346,9 +345,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       final decQtde = AppScope.of(
         context,
       ).parametroController.parametro.decQtde;
-      final current =
-          double.tryParse(_qtdeControllers[index].text.replaceAll(',', '.')) ??
-          0;
+      final current = NumeroFormatar.parseOrZero(_qtdeControllers[index].text);
       final nova = current + 1;
       if (nova > itens[index].qtde) {
         _mostrarAlertaQtdeExcedida(
@@ -430,7 +427,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
     for (var i = 0; i < widget.prevenda.itens.length; i++) {
       final texto = _qtdeControllers[i].text.trim();
       if (texto.isEmpty) continue;
-      final qtde = double.tryParse(texto.replaceAll(',', '.'));
+      final qtde = NumeroFormatar.tryParse(texto);
       if (qtde == null || qtde <= 0) continue;
       final item = widget.prevenda.itens[i];
 

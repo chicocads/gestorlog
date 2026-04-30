@@ -4,6 +4,7 @@ import '../../controllers/prevenda/prevenda_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/data_formatar.dart';
 import '../../core/widgets/list_state_builder.dart';
+import '../../core/widgets/status_badge.dart';
 import '../../models/prevenda/prevenda_model.dart';
 import '../../services/prevenda/request_prevenda.dart';
 import 'pvseparacao_itens_view.dart';
@@ -114,23 +115,7 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
                 const Text('Separação de Carga'),
                 if (total > 0) ...[
                   const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '#$total$suffix',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                  CountBadge(count: total, suffix: suffix),
                 ],
               ],
             );

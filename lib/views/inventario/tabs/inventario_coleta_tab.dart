@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/app_snack_bar.dart';
 import '../../../core/utils/data_formatar.dart';
 import '../../../core/utils/input_formatters.dart';
+import '../../../core/utils/numero_formatar.dart';
 import '../../../core/utils/string_sanitizer.dart';
 import '../../../models/cadastro/produto_model.dart';
 import '../../../models/inventario/inventario_model.dart';
@@ -301,10 +302,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
   }
 
   double? _parseQtde(String raw) {
-    final v = raw.trim();
-    if (v.isEmpty) return null;
-    final normalized = v.replaceAll('.', '').replaceAll(',', '.');
-    return double.tryParse(normalized);
+    return NumeroFormatar.tryParse(raw);
   }
 
   int? _parseInt(String raw) {

@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/app_snack_bar.dart';
 import '../../../core/utils/data_formatar.dart';
 import '../../../core/utils/input_formatters.dart';
+import '../../../core/utils/numero_formatar.dart';
 import '../../../core/widgets/app_int_field.dart';
 import '../../../core/widgets/info_row.dart';
 import '../../../models/auditoria/auditoria_model.dart';
@@ -91,7 +92,7 @@ class _AuditoriaLotesTabState extends State<AuditoriaLotesTab> {
   double _parseSaldo(String value) {
     final raw = value.trim();
     if (raw.isEmpty) return 0.0;
-    return double.tryParse(raw.replaceAll(',', '.')) ?? 0.0;
+    return NumeroFormatar.parseOrZero(raw);
   }
 
   String _formatDateShort(String raw) {

@@ -6,6 +6,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/functions/geolocalizacao.dart';
 import '../../core/utils/data_formatar.dart';
 import '../../core/widgets/list_state_builder.dart';
+import '../../core/widgets/status_badge.dart';
 import '../../models/carga/carga_model.dart';
 import '../../services/carga/request_carga.dart';
 import '../../services/hsaida/request_hsaida.dart';
@@ -128,23 +129,7 @@ class _CargaListViewState extends State<CargaListView> {
                 const Text('Cargas'),
                 if (total > 0) ...[
                   const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '#$total$suffix',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                  CountBadge(count: total, suffix: suffix),
                 ],
               ],
             );

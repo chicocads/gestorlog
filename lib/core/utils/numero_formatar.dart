@@ -3,6 +3,33 @@ import 'package:intl/intl.dart';
 class NumeroFormatar {
   NumeroFormatar._();
 
+  static double? tryParse(String raw) {
+    var v = raw.trim();
+    if (v.isEmpty) return null;
+    v = v.replaceAll(' ', '');
+
+    if (v.contains(',')) {
+      final normalized = v.replaceAll('.', '').replaceAll(',', '.');
+      return double.tryParse(normalized);
+    }
+
+    if (v.contains('.')) {
+      final parts = v.split('.');
+      if (parts.length >= 2) {
+        final firstOk = parts.first.isNotEmpty && parts.first.length <= 3;
+        final groupsOk =
+            parts.skip(1).every((p) => p.isNotEmpty && p.length == 3);
+        if (firstOk && groupsOk) {
+          return double.tryParse(parts.join());
+        }
+      }
+    }
+
+    return double.tryParse(v);
+  }
+
+  static double parseOrZero(String raw) => tryParse(raw) ?? 0.0;
+
   static String moeda(String? value, {String simbolo = ''}) {
     if (value!.isEmpty) {
       return '0,00';

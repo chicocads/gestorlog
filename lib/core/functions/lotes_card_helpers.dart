@@ -1,4 +1,5 @@
 import '../../models/hsaida/lote_saida_model.dart';
+import '../utils/numero_formatar.dart';
 
 bool sameLotes(List<LoteSaidaModel> a, List<LoteSaidaModel> b) {
   if (identical(a, b)) return true;
@@ -26,8 +27,7 @@ double sumLotesExcept(List<String> values, int exceptIndex) {
   var total = 0.0;
   for (var i = 0; i < values.length; i++) {
     if (i == exceptIndex) continue;
-    final v = double.tryParse(values[i].replaceAll(',', '.')) ?? 0.0;
-    total += v;
+    total += NumeroFormatar.parseOrZero(values[i]);
   }
   return total;
 }

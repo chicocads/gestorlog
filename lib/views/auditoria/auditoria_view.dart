@@ -9,6 +9,7 @@ import '../../core/widgets/app_int_field.dart';
 import '../../models/auditoria/auditoria_model.dart';
 import '../../services/auditoria/request_alterar_barra_produto.dart';
 import '../../services/auditoria/request_endereco_produto.dart';
+import '../../core/widgets/status_badge.dart';
 import '../widget/scanner_view.dart';
 import 'tabs/auditoria_endereco_tab.dart';
 import 'tabs/auditoria_ficha_tab.dart';
@@ -565,80 +566,16 @@ class _AuditoriaViewState extends State<AuditoriaView> {
     double labelFontSize = 11,
     double valueFontSize = 14,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: labelFontSize,
-            color: AppColors.textSecondary,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: valueFontSize,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ],
+    return _AuditoriaStat(
+      label: label,
+      value: value,
+      labelFontSize: labelFontSize,
+      valueFontSize: valueFontSize,
     );
   }
 
   Widget _buildProdutoLabel(AuditoriaLogisticaModel auditoria) {
-    final inativo = !auditoria.ativo;
-    final cor = inativo ? AppColors.warning : AppColors.success;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: cor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cor.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              '${auditoria.codigo} - ${auditoria.nome}',
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ),
-          if (inativo) ...[
-            const SizedBox(width: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.error.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: AppColors.error.withValues(alpha: 0.45),
-                ),
-              ),
-              child: const Text(
-                'INATIVO',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.error,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
+    return _AuditoriaProdutoLabel(auditoria: auditoria);
   }
 
   Widget _buildEnderecoCard() {
@@ -1007,6 +944,88 @@ class _AuditoriaViewState extends State<AuditoriaView> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AuditoriaStat extends StatelessWidget {
+  const _AuditoriaStat({
+    required this.label,
+    required this.value,
+    required this.labelFontSize,
+    required this.valueFontSize,
+  });
+
+  final String label;
+  final String value;
+  final double labelFontSize;
+  final double valueFontSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: labelFontSize,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: valueFontSize,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AuditoriaProdutoLabel extends StatelessWidget {
+  const _AuditoriaProdutoLabel({required this.auditoria});
+
+  final AuditoriaLogisticaModel auditoria;
+
+  @override
+  Widget build(BuildContext context) {
+    final inativo = !auditoria.ativo;
+    final cor = inativo ? AppColors.warning : AppColors.success;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: cor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cor.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '${auditoria.codigo} - ${auditoria.nome}',
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+          if (inativo) ...[
+            const SizedBox(width: 10),
+            const StatusBadge(label: 'INATIVO', color: AppColors.error),
+          ],
+        ],
       ),
     );
   }
