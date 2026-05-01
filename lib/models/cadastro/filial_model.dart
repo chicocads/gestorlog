@@ -12,6 +12,7 @@ class FilialModel {
   static const colEmail = 'email';
   static const colCnpj = 'cnpj';
   static const colIe = 'ie';
+  static const colImagem = 'imagem';
 
   FilialModel({
     required this.codigo,
@@ -26,6 +27,7 @@ class FilialModel {
     required this.email,
     required this.cnpj,
     required this.ie,
+    required this.imagem,
   });
 
   final int codigo;
@@ -40,6 +42,7 @@ class FilialModel {
   final String email;
   final String cnpj;
   final String ie;
+  final String imagem;
 
   factory FilialModel.empty() => FilialModel(
     codigo: 0,
@@ -54,6 +57,7 @@ class FilialModel {
     email: '',
     cnpj: '',
     ie: '',
+    imagem: '',
   );
 
   FilialModel copyWith({
@@ -68,7 +72,8 @@ class FilialModel {
     String? fone,
     String? email,
     String? cnpj,
-    String? ie,
+    String? ie, 
+    String? imagem,
   }) {
     return FilialModel(
       codigo: codigo ?? this.codigo,
@@ -83,6 +88,7 @@ class FilialModel {
       email: email ?? this.email,
       cnpj: cnpj ?? this.cnpj,
       ie: ie ?? this.ie,
+      imagem: imagem ?? this.imagem,
     );
   }
 
@@ -101,6 +107,7 @@ class FilialModel {
       email: map[colEmail] as String? ?? '',
       cnpj: map[colCnpj] as String? ?? '',
       ie: map[colIe] as String? ?? '',
+      imagem: map[colImagem] as String? ?? '',
     );
   }
 
@@ -117,6 +124,7 @@ class FilialModel {
     colEmail: email,
     colCnpj: cnpj,
     colIe: ie,
+    colImagem: imagem,
   };
 
   @override

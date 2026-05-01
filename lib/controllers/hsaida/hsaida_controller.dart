@@ -22,6 +22,7 @@ class HSaidaController extends BaseController {
   RequestHSaida get filtro => _filtro;
   HSaidaModel get selecionado => _selecionado;
   bool get temMaisPaginas => _response.paginaAtual < _response.qtdPaginas;
+  int get totalRegistros => _response.totalRegistros;
 
   List<HSaidaModel> _ordenarPorEndereco(List<HSaidaModel> itens) {
     String n(String v) => v.trim().toLowerCase();
@@ -91,6 +92,7 @@ class HSaidaController extends BaseController {
         paginaAtual: novaResposta.paginaAtual,
         proximaPagina: novaResposta.proximaPagina,
         qtdPaginas: novaResposta.qtdPaginas,
+        totalRegistros: novaResposta.totalRegistros,
       );
     });
   }

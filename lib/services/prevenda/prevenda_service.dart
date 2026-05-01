@@ -27,6 +27,8 @@ class PreVendaService {
       final lista = data['lista'] as List<dynamic>? ?? [];
       final proximaPagina = data['proximaPagina'] as int? ?? 1;
       final qtdPaginas = data['qtdPaginas'] as int? ?? 1;
+      final totalRegistros =
+          data['totalRegistros'] as int? ?? data['total_registros'] as int? ?? 0;
       final paginaAtual = int.tryParse(request.paginaAtual) ?? 1;
 
       return ResponsePreVenda(
@@ -36,6 +38,7 @@ class PreVendaService {
         paginaAtual: paginaAtual,
         proximaPagina: proximaPagina,
         qtdPaginas: qtdPaginas,
+        totalRegistros: totalRegistros,
       );
     }
 

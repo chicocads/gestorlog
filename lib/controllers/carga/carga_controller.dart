@@ -20,6 +20,7 @@ class CarregamentoController extends BaseController {
   RequestCarregamento get filtro => _filtro;
   CarregamentoModel get selecionado => _selecionado;
   bool get temMaisPaginas => _response.paginaAtual < _response.qtdPaginas;
+  int get totalRegistros => _response.totalRegistros;
 
   void setFiltro(RequestCarregamento filtro) {
     _filtro = filtro;
@@ -51,6 +52,7 @@ class CarregamentoController extends BaseController {
         paginaAtual: novaResposta.paginaAtual,
         proximaPagina: novaResposta.proximaPagina,
         qtdPaginas: novaResposta.qtdPaginas,
+        totalRegistros: novaResposta.totalRegistros,
       );
     });
   }

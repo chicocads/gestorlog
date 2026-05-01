@@ -71,8 +71,14 @@ class _PvEntregaListViewState extends State<PvEntregaListView> {
         title: ListenableBuilder(
           listenable: widget.controller,
           builder: (context, _) {
-            final total = widget.controller.itens.length;
-            final suffix = widget.controller.temMaisPaginas ? '+' : '';
+            final total = widget.controller.totalRegistros > 0
+                ? widget.controller.totalRegistros
+                : widget.controller.itens.length;
+            final suffix =
+                widget.controller.totalRegistros > 0 ||
+                    !widget.controller.temMaisPaginas
+                ? ''
+                : '+';
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [

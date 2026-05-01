@@ -19,6 +19,7 @@ class PreVendaController extends BaseController {
   RequestPreVenda get filtro => _filtro;
   PreVendaModel get selecionado => _selecionado;
   bool get temMaisPaginas => _response.paginaAtual < _response.qtdPaginas;
+  int get totalRegistros => _response.totalRegistros;
 
   void setFiltro(RequestPreVenda filtro) {
     _filtro = filtro;
@@ -50,6 +51,7 @@ class PreVendaController extends BaseController {
         paginaAtual: novaResposta.paginaAtual,
         proximaPagina: novaResposta.proximaPagina,
         qtdPaginas: novaResposta.qtdPaginas,
+        totalRegistros: novaResposta.totalRegistros,
       );
     });
   }

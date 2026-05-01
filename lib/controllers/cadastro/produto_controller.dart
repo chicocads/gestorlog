@@ -19,6 +19,7 @@ class ProdutoController extends BaseController {
   RequestProduto get filtro => _filtro;
   ProdutoModel get selecionado => _selecionado;
   bool get temMaisPaginas => _response.paginaAtual < _response.qtdPaginas;
+  int get totalRegistros => _response.totalRegistros;
 
   void setFiltro(RequestProduto filtro) {
     _filtro = filtro;
@@ -54,6 +55,7 @@ class ProdutoController extends BaseController {
         paginaAtual: novaResposta.paginaAtual,
         proximaPagina: novaResposta.proximaPagina,
         qtdPaginas: novaResposta.qtdPaginas,
+        totalRegistros: novaResposta.totalRegistros,
       );
     });
   }

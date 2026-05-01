@@ -591,18 +591,21 @@ class ResponseProdutoModel {
     required this.paginaAtual,
     required this.proximaPagina,
     required this.qtdPaginas,
+    required this.totalRegistros,
   });
 
   final List<ProdutoModel> itens;
   final int paginaAtual;
   final int proximaPagina;
   final int qtdPaginas;
+  final int totalRegistros;
 
   factory ResponseProdutoModel.empty() => ResponseProdutoModel(
     itens: [],
     paginaAtual: 1,
     proximaPagina: 1,
     qtdPaginas: 1,
+    totalRegistros: 0,
   );
 
   factory ResponseProdutoModel.fromMap(Map<String, dynamic> map) {
@@ -614,6 +617,8 @@ class ResponseProdutoModel {
       paginaAtual: map['paginaAtual'] as int? ?? 1,
       proximaPagina: map['proximaPagina'] as int? ?? 1,
       qtdPaginas: map['qtdPaginas'] as int? ?? 1,
+      totalRegistros:
+          map['totalRegistros'] as int? ?? map['total_registros'] as int? ?? 0,
     );
   }
 
@@ -622,6 +627,7 @@ class ResponseProdutoModel {
     'paginaAtual': paginaAtual,
     'proximaPagina': proximaPagina,
     'qtdPaginas': qtdPaginas,
+    'totalRegistros': totalRegistros,
   };
 
   @override
