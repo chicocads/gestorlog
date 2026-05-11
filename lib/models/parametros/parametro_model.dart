@@ -7,8 +7,8 @@ class ParametroModel {
   static const colIdPda = 'idPda';
   static const colIdFrota = 'idFrota';
   static const colIdInventario = 'idInventario';
-  static const colDecPreco = 'decPreco';
-  static const colDecQtde = 'decQtde';
+  static const colDecPreco = 'cdecprecov';
+  static const colDecQtde = 'cdecqtdev';
   static const colControlePecas = 'controlepecas';
   static const colUrl = 'Url';
 

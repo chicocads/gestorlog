@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../controllers/parametros/parametro_controller.dart';
+import '../../controllers/parametro/parametro_controller.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/app_snack_bar.dart';
 import '../../core/widgets/app_int_field.dart';

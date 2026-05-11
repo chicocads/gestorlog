@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../app/routes.dart';
 import '../../controllers/cadastro/filial_controller.dart';
 import '../../controllers/cadastro/usuario_controller.dart';
-import '../../controllers/parametros/parametro_controller.dart';
+import '../../controllers/parametro/parametro_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/functions/geolocalizacao.dart';
@@ -428,8 +428,9 @@ class _FilialLogo extends StatelessWidget {
   Uint8List? _decodeImage(String raw) {
     final v = raw.trim();
     if (v.isEmpty) return null;
-    final normalized =
-        v.startsWith('data:') && v.contains(',') ? v.split(',').last : v;
+    final normalized = v.startsWith('data:') && v.contains(',')
+        ? v.split(',').last
+        : v;
     try {
       final bytes = base64Decode(normalized);
       return bytes.isEmpty ? null : bytes;

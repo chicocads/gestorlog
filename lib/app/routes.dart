@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../controllers/parametros/parametro_controller.dart';
+import '../controllers/parametro/parametro_controller.dart';
 import '../controllers/cadastro/filial_controller.dart';
 import '../controllers/cadastro/produto_controller.dart';
 import '../controllers/cadastro/usuario_controller.dart';
@@ -15,7 +15,7 @@ import '../services/auditoria/auditoria_service.dart';
 import '../services/separacao/separacao_local_service.dart';
 import '../services/separacao/separacao_remote_service.dart';
 import '../services/prevenda/prevenda_service.dart';
-import '../services/parametros/parametro_service.dart';
+import '../services/parametro/parametro_service.dart';
 import '../views/auth/login_view.dart';
 import '../controllers/carga/carga_controller.dart';
 import '../controllers/hsaida/hsaida_controller.dart';
