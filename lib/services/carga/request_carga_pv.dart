@@ -1,5 +1,5 @@
-class PvCargaRequest {
-  PvCargaRequest({
+class CargaPvRequest {
+  CargaPvRequest({
     required this.idfilial,
     required this.idprevenda,
     required this.situacao,
@@ -17,7 +17,7 @@ class PvCargaRequest {
   final String obs;
   final String assintura;
 
-  factory PvCargaRequest.empty() => PvCargaRequest(
+  factory CargaPvRequest.empty() => CargaPvRequest(
     idfilial: 0,
     idprevenda: 0,
     situacao: 0,
@@ -27,7 +27,7 @@ class PvCargaRequest {
     assintura: '',
   );
 
-  PvCargaRequest copyWith({
+  CargaPvRequest copyWith({
     int? idfilial,
     int? idprevenda,
     int? situacao,
@@ -36,7 +36,7 @@ class PvCargaRequest {
     String? obs,
     String? assintura,
   }) {
-    return PvCargaRequest(
+    return CargaPvRequest(
       idfilial: idfilial ?? this.idfilial,
       idprevenda: idprevenda ?? this.idprevenda,
       situacao: situacao ?? this.situacao,
@@ -47,9 +47,9 @@ class PvCargaRequest {
     );
   }
 
-  factory PvCargaRequest.fromMap(Map<String, dynamic> map) {
-    if (map.isEmpty) return PvCargaRequest.empty();
-    return PvCargaRequest(
+  factory CargaPvRequest.fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) return CargaPvRequest.empty();
+    return CargaPvRequest(
       idfilial: map['idfilial'] ?? 0,
       idprevenda: map['idprevenda'] ?? 0,
       situacao: map['situacao'] ?? 0,

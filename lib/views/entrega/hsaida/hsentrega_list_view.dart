@@ -6,7 +6,7 @@ import '../../../core/utils/app_snack_bar.dart';
 import '../../../core/widgets/list_state_builder.dart';
 import '../../../core/widgets/status_badge.dart';
 import '../../../models/hsaida/hsaida_model.dart';
-import '../../../services/carga/request_pv_carga.dart';
+import '../../../services/carga/request_carga_pv.dart';
 import '../../../services/hsaida/request_hsaida.dart';
 import 'hsentrega_itens_view.dart';
 import 'widgets/hsentrega_card.dart';
@@ -78,7 +78,7 @@ class _HsEntregaListViewState extends State<HsEntregaListView> {
     setState(() => _confirmandoEntrega.add(key));
     try {
       final coord = await obterCoordenadaGeograficaAtual();
-      final request = PvCargaRequest(
+      final request = CargaPvRequest(
         idfilial: hs.idFilial,
         idprevenda: hs.idPrevenda,
         situacao: 1,

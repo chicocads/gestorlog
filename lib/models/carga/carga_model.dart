@@ -14,7 +14,7 @@ enum StatusCarregamento {
       );
 }
 
-class CarregamentoModel {
+class CargaModel {
   static const tblNome = 'Carregamento';
 
   static const colIdFilial = 'loja';
@@ -38,7 +38,7 @@ class CarregamentoModel {
   static const colPlaca = 'placa';
   static const colCentroCusto = 'centrocusto';
 
-  CarregamentoModel({
+  CargaModel({
     required this.idFilial,
     required this.idCarga,
     required this.usuario,
@@ -97,7 +97,7 @@ class CarregamentoModel {
   final String placa;
   final String centroCusto;
 
-  factory CarregamentoModel.empty() => CarregamentoModel(
+  factory CargaModel.empty() => CargaModel(
     idFilial: 0,
     idCarga: 0,
     usuario: '',
@@ -120,7 +120,7 @@ class CarregamentoModel {
     centroCusto: '',
   );
 
-  CarregamentoModel copyWith({
+  CargaModel copyWith({
     int? idFilial,
     int? idCarga,
     String? usuario,
@@ -142,7 +142,7 @@ class CarregamentoModel {
     String? placa,
     String? centroCusto,
   }) {
-    return CarregamentoModel(
+    return CargaModel(
       idFilial: idFilial ?? this.idFilial,
       idCarga: idCarga ?? this.idCarga,
       usuario: usuario ?? this.usuario,
@@ -166,9 +166,9 @@ class CarregamentoModel {
     );
   }
 
-  factory CarregamentoModel.fromMap(Map<String, dynamic> map) {
-    if (map.isEmpty) return CarregamentoModel.empty();
-    return CarregamentoModel(
+  factory CargaModel.fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) return CargaModel.empty();
+    return CargaModel(
       idFilial: map[colIdFilial] ?? 0,
       idCarga: map[colIdCarga] ?? 0,
       usuario: map[colUsuario] ?? '',

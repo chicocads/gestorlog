@@ -3,14 +3,14 @@ import '../../models/hsaida/hsaida_model.dart';
 import '../../services/carga/carga_service.dart';
 import '../../services/hsaida/hsaida_service.dart';
 import '../../services/hsaida/request_hsaida.dart';
-import '../../services/carga/request_pv_carga.dart';
+import '../../services/carga/request_carga_pv.dart';
 import '../../services/hsaida/response_hsaida.dart';
 
 class HSaidaController extends BaseController {
   HSaidaController(this._service, this._carregamentoService, this._getBaseUrl);
 
   final HSaidaService _service;
-  final CarregamentoService _carregamentoService;
+  final CargaService _carregamentoService;
   final String Function() _getBaseUrl;
 
   ResponseHSaida _response = ResponseHSaida.empty();
@@ -68,10 +68,7 @@ class HSaidaController extends BaseController {
     _filtro = filtro.copyWith(paginaAtual: '1');
     _response = ResponseHSaida.empty();
     await runAsync(() async {
-      final r = await _service.buscar(
-        baseUrl: _getBaseUrl(),
-        request: _filtro,
-      );
+      final r = await _service.buscar(baseUrl: _getBaseUrl(), request: _filtro);
       _response = r.copyWith(itens: _ordenarPorEndereco(r.itens));
     });
   }
@@ -86,9 +83,7 @@ class HSaidaController extends BaseController {
       );
       _filtro = _filtro.copyWith(paginaAtual: proximaPagina);
       _response = _response.copyWith(
-        itens: _ordenarPorEndereco(
-          [..._response.itens, ...novaResposta.itens],
-        ),
+        itens: _ordenarPorEndereco([..._response.itens, ...novaResposta.itens]),
         paginaAtual: novaResposta.paginaAtual,
         proximaPagina: novaResposta.proximaPagina,
         qtdPaginas: novaResposta.qtdPaginas,
@@ -108,7 +103,7 @@ class HSaidaController extends BaseController {
     });
   }
 
-  Future<void> confirmarEntrega(PvCargaRequest request) async {
+  Future<void> confirmarEntrega(CargaPvRequest request) async {
     await runAsync(() async {
       await _carregamentoService.confirmarEntrega(
         baseUrl: _getBaseUrl(),
@@ -118,7 +113,7 @@ class HSaidaController extends BaseController {
         itens: _response.itens
             .map(
               (e) =>
-                  (e.idFilial == request.idfilial &&  
+                  (e.idFilial == request.idfilial &&
                       e.idPrevenda == request.idprevenda)
                   ? e.copyWith(
                       entregue: request.situacao,
@@ -128,8 +123,8 @@ class HSaidaController extends BaseController {
             )
             .toList(),
       );
-      if (_selecionado.idFilial == request.idfilial &&  
-          _selecionado.idPrevenda == request.idprevenda) {  
+      if (_selecionado.idFilial == request.idfilial &&
+          _selecionado.idPrevenda == request.idprevenda) {
         _selecionado = _selecionado.copyWith(
           entregue: request.situacao,
           dtEntrega: DateTime.now().toIso8601String(),

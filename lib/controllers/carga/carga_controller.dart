@@ -8,28 +8,28 @@ import '../../services/carga/response_carga.dart';
 class CarregamentoController extends BaseController {
   CarregamentoController(this._service, this._getBaseUrl);
 
-  final CarregamentoService _service;
+  final CargaService _service;
   final String Function() _getBaseUrl;
 
-  ResponseCarregamento _response = ResponseCarregamento.empty();
-  RequestCarregamento _filtro = RequestCarregamento.empty();
-  CarregamentoModel _selecionado = CarregamentoModel.empty();
+  ResponseCarga _response = ResponseCarga.empty();
+  RequestCarga _filtro = RequestCarga.empty();
+  CargaModel _selecionado = CargaModel.empty();
 
-  List<CarregamentoModel> get itens => _response.itens;
-  ResponseCarregamento get response => _response;
-  RequestCarregamento get filtro => _filtro;
-  CarregamentoModel get selecionado => _selecionado;
+  List<CargaModel> get itens => _response.itens;
+  ResponseCarga get response => _response;
+  RequestCarga get filtro => _filtro;
+  CargaModel get selecionado => _selecionado;
   bool get temMaisPaginas => _response.paginaAtual < _response.qtdPaginas;
   int get totalRegistros => _response.totalRegistros;
 
-  void setFiltro(RequestCarregamento filtro) {
+  void setFiltro(RequestCarga filtro) {
     _filtro = filtro;
     notifyListeners();
   }
 
-  Future<void> buscar(RequestCarregamento filtro) async {
+  Future<void> buscar(RequestCarga filtro) async {
     _filtro = filtro.copyWith(paginaAtual: '1');
-    _response = ResponseCarregamento.empty();
+    _response = ResponseCarga.empty();
     await runAsync(() async {
       _response = await _service.buscar(
         baseUrl: _getBaseUrl(),
@@ -58,7 +58,7 @@ class CarregamentoController extends BaseController {
   }
 
   Future<void> buscarPorNumero(int loja, int numero) async {
-    _selecionado = CarregamentoModel.empty();
+    _selecionado = CargaModel.empty();
     await runAsync(() async {
       _selecionado = await _service.buscarPorNumero(
         baseUrl: _getBaseUrl(),
@@ -69,9 +69,9 @@ class CarregamentoController extends BaseController {
   }
 
   void limpar() {
-    _response = ResponseCarregamento.empty();
-    _filtro = RequestCarregamento.empty();
-    _selecionado = CarregamentoModel.empty();
+    _response = ResponseCarga.empty();
+    _filtro = RequestCarga.empty();
+    _selecionado = CargaModel.empty();
     clearError();
   }
 }

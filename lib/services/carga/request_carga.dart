@@ -1,5 +1,5 @@
-class RequestCarregamento {
-  RequestCarregamento({
+class RequestCarga {
+  RequestCarga({
     required this.paginaAtual,
     required this.qtdTotal,
     required this.data1,
@@ -19,7 +19,7 @@ class RequestCarregamento {
   final int status;
   final int frota;
 
-  factory RequestCarregamento.empty() => RequestCarregamento(
+  factory RequestCarga.empty() => RequestCarga(
     paginaAtual: '1',
     qtdTotal: '50',
     data1: '',
@@ -30,7 +30,7 @@ class RequestCarregamento {
     frota: 0,
   );
 
-  RequestCarregamento copyWith({
+  RequestCarga copyWith({
     String? paginaAtual,
     String? qtdTotal,
     String? data1,
@@ -40,7 +40,7 @@ class RequestCarregamento {
     int? status,
     int? frota,
   }) {
-    return RequestCarregamento(
+    return RequestCarga(
       paginaAtual: paginaAtual ?? this.paginaAtual,
       qtdTotal: qtdTotal ?? this.qtdTotal,
       data1: data1 ?? this.data1,
@@ -52,9 +52,9 @@ class RequestCarregamento {
     );
   }
 
-  factory RequestCarregamento.fromMap(Map<String, dynamic> map) {
-    if (map.isEmpty) return RequestCarregamento.empty();
-    return RequestCarregamento(
+  factory RequestCarga.fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) return RequestCarga.empty();
+    return RequestCarga(
       paginaAtual: map['paginaAtual'] ?? '0',
       qtdTotal: map['qtdTotal'] ?? '0',
       data1: map['data1'] ?? '',

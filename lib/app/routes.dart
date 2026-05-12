@@ -20,6 +20,7 @@ import '../views/auth/login_view.dart';
 import '../controllers/carga/carga_controller.dart';
 import '../controllers/hsaida/hsaida_controller.dart';
 import '../services/carga/carga_service.dart';
+import '../services/carga/carga_despesa_service.dart';
 import '../services/hsaida/hsaida_service.dart';
 import '../views/carga/carga_list_view.dart';
 import '../views/separacao/pvseparacao_list_view.dart';
@@ -70,11 +71,13 @@ class AppDependencies {
       conferenciaRemoteService,
     );
 
-    carregamentoService = CarregamentoService(this.apiClient);
+    carregamentoService = CargaService(this.apiClient);
     carregamentoController = CarregamentoController(
       carregamentoService,
       () => parametroController.parametro.url,
     );
+
+    cargaDespesaService = CargaDespesaService(this.apiClient);
 
     hsaidaService = HSaidaService(this.apiClient);
     hsaidaController = HSaidaController(
@@ -113,8 +116,10 @@ class AppDependencies {
   late final SeparacaoRemoteService conferenciaRemoteService;
   late final PvSeparacaoController conferenciaController;
 
-  late final CarregamentoService carregamentoService;
+  late final CargaService carregamentoService;
   late final CarregamentoController carregamentoController;
+
+  late final CargaDespesaService cargaDespesaService;
 
   late final HSaidaService hsaidaService;
   late final HSaidaController hsaidaController;

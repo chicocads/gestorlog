@@ -2,21 +2,21 @@ import '../../core/http/api_client.dart';
 import '../../core/http/http_retry.dart';
 import '../../models/carga/carga_model.dart';
 import 'request_carga.dart';
-import 'request_pv_carga.dart';
+import 'request_carga_pv.dart';
 import 'response_carga.dart';
 
-class CarregamentoService {
-  const CarregamentoService(this._client);
+class CargaService {
+  const CargaService(this._client);
 
   final ApiClient _client;
 
-  Future<ResponseCarregamento> buscar({
+  Future<ResponseCarga> buscar({
     required String baseUrl,
-    required RequestCarregamento request,
+    required RequestCarga request,
   }) async {
     final response = await HttpRetry.run(
       () => _client.post(
-        '$baseUrl/v1/carregamento/consultar',
+        '$baseUrl/v1/carga/consultar',
         headers: AuthHeaders.basicCads1(),
         body: request.toMap(),
       ),
@@ -29,12 +29,14 @@ class CarregamentoService {
       final proximaPagina = data['proximaPagina'] as int? ?? 1;
       final qtdPaginas = data['qtdPaginas'] as int? ?? 1;
       final totalRegistros =
-          data['totalRegistros'] as int? ?? data['total_registros'] as int? ?? 0;
+          data['totalRegistros'] as int? ??
+          data['total_registros'] as int? ??
+          0;
       final paginaAtual = int.tryParse(request.paginaAtual) ?? 1;
 
-      return ResponseCarregamento(
+      return ResponseCarga(
         itens: lista
-            .map((e) => CarregamentoModel.fromMap(e as Map<String, dynamic>))
+            .map((e) => CargaModel.fromMap(e as Map<String, dynamic>))
             .toList(),
         paginaAtual: paginaAtual,
         proximaPagina: proximaPagina,
@@ -46,28 +48,28 @@ class CarregamentoService {
     throw Exception('Erro ao buscar carregamentos (${response.statusCode})');
   }
 
-  Future<CarregamentoModel> buscarPorNumero({
+  Future<CargaModel> buscarPorNumero({
     required String baseUrl,
     required int loja,
     required int numero,
   }) async {
     final response = await HttpRetry.run(
       () => _client.get(
-        '$baseUrl/v1/carregamento/$loja/$numero',
+        '$baseUrl/v1/carga/$loja/$numero',
         headers: AuthHeaders.basicCads1(),
       ),
     );
 
     if (response.statusCode == 200) {
-      return CarregamentoModel.fromMap(response.data as Map<String, dynamic>);
+      return CargaModel.fromMap(response.data as Map<String, dynamic>);
     }
 
-    throw Exception('Carregamento não encontrado (${response.statusCode})');
+    throw Exception('Carga não encontrado (${response.statusCode})');
   }
 
   Future<void> confirmarEntrega({
     required String baseUrl,
-    required PvCargaRequest request,
+    required CargaPvRequest request,
   }) async {
     final response = await HttpRetry.run(
       () => _client.put(

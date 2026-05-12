@@ -4,14 +4,17 @@ import '../../controllers/carga/carga_controller.dart';
 import '../../controllers/hsaida/hsaida_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/functions/geolocalizacao.dart';
+import '../../core/utils/app_snack_bar.dart';
 import '../../core/utils/data_formatar.dart';
 import '../../core/widgets/list_state_builder.dart';
 import '../../core/widgets/status_badge.dart';
 import '../../models/carga/carga_model.dart';
+import '../../services/carga/request_carga_despesa.dart';
 import '../../services/carga/request_carga.dart';
 import '../../services/hsaida/request_hsaida.dart';
 import '../entrega/hsaida/hsentrega_list_view.dart';
 import 'widgets/carga_card.dart';
+import 'widgets/carga_despesa_bottom_sheets.dart';
 import 'widgets/carga_filtro.dart';
 
 class CargaListView extends StatefulWidget {
@@ -33,6 +36,7 @@ class _CargaListViewState extends State<CargaListView> {
   DateTime? _data2;
   final _scrollController = ScrollController();
   final _numeroController = TextEditingController();
+  final Set<String> _salvandoDespesa = {};
 
   @override
   void initState() {
@@ -57,6 +61,30 @@ class _CargaListViewState extends State<CargaListView> {
     }
   }
 
+  String _keyCarga(CargaModel carga) => '${carga.idFilial}__${carga.idCarga}';
+
+  String _dataAtualIso() => DataFormatar.toYmd(DateTime.now());
+
+  Future<CargaDespesaDraft?> _abrirLancamentoDespesa(CargaModel carga) async {
+    return showModalBottomSheet<CargaDespesaDraft>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => CargaDespesaBottomSheet(cargaId: carga.idCarga),
+    );
+  }
+
+  Future<void> _abrirConsultaDespesas(CargaModel carga) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => CargaDespesasBottomSheet(
+        cargaId: carga.idCarga,
+      ),
+    );
+  }
+
   Future<void> _validarGpsEBuscar() async {
     final podeEntrar = await validarGpsAtivoParaEntrega(context);
     if (!mounted) return;
@@ -73,7 +101,7 @@ class _CargaListViewState extends State<CargaListView> {
     final d2 = _data2 ?? hoje;
     final deps = AppScope.of(context);
     await widget.controller.buscar(
-      RequestCarregamento.empty().copyWith(
+      RequestCarga.empty().copyWith(
         data1: DataFormatar.toYmd(d1),
         data2: DataFormatar.toYmd(d2),
         idFilial: deps.filialController.selecionado.codigo != 0
@@ -170,7 +198,7 @@ class _CargaListViewState extends State<CargaListView> {
                     padding: const EdgeInsets.fromLTRB(12, 8, 12, 60),
                     itemCount:
                         ctrl.itens.length + (ctrl.temMaisPaginas ? 1 : 0),
-                    itemBuilder: (context, index) {
+                    itemBuilder: (itemContext, index) {
                       if (index == ctrl.itens.length) {
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 16),
@@ -178,8 +206,57 @@ class _CargaListViewState extends State<CargaListView> {
                         );
                       }
                       final carga = ctrl.itens[index];
+                      final key = _keyCarga(carga);
                       return CargaCard(
                         carregamento: carga,
+                        isLancandoDespesa: _salvandoDespesa.contains(key),
+                        onLancamentoDespesa: () async {
+                          if (_salvandoDespesa.contains(key)) return;
+                          setState(() => _salvandoDespesa.add(key));
+                          try {
+                            final draft = await _abrirLancamentoDespesa(carga);
+                            if (draft == null) return;
+
+                            if (!context.mounted) return;
+                            final deps = AppScope.of(context);
+                            final baseUrl =
+                                deps.parametroController.parametro.url.trim();
+                            if (baseUrl.isEmpty) {
+                              if (!context.mounted) return;
+                              AppSnackBar.erro(
+                                context,
+                                'Configure a URL da API antes de salvar.',
+                              );
+                              return;
+                            }
+
+                            await deps.cargaDespesaService.inserir(
+                              baseUrl: baseUrl,
+                              request: CargaDespesaRequest(
+                                id: 0,
+                                idfilial: carga.idFilial,
+                                idcarga: carga.idCarga,
+                                data: _dataAtualIso(),
+                                descricao: draft.descricao,
+                                valor: draft.valor,
+                              ),
+                            );
+
+                            if (!context.mounted) return;
+                            AppSnackBar.sucesso(
+                              context,
+                              'Despesa lançada com sucesso.',
+                            );
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            AppSnackBar.erro(context, 'Erro ao salvar despesa: $e');
+                          } finally {
+                            if (mounted) {
+                              setState(() => _salvandoDespesa.remove(key));
+                            }
+                          }
+                        },
+                        onVerDespesas: () => _abrirConsultaDespesas(carga),
                         onTap: () {
                           widget.hsaidaController.buscar(
                             RequestHSaida.empty().copyWith(
@@ -190,7 +267,7 @@ class _CargaListViewState extends State<CargaListView> {
                             ),
                           );
                           Navigator.push(
-                            context,
+                            itemContext,
                             MaterialPageRoute(
                               builder: (_) => HsEntregaListView(
                                 controller: widget.hsaidaController,

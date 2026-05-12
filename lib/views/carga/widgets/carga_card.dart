@@ -6,10 +6,20 @@ import '../../../core/widgets/status_badge.dart';
 import '../../../models/carga/carga_model.dart';
 
 class CargaCard extends StatelessWidget {
-  const CargaCard({super.key, required this.carregamento, this.onTap});
+  const CargaCard({
+    super.key,
+    required this.carregamento,
+    this.onTap,
+    this.onLancamentoDespesa,
+    this.onVerDespesas,
+    this.isLancandoDespesa = false,
+  });
 
-  final CarregamentoModel carregamento;
+  final CargaModel carregamento;
   final VoidCallback? onTap;
+  final VoidCallback? onLancamentoDespesa;
+  final VoidCallback? onVerDespesas;
+  final bool isLancandoDespesa;
 
   Color get _statusColor => switch (carregamento.status) {
     StatusCarregamento.aberto => AppColors.warning,
@@ -59,6 +69,31 @@ class CargaCard extends StatelessWidget {
                           ),
                         ),
                         const Spacer(),
+                        if (onLancamentoDespesa != null) ...[
+                          IconButton(
+                            onPressed:
+                                isLancandoDespesa ? null : onLancamentoDespesa,
+                            icon: isLancandoDespesa
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.attach_money_outlined),
+                            tooltip: 'Lançar despesa',
+                          ),
+                          if (onVerDespesas != null) ...[
+                            const SizedBox(width: 2),
+                            IconButton(
+                              onPressed: onVerDespesas,
+                              icon: const Icon(Icons.receipt_long_outlined),
+                              tooltip: 'Ver despesas',
+                            ),
+                          ],
+                          const SizedBox(width: 6),
+                        ],
                         StatusBadge(label: _statusLabel, color: _statusColor),
                       ],
                     ),

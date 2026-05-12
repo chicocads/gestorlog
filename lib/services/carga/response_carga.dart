@@ -1,7 +1,7 @@
 import '../../models/carga/carga_model.dart';
 
-class ResponseCarregamento {
-  ResponseCarregamento({
+class ResponseCarga {
+  ResponseCarga({
     required this.itens,
     required this.paginaAtual,
     required this.proximaPagina,
@@ -9,13 +9,13 @@ class ResponseCarregamento {
     required this.totalRegistros,
   });
 
-  final List<CarregamentoModel> itens;
+  final List<CargaModel> itens;
   final int paginaAtual;
   final int proximaPagina;
   final int qtdPaginas;
   final int totalRegistros;
 
-  factory ResponseCarregamento.empty() => ResponseCarregamento(
+  factory ResponseCarga.empty() => ResponseCarga(
     itens: const [],
     paginaAtual: 1,
     proximaPagina: 1,
@@ -23,14 +23,14 @@ class ResponseCarregamento {
     totalRegistros: 0,
   );
 
-  ResponseCarregamento copyWith({
-    List<CarregamentoModel>? itens,
+  ResponseCarga copyWith({
+    List<CargaModel>? itens,
     int? paginaAtual,
     int? proximaPagina,
     int? qtdPaginas,
     int? totalRegistros,
   }) {
-    return ResponseCarregamento(
+    return ResponseCarga(
       itens: itens ?? List.of(this.itens),
       paginaAtual: paginaAtual ?? this.paginaAtual,
       proximaPagina: proximaPagina ?? this.proximaPagina,
@@ -39,11 +39,11 @@ class ResponseCarregamento {
     );
   }
 
-  factory ResponseCarregamento.fromMap(Map<String, dynamic> map) {
-    if (map.isEmpty) return ResponseCarregamento.empty();
-    return ResponseCarregamento(
+  factory ResponseCarga.fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) return ResponseCarga.empty();
+    return ResponseCarga(
       itens: (map['itens'] as List<dynamic>? ?? [])
-          .map((e) => CarregamentoModel.fromMap(e as Map<String, dynamic>))
+          .map((e) => CargaModel.fromMap(e as Map<String, dynamic>))
           .toList(),
       paginaAtual: map['paginaAtual'] as int? ?? 1,
       proximaPagina: map['proximaPagina'] as int? ?? 1,
