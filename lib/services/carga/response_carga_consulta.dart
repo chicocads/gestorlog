@@ -1,7 +1,7 @@
 import '../../models/carga/carga_model.dart';
 
-class ResponseCarga {
-  ResponseCarga({
+class ResponseCargaConsulta {
+  ResponseCargaConsulta({
     required this.itens,
     required this.paginaAtual,
     required this.proximaPagina,
@@ -15,7 +15,7 @@ class ResponseCarga {
   final int qtdPaginas;
   final int totalRegistros;
 
-  factory ResponseCarga.empty() => ResponseCarga(
+  factory ResponseCargaConsulta.empty() => ResponseCargaConsulta(
     itens: const [],
     paginaAtual: 1,
     proximaPagina: 1,
@@ -23,14 +23,14 @@ class ResponseCarga {
     totalRegistros: 0,
   );
 
-  ResponseCarga copyWith({
+  ResponseCargaConsulta copyWith({
     List<CargaModel>? itens,
     int? paginaAtual,
     int? proximaPagina,
     int? qtdPaginas,
     int? totalRegistros,
   }) {
-    return ResponseCarga(
+    return ResponseCargaConsulta(
       itens: itens ?? List.of(this.itens),
       paginaAtual: paginaAtual ?? this.paginaAtual,
       proximaPagina: proximaPagina ?? this.proximaPagina,
@@ -39,9 +39,9 @@ class ResponseCarga {
     );
   }
 
-  factory ResponseCarga.fromMap(Map<String, dynamic> map) {
-    if (map.isEmpty) return ResponseCarga.empty();
-    return ResponseCarga(
+  factory ResponseCargaConsulta.fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) return ResponseCargaConsulta.empty();
+    return ResponseCargaConsulta(
       itens: (map['itens'] as List<dynamic>? ?? [])
           .map((e) => CargaModel.fromMap(e as Map<String, dynamic>))
           .toList(),

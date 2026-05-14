@@ -15,10 +15,7 @@ import '../../../services/inventario/inventario_local_service.dart';
 import '../../widget/scanner_view.dart';
 
 class InventarioColetaTab extends StatefulWidget {
-  const InventarioColetaTab({
-    super.key,
-    required this.codigoParaPesquisa,
-  });
+  const InventarioColetaTab({super.key, required this.codigoParaPesquisa});
 
   final ValueNotifier<String?> codigoParaPesquisa;
 
@@ -176,7 +173,8 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
 
     if (codigo.length > 10) {
       final barra = codigo;
-      return produto.codigoalfa.trim() == barra || produto.dun14.trim() == barra;
+      return produto.codigoalfa.trim() == barra ||
+          produto.dun14.trim() == barra;
     }
 
     final cod = int.tryParse(codigo);
@@ -344,7 +342,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
       }
     }
     if (!mounted) return;
-    
+
     // if (_nomeProdutoManualController.text.isEmpty) {
     //   AppSnackBar.erro(context, 'Informe o nome para coletar.');
     //   return;
@@ -362,7 +360,9 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
       }
     }
 
-    final qtde = _somarMais1EVoltarCodigo ? 1.0 : _parseQtde(_qtdeController.text);
+    final qtde = _somarMais1EVoltarCodigo
+        ? 1.0
+        : _parseQtde(_qtdeController.text);
     if (qtde == null) {
       AppSnackBar.erro(context, 'Informe a quantidade.');
       return;
@@ -373,14 +373,17 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     }
 
     final produto = _produtoColetado;
-    final nomeInformado = _produtoColetado?.nome ==null ? "" :_nomeProdutoManualController.text.trim().toUpperCase();
+    final nomeInformado = _produtoColetado?.nome == null
+        ? ""
+        : _nomeProdutoManualController.text.trim().toUpperCase();
     final codigoBarraCadastro = produto != null
         ? (produto.codigoalfa.trim().isNotEmpty
               ? produto.codigoalfa.trim()
               : produto.dun14.trim())
         : '';
-    final codigoBarraInventario =
-        codigoBarraCadastro.isNotEmpty ? codigoBarraCadastro : codigo;
+    final codigoBarraInventario = codigoBarraCadastro.isNotEmpty
+        ? codigoBarraCadastro
+        : codigo;
 
     var lote = _loteController.text.trim();
     var validadeTxt = _validadeController.text.trim();
@@ -399,7 +402,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
         AppSnackBar.erro(context, 'Validade inválida (use DD/MM/AAAA).');
         return;
       }
-      validade = DataFormatar.toIsoDateFromDdMmYyyy(validadeTxt);
+      validade = DataFormatar.formatStAnoMesDia(validadeTxt);
     } else {
       lote = '';
     }
@@ -420,8 +423,9 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
       AppSnackBar.sucesso(context, 'Lançamento salvo com sucesso.');
       setState(() {
         _ultimoCodigoLancado = codigo;
-        _ultimaQtdeLancada =
-            _somarMais1EVoltarCodigo ? '1' : _qtdeController.text.trim();
+        _ultimaQtdeLancada = _somarMais1EVoltarCodigo
+            ? '1'
+            : _qtdeController.text.trim();
         _codigoController.clear();
         _nomeProdutoManualController.clear();
         _pecasController.text = '0';
@@ -460,8 +464,9 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
               border: const OutlineInputBorder(),
               isDense: true,
               suffixIcon: IconButton(
-                onPressed:
-                    _buscandoProduto ? null : () => _buscarProduto(disparadoPorCodigo: true),
+                onPressed: _buscandoProduto
+                    ? null
+                    : () => _buscarProduto(disparadoPorCodigo: true),
                 icon: _buscandoProduto
                     ? const SizedBox(
                         width: 18,
@@ -504,9 +509,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.primary.withValues(alpha: 0.25),
-          ),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
         ),
         child: const Row(
           children: [
@@ -537,9 +540,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
         decoration: BoxDecoration(
           color: AppColors.success.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.success.withValues(alpha: 0.25),
-          ),
+          border: Border.all(color: AppColors.success.withValues(alpha: 0.25)),
         ),
         child: Text(
           '${produto.codigo} - ${produto.nome}',
@@ -693,9 +694,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.primary.withValues(alpha: 0.18),
-          ),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.18)),
         ),
         child: Row(
           children: [
@@ -717,10 +716,7 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
             ),
             const SizedBox(width: 8),
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(999),

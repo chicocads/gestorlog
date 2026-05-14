@@ -115,12 +115,12 @@ class _AuditoriaLotesTabState extends State<AuditoriaLotesTab> {
 
     final dt = DateTime.tryParse(v);
     if (dt != null) {
-      return DataFormatar.formatDateShort(dt);
+      return DataFormatar.formatDtDDMMYY(dt);
     }
 
     if (v.length >= 10 && v.codeUnitAt(4) == 45 && v.codeUnitAt(7) == 45) {
       final dt2 = DateTime.tryParse(v.substring(0, 10));
-      if (dt2 != null) return DataFormatar.formatDateShort(dt2);
+      if (dt2 != null) return DataFormatar.formatDtDDMMYY(dt2);
     }
 
     return v;

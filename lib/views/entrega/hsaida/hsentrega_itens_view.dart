@@ -40,8 +40,10 @@ class HsEntregaItensView extends StatelessWidget {
             carregamento: hsaida.carregamento,
             rcaId: hsaida.idColabor,
             rcaNome: hsaida.colaborador.nome,
-            data: DataFormatar.formatDate(DateTime.parse(hsaida.data)),
-            dtEntrega: DataFormatar.format(DateTime.parse(hsaida.dtEntrega)),
+            data: DataFormatar.formatDtDDMMYY(DateTime.parse(hsaida.data)),
+            dtEntrega: DataFormatar.formatDDMMYYHHMM(
+              DateTime.parse(hsaida.dtEntrega),
+            ),
             valor: hsaida.vnota,
             itensCount: hsaida.dsaidaList.length,
             volume: hsaida.volume,

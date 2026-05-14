@@ -20,14 +20,14 @@ class _LoteRow {
     final validadeText = validadeRaw.isEmpty
         ? ''
         : validadeRaw.contains('/')
-            ? validadeRaw
-            : () {
-                try {
-                  return DataFormatar.formatDate(DateTime.parse(validadeRaw));
-                } catch (_) {
-                  return validadeRaw;
-                }
-              }();
+        ? validadeRaw
+        : () {
+            try {
+              return DataFormatar.formatDtDDMMYY(DateTime.parse(validadeRaw));
+            } catch (_) {
+              return validadeRaw;
+            }
+          }();
     return _LoteRow(
       loteController: TextEditingController(text: model.lote),
       validadeController: TextEditingController(text: validadeText),
@@ -63,4 +63,3 @@ class _LoteRow {
     );
   }
 }
-

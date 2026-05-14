@@ -10,12 +10,14 @@ import '../../core/widgets/list_state_builder.dart';
 import '../../core/widgets/status_badge.dart';
 import '../../models/carga/carga_model.dart';
 import '../../services/carga/request_carga_despesa.dart';
-import '../../services/carga/request_carga.dart';
+import '../../services/carga/request_carga_consulta.dart';
+import '../../services/carga/request_carga_km.dart';
 import '../../services/hsaida/request_hsaida.dart';
 import '../entrega/hsaida/hsentrega_list_view.dart';
 import 'widgets/carga_card.dart';
 import 'widgets/carga_despesa_bottom_sheets.dart';
 import 'widgets/carga_filtro.dart';
+import 'widgets/carga_km_bottom_sheet.dart';
 
 class CargaListView extends StatefulWidget {
   const CargaListView({
@@ -37,6 +39,7 @@ class _CargaListViewState extends State<CargaListView> {
   final _scrollController = ScrollController();
   final _numeroController = TextEditingController();
   final Set<String> _salvandoDespesa = {};
+  final Set<String> _salvandoKm = {};
 
   @override
   void initState() {
@@ -63,7 +66,7 @@ class _CargaListViewState extends State<CargaListView> {
 
   String _keyCarga(CargaModel carga) => '${carga.idFilial}__${carga.idCarga}';
 
-  String _dataAtualIso() => DataFormatar.toYmd(DateTime.now());
+  String _dataAtualIso() => DataFormatar.formatYYMMDD(DateTime.now());
 
   Future<CargaDespesaDraft?> _abrirLancamentoDespesa(CargaModel carga) async {
     return showModalBottomSheet<CargaDespesaDraft>(
@@ -74,14 +77,25 @@ class _CargaListViewState extends State<CargaListView> {
     );
   }
 
+  Future<CargaKmDraft?> _abrirInformarKm(CargaModel carga) async {
+    return showModalBottomSheet<CargaKmDraft>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => CargaKmBottomSheet(
+        cargaId: carga.idCarga,
+        kmSaida: carga.kmSaida,
+        kmChegada: carga.kmChegada,
+      ),
+    );
+  }
+
   Future<void> _abrirConsultaDespesas(CargaModel carga) async {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => CargaDespesasBottomSheet(
-        cargaId: carga.idCarga,
-      ),
+      builder: (_) => CargaDespesasBottomSheet(cargaId: carga.idCarga),
     );
   }
 
@@ -101,9 +115,9 @@ class _CargaListViewState extends State<CargaListView> {
     final d2 = _data2 ?? hoje;
     final deps = AppScope.of(context);
     await widget.controller.buscar(
-      RequestCarga.empty().copyWith(
-        data1: DataFormatar.toYmd(d1),
-        data2: DataFormatar.toYmd(d2),
+      RequestCargaConsulta.empty().copyWith(
+        data1: DataFormatar.formatYYMMDD(d1),
+        data2: DataFormatar.formatYYMMDD(d2),
         idFilial: deps.filialController.selecionado.codigo != 0
             ? deps.filialController.selecionado.codigo
             : deps.parametroController.parametro.idFilial,
@@ -210,6 +224,61 @@ class _CargaListViewState extends State<CargaListView> {
                       return CargaCard(
                         carregamento: carga,
                         isLancandoDespesa: _salvandoDespesa.contains(key),
+                        onInformarKm: _salvandoKm.contains(key)
+                            ? null
+                            : () async {
+                                if (_salvandoKm.contains(key)) return;
+                                final draft = await _abrirInformarKm(carga);
+                                if (draft == null) return;
+                                if (!context.mounted) return;
+                                setState(() => _salvandoKm.add(key));
+                                try {
+                                  final deps = AppScope.of(context);
+                                  final baseUrl = deps
+                                      .parametroController
+                                      .parametro
+                                      .url
+                                      .trim();
+                                  if (baseUrl.isEmpty) {
+                                    if (!context.mounted) return;
+                                    AppSnackBar.erro(
+                                      context,
+                                      'Configure a URL da API antes de salvar.',
+                                    );
+                                    return;
+                                  }
+                                  await deps.carregamentoService.salvarKm(
+                                    baseUrl: baseUrl,
+                                    request: CargaKmRequest(
+                                      idFilial: carga.idFilial,
+                                      idCarga: carga.idCarga,
+                                      kmSaida: draft.kmSaida,
+                                      kmChegada: draft.kmChegada,
+                                    ),
+                                  );
+                                  widget.controller.atualizarKm(
+                                    idFilial: carga.idFilial,
+                                    idCarga: carga.idCarga,
+                                    kmSaida: draft.kmSaida,
+                                    kmChegada: draft.kmChegada,
+                                  );
+                                  if (!context.mounted) return;
+                                  AppSnackBar.sucesso(
+                                    context,
+                                    'KM informado com sucesso.',
+                                  );
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  AppSnackBar.erro(
+                                    context,
+                                    'Erro ao salvar KM: $e',
+                                  );
+                                } finally {
+                                  if (mounted) {
+                                    setState(() => _salvandoKm.remove(key));
+                                  }
+                                }
+                              },
                         onLancamentoDespesa: () async {
                           if (_salvandoDespesa.contains(key)) return;
                           setState(() => _salvandoDespesa.add(key));
@@ -219,8 +288,11 @@ class _CargaListViewState extends State<CargaListView> {
 
                             if (!context.mounted) return;
                             final deps = AppScope.of(context);
-                            final baseUrl =
-                                deps.parametroController.parametro.url.trim();
+                            final baseUrl = deps
+                                .parametroController
+                                .parametro
+                                .url
+                                .trim();
                             if (baseUrl.isEmpty) {
                               if (!context.mounted) return;
                               AppSnackBar.erro(
@@ -249,7 +321,10 @@ class _CargaListViewState extends State<CargaListView> {
                             );
                           } catch (e) {
                             if (!context.mounted) return;
-                            AppSnackBar.erro(context, 'Erro ao salvar despesa: $e');
+                            AppSnackBar.erro(
+                              context,
+                              'Erro ao salvar despesa: $e',
+                            );
                           } finally {
                             if (mounted) {
                               setState(() => _salvandoDespesa.remove(key));

@@ -23,7 +23,8 @@ class CargaDespesaBottomSheet extends StatefulWidget {
   final int cargaId;
 
   @override
-  State<CargaDespesaBottomSheet> createState() => _CargaDespesaBottomSheetState();
+  State<CargaDespesaBottomSheet> createState() =>
+      _CargaDespesaBottomSheetState();
 }
 
 class _CargaDespesaBottomSheetState extends State<CargaDespesaBottomSheet> {
@@ -143,10 +144,10 @@ class _CargaDespesasBottomSheetState extends State<CargaDespesasBottomSheet> {
     final v = raw.trim();
     if (v.isEmpty) return '';
     final dt = DateTime.tryParse(v);
-    if (dt != null) return DataFormatar.formatDate(dt);
+    if (dt != null) return DataFormatar.formatDtDDMMYY(dt);
     if (v.length >= 10) {
       final dt2 = DateTime.tryParse(v.substring(0, 10));
-      if (dt2 != null) return DataFormatar.formatDate(dt2);
+      if (dt2 != null) return DataFormatar.formatDtDDMMYY(dt2);
     }
     return v;
   }

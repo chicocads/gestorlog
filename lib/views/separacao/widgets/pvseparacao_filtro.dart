@@ -57,7 +57,7 @@ class PvSeparacaoFiltroBarra extends StatelessWidget {
                   //const SizedBox(width: 8),
                   Text(
                     data1 != null && data2 != null
-                        ? 'Período: ${DataFormatar.formatDate(data1!)}  →  ${DataFormatar.formatDate(data2!)}'
+                        ? 'Período: ${DataFormatar.formatDtDDMMYY(data1!)}  →  ${DataFormatar.formatDtDDMMYY(data2!)}'
                         : 'Período: todos',
                     style: const TextStyle(
                       fontSize: 13,

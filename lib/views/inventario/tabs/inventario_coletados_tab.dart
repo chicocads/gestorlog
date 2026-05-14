@@ -37,7 +37,7 @@ class _InventarioColetadosTabState extends State<InventarioColetadosTab> {
     if (v.contains('/')) return v;
     final dt = DateTime.tryParse(v);
     if (dt == null) return raw;
-    return DataFormatar.formatDate(dt);
+    return DataFormatar.formatDtDDMMYY(dt);
   }
 
   @override

@@ -1,18 +1,19 @@
 import '../../core/http/api_client.dart';
 import '../../core/http/http_retry.dart';
 import '../../models/carga/carga_model.dart';
-import 'request_carga.dart';
+import 'request_carga_consulta.dart';
+import 'request_carga_km.dart';
 import 'request_carga_pv.dart';
-import 'response_carga.dart';
+import 'response_carga_consulta.dart';
 
 class CargaService {
   const CargaService(this._client);
 
   final ApiClient _client;
 
-  Future<ResponseCarga> buscar({
+  Future<ResponseCargaConsulta> buscar({
     required String baseUrl,
-    required RequestCarga request,
+    required RequestCargaConsulta request,
   }) async {
     final response = await HttpRetry.run(
       () => _client.post(
@@ -34,7 +35,7 @@ class CargaService {
           0;
       final paginaAtual = int.tryParse(request.paginaAtual) ?? 1;
 
-      return ResponseCarga(
+      return ResponseCargaConsulta(
         itens: lista
             .map((e) => CargaModel.fromMap(e as Map<String, dynamic>))
             .toList(),
@@ -65,6 +66,25 @@ class CargaService {
     }
 
     throw Exception('Carga não encontrado (${response.statusCode})');
+  }
+
+  Future<CargaModel> salvarKm({
+    required String baseUrl,
+    required CargaKmRequest request,
+  }) async {
+    final response = await HttpRetry.run(
+      () => _client.put(
+        '$baseUrl/v1/carga/salvarkm',
+        headers: AuthHeaders.basicCads1(),
+        body: request.toMap(),
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      return CargaModel.fromMap(response.data as Map<String, dynamic>);
+    }
+
+    throw Exception('Erro ao salvar KM da carga (${response.statusCode})');
   }
 
   Future<void> confirmarEntrega({

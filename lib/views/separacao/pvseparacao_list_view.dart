@@ -57,12 +57,13 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
     final deps = AppScope.of(context);
     await widget.controller.buscar(
       RequestPreVenda.empty().copyWith(
-        data1: DataFormatar.startOfDayIso(d1),
-        data2: DataFormatar.endOfDayIso(d2),
+        data1: DataFormatar.formatDtApiInicio(d1),
+        data2: DataFormatar.formatDtApiFim(d2),
         idFilial: deps.filialController.selecionado.codigo != 0
             ? deps.filialController.selecionado.codigo
             : deps.parametroController.parametro.idFilial,
         carregamento: int.tryParse(_cargaController.text) ?? 0,
+        natope: 0,
         status: _status.value,
         idSeparador: deps.parametroController.parametro.idPda == 0
             ? deps.usuarioController.usuario.idfuncionario
@@ -184,8 +185,9 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
                             MaterialPageRoute(
                               builder: (_) => PvSeparacaoItensView(
                                 prevenda: pv,
-                                pvseparacaoController:
-                                    AppScope.of(context).conferenciaController,
+                                pvseparacaoController: AppScope.of(
+                                  context,
+                                ).conferenciaController,
                               ),
                             ),
                           );
@@ -197,8 +199,9 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
                             );
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content:
-                                    Text('Separação finalizada com sucesso.'),
+                                content: Text(
+                                  'Separação finalizada com sucesso.',
+                                ),
                               ),
                             );
                           }

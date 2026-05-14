@@ -12,6 +12,7 @@ class RequestPreVenda {
     required this.carregamento,
     required this.numero,
     required this.os,
+    required this.natope,
     required this.status,
     required this.entregue,
   });
@@ -28,6 +29,7 @@ class RequestPreVenda {
   final int carregamento;
   final int numero;
   final int os;
+  final int natope;
   final int status;
   final int entregue;
 
@@ -44,6 +46,7 @@ class RequestPreVenda {
     carregamento: 0,
     numero: 0,
     os: 0,
+    natope: 0,
     status: 0,
     entregue: 0,
   );
@@ -61,6 +64,7 @@ class RequestPreVenda {
     int? carregamento,
     int? numero,
     int? os,
+    int? natope,
     int? status,
     int? entregue,
   }) {
@@ -77,6 +81,7 @@ class RequestPreVenda {
       carregamento: carregamento ?? this.carregamento,
       numero: numero ?? this.numero,
       os: os ?? this.os,
+      natope: natope ?? this.natope,
       status: status ?? this.status,
       entregue: entregue ?? this.entregue,
     );
@@ -97,6 +102,7 @@ class RequestPreVenda {
       carregamento: map['carregamento'] ?? 0,
       numero: map['idPrevenda'] ?? 0,
       os: map['os'] ?? 0,
+      natope: map['natope'] ?? 0,
       status: map['status'] ?? 0,
       entregue: map['entregue'] ?? 0,
     );
@@ -115,6 +121,7 @@ class RequestPreVenda {
     'carregamento': carregamento,
     'idPrevenda': numero,
     'os': os,
+    'natope': natope,
     'status': status,
     'entregue': entregue,
   };

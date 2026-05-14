@@ -12,6 +12,7 @@ class CargaCard extends StatelessWidget {
     this.onTap,
     this.onLancamentoDespesa,
     this.onVerDespesas,
+    this.onInformarKm,
     this.isLancandoDespesa = false,
   });
 
@@ -19,6 +20,7 @@ class CargaCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLancamentoDespesa;
   final VoidCallback? onVerDespesas;
+  final VoidCallback? onInformarKm;
   final bool isLancandoDespesa;
 
   Color get _statusColor => switch (carregamento.status) {
@@ -69,10 +71,18 @@ class CargaCard extends StatelessWidget {
                           ),
                         ),
                         const Spacer(),
+                        if (onInformarKm != null) ...[
+                          IconButton(
+                            onPressed: onInformarKm,
+                            icon: const Icon(Icons.speed_outlined),
+                            tooltip: 'Informar KM',
+                          ),
+                        ],
                         if (onLancamentoDespesa != null) ...[
                           IconButton(
-                            onPressed:
-                                isLancandoDespesa ? null : onLancamentoDespesa,
+                            onPressed: isLancandoDespesa
+                                ? null
+                                : onLancamentoDespesa,
                             icon: isLancandoDespesa
                                 ? const SizedBox(
                                     width: 18,
@@ -120,7 +130,7 @@ class CargaCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          DataFormatar.formatDate(
+                          DataFormatar.formatDtDDMMYY(
                             DateTime.parse(carregamento.data),
                           ),
                           style: const TextStyle(

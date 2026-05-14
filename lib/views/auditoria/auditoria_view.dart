@@ -557,7 +557,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
     if (v.contains('/')) return v;
     final dt = DateTime.tryParse(v);
     if (dt == null) return v;
-    return DataFormatar.formatDate(dt);
+    return DataFormatar.formatDtDDMMYY(dt);
   }
 
   Widget _buildStat(
@@ -867,8 +867,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
   @override
   Widget build(BuildContext context) {
     final auditoria = _auditoria;
-    final bloqueado =
-        _buscando || _salvandoCodigoBarra || _salvandoEndereco;
+    final bloqueado = _buscando || _salvandoCodigoBarra || _salvandoEndereco;
 
     return PopScope(
       canPop: !bloqueado,
@@ -876,7 +875,10 @@ class _AuditoriaViewState extends State<AuditoriaView> {
         if (didPop) return;
         if (bloqueado) {
           FocusScope.of(context).unfocus();
-          AppSnackBar.erro(context, 'Aguarde finalizar a operação antes de sair.');
+          AppSnackBar.erro(
+            context,
+            'Aguarde finalizar a operação antes de sair.',
+          );
         }
       },
       child: Scaffold(

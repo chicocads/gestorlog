@@ -85,7 +85,10 @@ class HsEntregaCard extends StatelessWidget {
                                       strokeWidth: 3,
                                     ),
                                   )
-                                : const Icon(Icons.check_circle_outline, color: AppColors.primary),
+                                : const Icon(
+                                    Icons.check_circle_outline,
+                                    color: AppColors.primary,
+                                  ),
                             tooltip: 'Confirmar entrega',
                           ),
                         ],
@@ -151,7 +154,9 @@ class HsEntregaCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          DataFormatar.formatDate(DateTime.parse(hsaida.data)),
+                          DataFormatar.formatDtDDMMYY(
+                            DateTime.parse(hsaida.data),
+                          ),
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,
@@ -168,7 +173,7 @@ class HsEntregaCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            DataFormatar.formatEntrega(hsaida.dtEntrega),
+                            DataFormatar.formatStDDMMYYHHMMSS(hsaida.dtEntrega),
                             style: TextStyle(
                               fontSize: 12,
                               color: _entregue

@@ -282,7 +282,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       return;
     }
 
-    final validade = DataFormatar.toIsoDateFromDdMmYyyy(validadeTxt);
+    final validade = DataFormatar.formatStAnoMesDia(validadeTxt);
 
     final somaOutros = sumLotesExcept(
       _loteRows.map((r) => r.qtdeController.text.trim()).toList(),
