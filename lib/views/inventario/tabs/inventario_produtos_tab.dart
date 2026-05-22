@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/routes.dart';
 import '../../../controllers/inventario/inventario_produto_controller.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/app_snack_bar.dart';
 import '../../../core/widgets/list_state_builder.dart';
 import '../../../services/cadastro/produto/produto_local_service.dart';
 import '../../../services/cadastro/produto/request_produto.dart';
@@ -84,9 +85,7 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
         : deps.parametroController.parametro.idFilial;
 
     if (baseUrl.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Configure a URL da API antes de baixar.')),
-      );
+      AppSnackBar.erro(context, 'Configure a URL da API antes de baixar.');
       return;
     }
 
@@ -138,18 +137,13 @@ class InventarioProdutosTabState extends State<InventarioProdutosTab> {
       await _buscar();
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Download concluído. $_produtosBaixados produtos gravados no banco local.',
-          ),
-        ),
+      AppSnackBar.sucesso(
+        context,
+        'Download concluído. $_produtosBaixados produtos gravados no banco local.',
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao baixar produtos: $e')));
+      AppSnackBar.erro(context, 'Erro ao baixar produtos: $e');
     } finally {
       if (mounted) {
         setState(() {

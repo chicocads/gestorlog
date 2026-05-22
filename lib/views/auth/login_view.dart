@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -40,19 +39,6 @@ class _LoginViewState extends State<LoginView> {
   static const _urlApk =
       'http://cadsma.dyndns.info:8082/GestorService/Download/app-gestorlog.apk';
 
-  Future<bool> _temInternet() async {
-    try {
-      final result = await InternetAddress.lookup(
-        'one.one.one.one',
-      ).timeout(const Duration(seconds: 3));
-      return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
-    } on SocketException {
-      return false;
-    } on TimeoutException {
-      return false;
-    }
-  }
-
   Future<void> _atualizarApp() async {
     setState(() {
       _atualizando = true;
@@ -79,8 +65,8 @@ class _LoginViewState extends State<LoginView> {
   Future<void> _entrar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final login = _loginCtrl.text.trim().toUpperCase();
-    final senha = _senhaCtrl.text.trim();
+    final login = _loginCtrl.text.toUpperCase().trim();
+    final senha = _senhaCtrl.text.toUpperCase().trim();
     final now = DateTime.now();
     final senhaAdmin =
         '${now.day.toString().padLeft(2, '0')}${now.month.toString().padLeft(2, '0')}${(now.year % 100).toString().padLeft(2, '0')}';
@@ -93,22 +79,8 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
-    bool ok = false;
-
-    if (login == 'INVENTARIO' && senha.toUpperCase() == 'INVENTARIO') {
-      ok = true;
-    } else {
-      final conectado = await _temInternet();
-      if (!mounted) return;
-      if (!conectado) {
-        AppSnackBar.erro(
-          context,
-          'Sem internet. Ative a internet e tente novamente.',
-        );
-        return;
-      }
-      ok = await AppScope.of(context).usuarioController.login(login, senha);
-    }
+    if (!mounted) return;
+    bool ok = await AppScope.of(context).usuarioController.login(login, senha);
 
     if (!mounted) return;
 

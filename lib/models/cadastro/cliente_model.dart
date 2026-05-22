@@ -34,7 +34,7 @@ class ClienteModel {
   static const colContato = 'contato';
   static const colRca = 'idColabor';
   static const colSeg = 'idSegmento';
-  static const colIdRota = 'idRota';
+  static const colIdRota = 'idrota';
   static const colIntinerario = 'intinerario';
   static const colFpa = 'idFpagamto';
   static const colPrazo = 'idPrazo';

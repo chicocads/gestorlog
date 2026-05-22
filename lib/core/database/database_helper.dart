@@ -2,6 +2,8 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../models/Separacao/separacao_model.dart';
 import '../../models/cadastro/produto_model.dart';
+import '../../models/cadastro/usuario2_model.dart';
+import '../../models/cadastro/usuario_model.dart';
 import '../../models/hsaida/lote_saida_model.dart';
 import '../../models/parametros/parametro_model.dart';
 import '../../models/inventario/inventario_model.dart';
@@ -42,6 +44,8 @@ class DatabaseHelper {
         ${ParametroModel.colControlePecas} INTEGER NOT NULL DEFAULT 0
       )
     ''');
+    await _createUsuarioTable(db);
+    await _createUsuario2Table(db);
     await _createProdutoTable(db);
     await _createInventarioTable(db);
     await _createSeparacaoTable(db);
@@ -167,6 +171,80 @@ class DatabaseHelper {
         column: ProdutoModel.colWmsgvt2,
         definition: 'INTEGER NOT NULL DEFAULT 0',
       );
+    }
+  }
+
+  Future<void> _createUsuarioTable(Database db) async {
+    if (!await _tableExists(db, UsuarioModel.tblNome)) {
+      await db.execute('''
+      CREATE TABLE ${UsuarioModel.tblNome} (
+        ${UsuarioModel.colId}          INTEGER PRIMARY KEY,
+        ${UsuarioModel.colLogin}       TEXT    NOT NULL DEFAULT '',
+        ${UsuarioModel.colSenha}       TEXT    NOT NULL DEFAULT '',
+        ${UsuarioModel.colEmail}       TEXT    NOT NULL DEFAULT '',
+        ${UsuarioModel.colTipo}        INTEGER NOT NULL DEFAULT 1,
+        ${UsuarioModel.colAvatar}      TEXT    NOT NULL DEFAULT '',
+        ${UsuarioModel.colValidade}    TEXT    NOT NULL DEFAULT '',
+        ${UsuarioModel.colIdFilial}    INTEGER NOT NULL DEFAULT 0,
+        ${UsuarioModel.colIdFuncion}   INTEGER NOT NULL DEFAULT 0,
+        ${UsuarioModel.colDscMax}      REAL    NOT NULL DEFAULT 0,
+        usu_flag01                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag02                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag03                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag04                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag05                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag06                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag07                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag08                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag09                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag10                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag11                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag12                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag13                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag14                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag15                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag16                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag17                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag18                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag19                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag20                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag21                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag22                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag23                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag24                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag25                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag26                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag27                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag28                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag29                     INTEGER NOT NULL DEFAULT 0,
+        usu_flag30                     INTEGER NOT NULL DEFAULT 0
+      )
+    ''');
+    }
+  }
+
+  Future<void> _createUsuario2Table(Database db) async {
+    if (!await _tableExists(db, Usuario2Model.tblNome)) {
+      await db.execute('''
+      CREATE TABLE ${Usuario2Model.tblNome} (
+        ${Usuario2Model.colIdSistema}    INTEGER NOT NULL DEFAULT 0,
+        ${Usuario2Model.colIdUsuario}    INTEGER NOT NULL DEFAULT 0,
+        ${Usuario2Model.colIdMenu}       INTEGER NOT NULL DEFAULT 0,
+        ${Usuario2Model.colOrdem}        INTEGER NOT NULL DEFAULT 0,
+        ${Usuario2Model.colNivel}        INTEGER NOT NULL DEFAULT 0,
+        ${Usuario2Model.colMaster}       INTEGER NOT NULL DEFAULT 0,
+        ${Usuario2Model.colAcesso}       INTEGER NOT NULL DEFAULT 0,
+        ${Usuario2Model.colIncluir}      INTEGER NOT NULL DEFAULT 0,
+        ${Usuario2Model.colAlterar}      INTEGER NOT NULL DEFAULT 0,
+        ${Usuario2Model.colExcluir}      INTEGER NOT NULL DEFAULT 0,
+        ${Usuario2Model.colImprimir}     INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (
+          ${Usuario2Model.colIdSistema},
+          ${Usuario2Model.colIdUsuario},
+          ${Usuario2Model.colIdMenu}
+        )
+      )
+    ''');
     }
   }
 

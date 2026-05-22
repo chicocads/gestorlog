@@ -12,6 +12,7 @@ import '../../services/auditoria/request_endereco_produto.dart';
 import '../../core/widgets/status_badge.dart';
 import '../widget/scanner_view.dart';
 import 'tabs/auditoria_endereco_tab.dart';
+import 'widgets/auditoria_produto_search_bottom_sheet.dart';
 import 'tabs/auditoria_ficha_tab.dart';
 import 'tabs/auditoria_lotes_tab.dart';
 
@@ -45,6 +46,12 @@ class _AuditoriaViewState extends State<AuditoriaView> {
   bool _salvandoCodigoBarra = false;
   bool _salvandoEndereco = false;
   AuditoriaLogisticaModel? _auditoria;
+
+  @override
+  void initState() {
+    super.initState();
+    _focarCodigo();
+  }
 
   @override
   void dispose() {
@@ -110,6 +117,13 @@ class _AuditoriaViewState extends State<AuditoriaView> {
         extentOffset: _codigoController.text.length,
       );
     });
+  }
+
+  Future<void> _abrirPesquisaNome() async {
+    final codigo = await showAuditoriaProdutoSearch(context);
+    if (!mounted || codigo == null) return;
+    _codigoController.text = codigo.toString();
+    _buscarProduto();
   }
 
   void _abrirScanner() async {
@@ -437,7 +451,24 @@ class _AuditoriaViewState extends State<AuditoriaView> {
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 5),
+        SizedBox(
+          width: 48,
+          height: 48,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              onPressed: _buscando ? null : _abrirPesquisaNome,
+              icon: const Icon(Icons.list_alt_outlined),
+              color: Colors.white,
+              tooltip: 'Buscar por nome',
+            ),
+          ),
+        ),
+        const SizedBox(width: 5),
         SizedBox(
           width: 48,
           height: 48,

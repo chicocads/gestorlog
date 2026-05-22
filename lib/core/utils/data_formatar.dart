@@ -94,6 +94,14 @@ class DataFormatar {
     return '$d/$m/$y';
   }
 
+  static String formatStDDMMYY(String raw) {
+    if (raw.trim().isEmpty) return '-';
+    final iso = toIsoDate(raw);
+    final dt = DateTime.tryParse(iso);
+    if (dt == null) return raw;
+    return formatDtDDMMYY(dt);
+  }
+
   static String toIsoDate(String raw) {
     final v = raw.trim();
     if (v.isEmpty) return '';
@@ -114,8 +122,16 @@ class DataFormatar {
     return v;
   }
 
-  /// Formata como "2026-03-01T00:00:00.000-0700"
+  /// Formata como "2026-04-11T00:00:00" (yyyy-MM-ddT00:00:00)
   static String formatDtApi(DateTime date) {
+    final y = date.year.toString().padLeft(4, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final d = date.day.toString().padLeft(2, '0');
+    return '$y-$m-${d}T00:00:00';
+  }
+
+  /// Formata como "2026-03-01T00:00:00.000-0700"
+  static String formatDtApiCompleta(DateTime date) {
     final y = date.year;
     final mo = date.month.toString().padLeft(2, '0');
     final d = date.day.toString().padLeft(2, '0');
@@ -130,12 +146,14 @@ class DataFormatar {
   }
 
   /// Início do dia: "2026-03-01T00:00:00.000-0700"
-  static String formatDtApiInicio(DateTime date) =>
-      formatDtApi(DateTime(date.year, date.month, date.day, 0, 0, 0, 0));
+  static String formatDtApiInicio(DateTime date) => formatDtApiCompleta(
+    DateTime(date.year, date.month, date.day, 0, 0, 0, 0),
+  );
 
   /// Fim do dia: "2026-03-17T23:59:59.000-0700"
-  static String formatDtApiFim(DateTime date) =>
-      formatDtApi(DateTime(date.year, date.month, date.day, 23, 59, 59, 0));
+  static String formatDtApiFim(DateTime date) => formatDtApiCompleta(
+    DateTime(date.year, date.month, date.day, 23, 59, 59, 0),
+  );
 
   static String _offsetString(DateTime date) {
     final offset = date.timeZoneOffset;

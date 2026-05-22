@@ -67,10 +67,10 @@ class PvSeparacaoCard extends StatelessWidget {
                         StatusBadge(label: _statusLabel, color: _statusColor),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       'Cliente: ${prevenda.idCliente}'
-                      '${prevenda.cliente.nome.isNotEmpty ? ' - ${prevenda.cliente.nome}' : ' - CLIENTE INDEFINIDO'}',
+                      '${prevenda.cliente.fantasia.isNotEmpty ? ' - ${prevenda.cliente.fantasia}' : ' - ${prevenda.cliente.nome}'}',
                       style: const TextStyle(
                         fontSize: 13,
                         color: AppColors.textSecondary,
@@ -79,10 +79,32 @@ class PvSeparacaoCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Rca: ${prevenda.idColabor}'
-                      '${prevenda.colaborador.nome.isNotEmpty ? ' - ${prevenda.colaborador.nome}' : ' - RCA INDEFINIDO'}',
+                      'Bairro: ${prevenda.cliente.bairro.padRight(20).substring(0, 20).trim()} - Rota: ${prevenda.cliente.idRota.toString().padLeft(4, '0')} - Fone: ${prevenda.cliente.fone}',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Text(
+                          'Cidade: ${prevenda.cliente.cidade.trim()}  - UF: ${prevenda.cliente.uf}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Rca: ${prevenda.idColabor}'
+                      '${prevenda.colaborador.nome.isNotEmpty ? ' - ${prevenda.colaborador.nome.padRight(30).substring(0, 30).trim()}' : ' - RCA INDEFINIDO'}',
+                      style: const TextStyle(
+                        fontSize: 13,
                         color: AppColors.textSecondary,
                       ),
                       overflow: TextOverflow.ellipsis,

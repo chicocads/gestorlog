@@ -10,6 +10,7 @@ import '../core/http/api_client.dart';
 import '../core/http/dio_client.dart';
 import '../services/cadastro/filial/filial_service.dart';
 import '../services/cadastro/produto/produto_service.dart';
+import '../services/cadastro/usuario/usuario_local_service.dart';
 import '../services/cadastro/usuario/usuario_service.dart';
 import '../services/auditoria/auditoria_service.dart';
 import '../services/separacao/separacao_local_service.dart';
@@ -53,8 +54,10 @@ class AppDependencies {
     parametroController = ParametroController(this.parametroService);
 
     usuarioService = UsuarioService(this.apiClient);
+    usuarioLocalService = UsuarioLocalService();
     usuarioController = UsuarioController(
       usuarioService,
+      usuarioLocalService,
       () => parametroController.parametro.url,
     );
 
@@ -107,6 +110,7 @@ class AppDependencies {
   late final ParametroController parametroController;
 
   late final UsuarioService usuarioService;
+  late final UsuarioLocalService usuarioLocalService;
   late final UsuarioController usuarioController;
 
   late final PreVendaService preVendaService;

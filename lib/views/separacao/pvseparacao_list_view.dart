@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../app/routes.dart';
 import '../../controllers/prevenda/prevenda_controller.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/app_snack_bar.dart';
 import '../../core/utils/data_formatar.dart';
 import '../../core/widgets/list_state_builder.dart';
 import '../../core/widgets/status_badge.dart';
@@ -171,12 +172,9 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
                         prevenda: pv,
                         onTap: () async {
                           if (pv.status == StatusPV.cancelado) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'PV cancelada. Não é possível separar itens.',
-                                ),
-                              ),
+                            AppSnackBar.erro(
+                              context,
+                              'PV cancelada. Não é possível separar itens.',
                             );
                             return;
                           }
@@ -197,12 +195,9 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
                               loja: pv.idFilial,
                               numero: pv.idPrevenda,
                             );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Separação finalizada com sucesso.',
-                                ),
-                              ),
+                            AppSnackBar.sucesso(
+                              context,
+                              'Separação finalizada com sucesso.',
                             );
                           }
                         },

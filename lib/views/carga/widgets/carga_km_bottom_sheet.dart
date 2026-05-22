@@ -66,12 +66,18 @@ class _CargaKmBottomSheetState extends State<CargaKmBottomSheet> {
       AppSnackBar.erro(context, 'Informe o KM de chegada.');
       return;
     }
-    if (kmSaida >= kmChegada) {
-      AppSnackBar.erro(context, 'KM de saída deve ser menor que o KM de chegada.');
+    if (kmSaida >= kmChegada && kmChegada > 0) {
+      AppSnackBar.erro(
+        context,
+        'KM de saída deve ser menor que o KM de chegada.',
+      );
       return;
     }
 
-    Navigator.pop(context, CargaKmDraft(kmSaida: kmSaida, kmChegada: kmChegada));
+    Navigator.pop(
+      context,
+      CargaKmDraft(kmSaida: kmSaida, kmChegada: kmChegada),
+    );
   }
 
   @override
