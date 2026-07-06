@@ -23,7 +23,7 @@ class _LoteRow {
         ? validadeRaw
         : () {
             try {
-              return DataFormatar.formatDtDDMMYY(DateTime.parse(validadeRaw));
+              return DataFormatar.formatDtDDMMYYYY(DateTime.parse(validadeRaw));
             } catch (_) {
               return validadeRaw;
             }

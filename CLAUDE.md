@@ -24,9 +24,24 @@ fvm flutter test test/widget_test.dart # run a single test file
 
 **HTTP layer**: `ApiClient` ([lib/core/http/api_client.dart](lib/core/http/api_client.dart)) is an abstract interface; `DioApiClient` ([lib/core/http/dio_client.dart](lib/core/http/dio_client.dart)) is the concrete implementation with `validateStatus: (_) => true` — it never throws on HTTP error status, callers must check `ApiResponse.isSuccess`. Auth credentials are read from `.env` via `AuthHeaders.basicFromEnv(envKey)`.
 
-**Local database**: SQLite via `sqflite`, accessed through the singleton `DatabaseHelper.instance` ([lib/core/database/database_helper.dart](lib/core/database/database_helper.dart)). Current schema version is **10**; migrations are additive `ALTER TABLE` operations. Tables: `Parametro`, `Produto`, `Separacao`, `Inventario`, `LoteSaida`.
+**Local database**: SQLite via `sqflite`, accessed through the singleton `DatabaseHelper.instance` ([lib/core/database/database_helper.dart](lib/core/database/database_helper.dart)). Current schema version is **11**; migrations are additive `ALTER TABLE` operations. Tables: `Parametro`, `Produto`, `Separacao`, `Inventario`, `LoteSaida`, `Usuario`, `Usuario2`.
 
-**Service split**: Most business domains have two service classes — a `*LocalService` (reads/writes SQLite) and a `*RemoteService` or plain `*Service` (calls the REST API). Controllers receive both and orchestrate between them.
+**Service split**: Most business domains have two service classes — a `*LocalService` (reads/writes SQLite) and a `*RemoteService` or plain `*Service` (calls the REST API). Controllers receive both and orchestrate between them. Exception: `AuditoriaService` has no dedicated controller — views use the service directly via `AppScope`.
+
+**Dependency graph** (`AppDependencies` in [lib/app/routes.dart](lib/app/routes.dart)):
+
+| Service(s) | Controller |
+|---|---|
+| `ParametroService` | `ParametroController` |
+| `UsuarioService` + `UsuarioLocalService` | `UsuarioController` |
+| `PreVendaService` | `PreVendaController` |
+| `SeparacaoLocalService` + `SeparacaoRemoteService` | `PvSeparacaoController` |
+| `CargaService` | `CarregamentoController` |
+| `CargaDespesaService` | _(used directly by views)_ |
+| `HSaidaService` + `CargaService` | `HSaidaController` |
+| `FilialService` | `FilialController` |
+| `ProdutoService` | `ProdutoController` |
+| `AuditoriaService` | _(no controller — used directly by views)_ |
 
 ## Module overview
 
@@ -35,10 +50,38 @@ fvm flutter test test/widget_test.dart # run a single test file
 | `separacao` | Order picking (pre-venda items) |
 | `carga` | Truck load management and expenses |
 | `entrega` | Delivery confirmation (hsaida = histórico saída, prevenda) |
-| `inventario` | Stock count with barcode scanner |
-| `auditoria` | Stock audit — product address and lot verification |
-| `cadastro` | Master data: filial, produto, usuário |
-| `parametro` | Device configuration (server URL, filial, PDA ID) stored in SQLite |
+| `inventario` | Stock count with barcode scanner — 4 tabs: coleta, coletados, produtos, total |
+| `auditoria` | Stock audit — 3 tabs: endereço, ficha, lotes; requests: alterar barra, endereço produto |
+| `cadastro` | Master data: filial, produto, usuário (with `usu_flag01`–`usu_flag30` permissions) |
+| `parametro` | Device configuration (server URL, filial, PDA ID, frota, inventário, decimais) stored in SQLite |
+
+## Rotas
+
+| Rota | View |
+|---|---|
+| `/` | `LoginView` |
+| `/home` | `HomeView` |
+| `/parametros` | `ParametroView` |
+| `/pre-vendas` | `PvSeparacaoListView` |
+| `/entrega-carga` | `CargaListView` |
+| `/separacao-carga` | `PvSeparacaoListView` |
+| `/inventario` | `InventarioView` |
+| `/auditoria-estoque` | `AuditoriaView` |
+| `/produtos` | `ProdutoView` |
+
+## main.dart
+
+`WidgetsFlutterBinding.ensureInitialized()` e todo o código de bootstrap ficam **dentro** do `runZonedGuarded` para evitar zone mismatch:
+
+```dart
+Future<void> main() async {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    // ...setup...
+    runApp(const App());
+  }, (error, stack) { debugPrint(...); });
+}
+```
 
 ## Environment
 

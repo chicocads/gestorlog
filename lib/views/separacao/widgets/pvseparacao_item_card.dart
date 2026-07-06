@@ -251,7 +251,6 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
       );
       return;
     }
-
     _lastValidLoteQtde[index] = value;
   }
 
@@ -550,10 +549,9 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                       isDense: true,
                     ),
                     child: Text(
-                      widget.item.qtde.toStringAsFixed(
-                        widget.item.qtde.truncateToDouble() == widget.item.qtde
-                            ? 0
-                            : 2,
+                      NumeroFormatar.qtde(
+                        widget.item.qtde,
+                        decQtde: widget.decQtde,
                       ),
                       style: const TextStyle(
                         fontSize: 16,

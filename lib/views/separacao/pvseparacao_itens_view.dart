@@ -591,7 +591,10 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
         if (didPop) return;
         if (bloqueadoPop) {
           FocusScope.of(context).unfocus();
-          AppSnackBar.erro(context, 'Aguarde finalizar a operação antes de sair.');
+          AppSnackBar.erro(
+            context,
+            'Aguarde finalizar a operação antes de sair.',
+          );
           return;
         }
         if (_mostrandoLeitor) {
@@ -638,8 +641,9 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
           actions: [
             IconButton(
               icon: Icon(_mostrandoLeitor ? Icons.close : Icons.keyboard),
-              tooltip:
-                  _mostrandoLeitor ? 'Fechar campo' : 'Digitar código de barra',
+              tooltip: _mostrandoLeitor
+                  ? 'Fechar campo'
+                  : 'Digitar código de barra',
               onPressed: _bloqueado ? null : _toggleLeitor,
             ),
           ],
@@ -689,8 +693,9 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton.icon(
-                    onPressed:
-                        _apagando || _bloqueado ? null : _confirmarApagarSeparacao,
+                    onPressed: _apagando || _bloqueado
+                        ? null
+                        : _confirmarApagarSeparacao,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.error,
                       foregroundColor: Colors.white,
@@ -714,8 +719,10 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
                         : const Icon(Icons.delete_outline, size: 20),
                     label: const Text(
                       'Apagar Qtde',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
                     ),
                   ),
                 ],

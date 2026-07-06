@@ -14,7 +14,7 @@ class UsuarioService {
   }) async {
     final response = await HttpRetry.run(
       () => _client.get(
-        '$baseUrl/v1/usuarios/login/$login/senha/$senha',
+        '$baseUrl/v1/usuarios/login/${Uri.encodeComponent(login)}/senha/${Uri.encodeComponent(senha)}',
         headers: AuthHeaders.basicCads1(),
       ),
     );

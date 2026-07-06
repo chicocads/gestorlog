@@ -23,7 +23,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     return openDatabase(
       join(dbPath, 'gestorlog.db'),
-      version: 10,
+      version: 11,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -171,6 +171,10 @@ class DatabaseHelper {
         column: ProdutoModel.colWmsgvt2,
         definition: 'INTEGER NOT NULL DEFAULT 0',
       );
+    }
+    if (oldVersion < 11) {
+      await _createUsuarioTable(db);
+      await _createUsuario2Table(db);
     }
   }
 

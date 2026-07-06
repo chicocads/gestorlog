@@ -94,6 +94,13 @@ class DataFormatar {
     return '$d/$m/$y';
   }
 
+  static String formatDtDDMMYYYY(DateTime date) {
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final y = date.year.toString().padLeft(4, '0');
+    return '$d/$m/$y';
+  }
+
   static String formatStDDMMYY(String raw) {
     if (raw.trim().isEmpty) return '-';
     final iso = toIsoDate(raw);

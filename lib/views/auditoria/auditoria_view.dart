@@ -12,7 +12,7 @@ import '../../services/auditoria/request_endereco_produto.dart';
 import '../../core/widgets/status_badge.dart';
 import '../widget/scanner_view.dart';
 import 'tabs/auditoria_endereco_tab.dart';
-import 'widgets/auditoria_produto_search_bottom_sheet.dart';
+import 'widgets/auditoria_produto_bottom_sheet.dart';
 import 'tabs/auditoria_ficha_tab.dart';
 import 'tabs/auditoria_lotes_tab.dart';
 
@@ -171,7 +171,7 @@ class _AuditoriaViewState extends State<AuditoriaView> {
 
     if (v.length <= 10) return true;
 
-    if (v.length != 13 && v.length != 14) {
+    if (v.length != 12 && v.length != 13 && v.length != 14) {
       _mostrarDialogoCodigoBarrasInvalido(
         'Código de barras deve ter 13 ou 14 dígitos.',
       );
@@ -427,14 +427,14 @@ class _AuditoriaViewState extends State<AuditoriaView> {
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.search),
+                    : const Icon(Icons.search_outlined),
                 color: AppColors.primary,
                 tooltip: 'Buscar',
               ),
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         SizedBox(
           width: 48,
           height: 48,

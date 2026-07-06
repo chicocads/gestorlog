@@ -420,7 +420,9 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     try {
       await _inventarioLocalService.gravarOuSomar(item);
       if (!mounted) return;
-      AppSnackBar.sucesso(context, 'Lançamento salvo com sucesso.');
+      if (!_somarMais1EVoltarCodigo) {
+        AppSnackBar.sucesso(context, 'Lançamento salvo com sucesso.');
+      }
       setState(() {
         _ultimoCodigoLancado = codigo;
         _ultimaQtdeLancada = _somarMais1EVoltarCodigo
@@ -657,6 +659,20 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
     );
   }
 
+  void _limparTela() {
+    setState(() {
+      _codigoController.clear();
+      _nomeProdutoManualController.clear();
+      _pecasController.text = '0';
+      _qtdeController.text = '1';
+      _loteController.clear();
+      _validadeController.clear();
+      _produtoColetado = null;
+      _produtoNaoCadastrado = false;
+    });
+    _focarCodigo();
+  }
+
   Widget _buildSwitchAutoContagem() {
     return Center(
       child: Row(
@@ -757,14 +773,28 @@ class _InventarioColetaTabState extends State<InventarioColetaTab> {
           const SizedBox(height: 10),
           _buildLoteValidadeRow(),
           const SizedBox(height: 14),
-          FilledButton.icon(
-            onPressed: podeSalvar ? _salvarColeta : null,
-            icon: const Icon(Icons.save_rounded),
-            label: const Text('Salvar'),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _limparTela,
+                  icon: const Icon(Icons.cleaning_services_rounded),
+                  label: const Text('Limpar'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: podeSalvar ? _salvarColeta : null,
+                  icon: const Icon(Icons.save_rounded),
+                  label: const Text('Salvar'),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 50),
-          _buildSwitchAutoContagem(),
           _buildUltimoLancamento(),
+          _buildSwitchAutoContagem(),
         ],
       ),
     );

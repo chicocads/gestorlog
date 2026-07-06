@@ -16,6 +16,7 @@ class RequestProduto {
   static const colRca = 'rca';
   static const colEquipe = 'equipe';
   static const colConsumo = 'consumo';
+  static const colPromocao = 'promocao';
   static const colSituacao = 'situacao';
   static const colSaldo = 'saldo';
   static const colVendaWeb = 'vendaweb';
@@ -39,6 +40,7 @@ class RequestProduto {
     required this.rca,
     required this.equipe,
     required this.consumo,
+    required this.promocao,
     required this.situacao,
     required this.saldo,
     required this.vendaWeb,
@@ -62,6 +64,7 @@ class RequestProduto {
   final int rca;
   final int equipe;
   final int consumo;
+  final int promocao;
   final int situacao;
   final int saldo;
   final int vendaWeb;
@@ -85,6 +88,7 @@ class RequestProduto {
     rca: 0,
     equipe: 0,
     consumo: 0,
+    promocao: 2,
     situacao: 2,
     saldo: 2,
     vendaWeb: 2,
@@ -109,6 +113,7 @@ class RequestProduto {
     int? rca,
     int? equipe,
     int? consumo,
+    int? promocao,
     int? situacao,
     int? saldo,
     int? vendaWeb,
@@ -132,6 +137,7 @@ class RequestProduto {
       rca: rca ?? this.rca,
       equipe: equipe ?? this.equipe,
       consumo: consumo ?? this.consumo,
+      promocao: promocao ?? this.promocao,
       situacao: situacao ?? this.situacao,
       saldo: saldo ?? this.saldo,
       vendaWeb: vendaWeb ?? this.vendaWeb,
@@ -159,6 +165,7 @@ class RequestProduto {
       rca: map[colRca] as int? ?? 0,
       equipe: map[colEquipe] as int? ?? 0,
       consumo: map[colConsumo] as int? ?? 0,
+      promocao: map[colPromocao] as int? ?? 2,
       situacao: map[colSituacao] as int? ?? 1,
       saldo: map[colSaldo] as int? ?? 1,
       vendaWeb: map[colVendaWeb] as int? ?? 2,
@@ -184,6 +191,7 @@ class RequestProduto {
     colRca: rca,
     colEquipe: equipe,
     colConsumo: consumo,
+    colPromocao: promocao,
     colSituacao: situacao,
     colSaldo: saldo,
     colVendaWeb: vendaWeb,

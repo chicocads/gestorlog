@@ -1,6 +1,11 @@
 class StringSanitizer {
   StringSanitizer._();
 
+  static String orDash(String value) {
+    final t = value.trim();
+    return t.isEmpty ? '-' : t;
+  }
+
   static bool isDigits(String value) {
     if (value.isEmpty) return false;
     for (final unit in value.codeUnits) {
@@ -22,16 +27,18 @@ class StringSanitizer {
 
   static bool isValidEan(String value) {
     final digits = digitsOnly(value.trim());
-    if (digits.length != 13 && digits.length != 14) return false;
+    if (digits.length != 12 && digits.length != 13 && digits.length != 14) {
+      return false;
+    }
     return isValidGtin(digits, length: digits.length);
   }
 
   static bool isValidDun14(String value) => isValidGtin(value, length: 14);
 
-  static bool isValidGtin(
-    String value, {
-    required int length,
-  }) {
+  static bool isValidGtin(String value, {required int length}) {
+    if (value.isEmpty) return true;
+    if (value.substring(0, 3) != '789') return true;
+
     final digits = digitsOnly(value.trim());
     if (digits.length != length) return false;
     if (!isDigits(digits)) return false;

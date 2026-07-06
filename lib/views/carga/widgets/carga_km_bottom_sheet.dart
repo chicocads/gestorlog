@@ -55,14 +55,18 @@ class _CargaKmBottomSheetState extends State<CargaKmBottomSheet> {
   }
 
   void _salvar() {
-    final kmSaida = NumeroFormatar.tryParse(_kmSaidaCtrl.text.trim());
-    final kmChegada = NumeroFormatar.tryParse(_kmChegadaCtrl.text.trim());
+    final kmSaida = NumeroFormatar.tryParse(
+      _kmSaidaCtrl.text.padLeft(1, '0').trim(),
+    );
+    final kmChegada = NumeroFormatar.tryParse(
+      _kmChegadaCtrl.text.padLeft(1, '0').trim(),
+    );
 
-    if (kmSaida == null || kmSaida <= 0) {
+    if (kmSaida == null || kmSaida < 0) {
       AppSnackBar.erro(context, 'Informe o KM de saída.');
       return;
     }
-    if (kmChegada == null || kmChegada <= 0) {
+    if (kmChegada == null || kmChegada < 0) {
       AppSnackBar.erro(context, 'Informe o KM de chegada.');
       return;
     }
