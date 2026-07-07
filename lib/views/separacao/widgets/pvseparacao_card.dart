@@ -110,6 +110,15 @@ class PvSeparacaoCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
+                    Text(
+                      'Obs: ${prevenda.obs.isNotEmpty ? prevenda.obs.padRight(50).substring(0, 50).trim() : 'Sem observações'}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
                     Row(
                       children: [
                         Text(
