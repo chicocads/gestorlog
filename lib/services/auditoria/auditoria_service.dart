@@ -3,6 +3,7 @@ import '../../core/http/http_retry.dart';
 import '../../core/utils/data_formatar.dart';
 import '../../models/auditoria/auditoria_model.dart';
 import 'request_alterar_barra_produto.dart';
+import 'request_dado_fisico_produto.dart';
 import 'request_endereco_produto.dart';
 
 class AuditoriaService {
@@ -44,6 +45,32 @@ class AuditoriaService {
     final response = await HttpRetry.run(
       () => _client.put(
         '$baseUrl/v1/produtos/alterarEnderecoPorCodigo/$idProduto',
+        headers: AuthHeaders.basicCads1(),
+        body: request.toMap(),
+      ),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return true;
+    }
+
+    if (response.statusCode == 404) {
+      throw Exception('Sr(a). Usuário, recurso não encontrado!');
+    }
+
+    throw Exception(
+      'Erro ao alterar endereço do produto (${response.statusCode})',
+    );
+  }
+
+  Future<bool> alterarAuditoriaLogisticaDadoFisicoPorCodigo({
+    required String baseUrl,
+    required int idProduto,
+    required RequestDadoFisicoProduto request,
+  }) async {
+    final response = await HttpRetry.run(
+      () => _client.put(
+        '$baseUrl/v1/produtos/alterarDadoFisicoPorCodigo/$idProduto',
         headers: AuthHeaders.basicCads1(),
         body: request.toMap(),
       ),

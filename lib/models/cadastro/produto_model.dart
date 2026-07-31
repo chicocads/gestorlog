@@ -43,6 +43,10 @@ class ProdutoModel {
   static const colSituacao = 'situacao';
   static const colTabWeb = 'tabweb';
   static const colCst = 'cst';
+  static const colPeso = 'peso';
+  static const colAltura = 'altura';
+  static const colLargura = 'largura';
+  static const colComprimento = 'comprimento';
   static const colControleLote = 'controlelote';
   static const colImagem = 'imagem';
 
@@ -90,6 +94,10 @@ class ProdutoModel {
     required this.situacao,
     required this.tabweb,
     required this.cst,
+    required this.peso,
+    required this.altura,
+    required this.largura,
+    required this.comprimento,
     required this.controlelote,
     required this.imagem,
   });
@@ -137,6 +145,10 @@ class ProdutoModel {
   final int situacao;
   final int tabweb;
   final String cst;
+  final double peso;
+  final double altura;
+  final double largura;
+  final double comprimento;
   final int controlelote;
   final String imagem;
 
@@ -184,6 +196,10 @@ class ProdutoModel {
     situacao: 0,
     tabweb: 0,
     cst: '',
+    peso: 0.0,
+    altura: 0.0,
+    largura: 0.0,
+    comprimento: 0.0,
     controlelote: 0,
     imagem: '',
   );
@@ -232,6 +248,10 @@ class ProdutoModel {
     int? situacao,
     int? tabweb,
     String? cst,
+    double? peso,
+    double? altura,
+    double? largura,
+    double? comprimento,
     int? controlelote,
     String? imagem,
   }) {
@@ -279,6 +299,10 @@ class ProdutoModel {
       situacao: situacao ?? this.situacao,
       tabweb: tabweb ?? this.tabweb,
       cst: cst ?? this.cst,
+      peso: peso ?? this.peso,
+      altura: altura ?? this.altura,
+      largura: largura ?? this.largura,
+      comprimento: comprimento ?? this.comprimento,
       controlelote: controlelote ?? this.controlelote,
       imagem: imagem ?? this.imagem,
     );
@@ -334,6 +358,10 @@ class ProdutoModel {
       situacao: map[colSituacao] as int? ?? 0,
       tabweb: map[colTabWeb] as int? ?? 0,
       cst: map[colCst] as String? ?? '000',
+      peso: (map[colPeso] as num?)?.toDouble() ?? 0.0,
+      altura: (map[colAltura] as num?)?.toDouble() ?? 0.0,
+      largura: (map[colLargura] as num?)?.toDouble() ?? 0.0,
+      comprimento: (map[colComprimento] as num?)?.toDouble() ?? 0.0,
       controlelote: map[colControleLote] as int? ?? 0,
       imagem: imagemRaw.replaceAll(imagemRaw.length < 100 ? 'MA==' : '', ''),
     );
@@ -382,6 +410,10 @@ class ProdutoModel {
     colSituacao: situacao,
     colTabWeb: tabweb,
     colCst: cst,
+    colPeso: peso,
+    colAltura: altura,
+    colLargura: largura,
+    colComprimento: comprimento,
     colControleLote: controlelote,
     colImagem: imagem,
   };

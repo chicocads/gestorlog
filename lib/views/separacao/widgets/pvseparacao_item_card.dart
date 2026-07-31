@@ -476,10 +476,15 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                   child: InfoRow(
                     label: 'Código:',
                     value: '${widget.item.idProduto}',
+                    labelWidth: 60,
                   ),
                 ),
                 Expanded(
-                  child: InfoRow(label: 'Unidade:', value: widget.item.und),
+                  child: InfoRow(
+                    label: 'Unidade:',
+                    value: widget.item.und,
+                    labelWidth: 60,
+                  ),
                 ),
               ],
             ),
@@ -488,12 +493,14 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                 Expanded(
                   child: InfoRow(
                     label: 'Preço:',
+                    labelWidth: 60,
                     value: NumeroFormatar.moeda(widget.item.preco.toString()),
                   ),
                 ),
                 Expanded(
                   child: InfoRow(
                     label: 'Marca:',
+                    labelWidth: 60,
                     value: widget.item.produto.marca
                         .padRight(10)
                         .substring(0, 10),
@@ -510,8 +517,18 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
               children: [
                 Expanded(
                   child: InfoRow(
-                    label: 'Codigo Barra:',
+                    label: 'EAN:',
                     value: widget.item.produto.codigoalfa,
+                    labelWidth: 60,
+                  ),
+                ),
+                Expanded(
+                  child: InfoRow(
+                    label: 'Ref:',
+                    value: widget.item.produto.referencia
+                        .padRight(13)
+                        .substring(0, 13),
+                    labelWidth: 60,
                   ),
                 ),
               ],
@@ -521,8 +538,9 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                 children: [
                   Expanded(
                     child: InfoRow(
-                      label: 'Localização:',
+                      label: 'Local:',
                       value: widget.item.produto.localizacao,
+                      labelWidth: 60,
                     ),
                   ),
                 ],
@@ -531,7 +549,11 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
               Row(
                 children: [
                   Expanded(
-                    child: InfoRow(label: 'Localização:', value: _wmsFormatado),
+                    child: InfoRow(
+                      label: 'Local:',
+                      value: _wmsFormatado,
+                      labelWidth: 60,
+                    ),
                   ),
                 ],
               ),

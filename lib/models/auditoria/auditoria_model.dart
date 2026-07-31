@@ -10,6 +10,10 @@ class AuditoriaLogisticaModel {
   static const colQtEmbala = 'qtembala';
   static const colSaldo = 'saldo';
   static const colReserva = 'reserva';
+  static const colPeso = 'peso';
+  static const colAltura = 'altura';
+  static const colLargura = 'largura';
+  static const colComprimento = 'comprimento';
 
   static const colWmsRua = 'wms_rua';
   static const colWmsBlc = 'wms_blc';
@@ -41,6 +45,10 @@ class AuditoriaLogisticaModel {
     required this.qtembala,
     required this.saldo,
     required this.reserva,
+    required this.peso,
+    required this.altura,
+    required this.largura,
+    required this.comprimento,
     required this.wmsrua,
     required this.wmsblc,
     required this.wmsmod,
@@ -68,6 +76,10 @@ class AuditoriaLogisticaModel {
   final int qtembala;
   final double saldo;
   final double reserva;
+  final double peso;
+  final double altura;
+  final double largura;
+  final double comprimento;
   final int wmsrua;
   final int wmsblc;
   final int wmsmod;
@@ -97,6 +109,10 @@ class AuditoriaLogisticaModel {
     qtembala: 0,
     saldo: 0.0,
     reserva: 0.0,
+    peso: 0.0,
+    altura: 0.0,
+    largura: 0.0,
+    comprimento: 0.0,
     wmsrua: 0,
     wmsblc: 0,
     wmsmod: 0,
@@ -125,6 +141,10 @@ class AuditoriaLogisticaModel {
     int? qtembala,
     double? saldo,
     double? reserva,
+    double? peso,
+    double? altura,
+    double? largura,
+    double? comprimento,
     int? wmsrua,
     int? wmsblc,
     int? wmsmod,
@@ -152,6 +172,10 @@ class AuditoriaLogisticaModel {
       qtembala: qtembala ?? this.qtembala,
       saldo: saldo ?? this.saldo,
       reserva: reserva ?? this.reserva,
+      peso: peso ?? this.peso,
+      altura: altura ?? this.altura,
+      largura: largura ?? this.largura,
+      comprimento: comprimento ?? this.comprimento,
       wmsrua: wmsrua ?? this.wmsrua,
       wmsblc: wmsblc ?? this.wmsblc,
       wmsmod: wmsmod ?? this.wmsmod,
@@ -214,6 +238,10 @@ class AuditoriaLogisticaModel {
       qtembala: _asInt(map[colQtEmbala] ?? map['qtemb'] ?? map['qtembala']),
       saldo: _asDouble(map[colSaldo]),
       reserva: _asDouble(map[colReserva]),
+      peso: _asDouble(map[colPeso]),
+      altura: _asDouble(map[colAltura]),
+      largura: _asDouble(map[colLargura]),
+      comprimento: _asDouble(map[colComprimento]),
       wmsrua: _asInt(map[colWmsRua] ?? map['wmsrua']),
       wmsblc: _asInt(map[colWmsBlc] ?? map['wmsblc']),
       wmsmod: _asInt(map[colWmsMod] ?? map['wmsmod']),
@@ -243,6 +271,10 @@ class AuditoriaLogisticaModel {
     colQtEmbala: qtembala,
     colSaldo: saldo,
     colReserva: reserva,
+    colPeso: peso,
+    colAltura: altura,
+    colLargura: largura,
+    colComprimento: comprimento,
     colWmsRua: wmsrua,
     colWmsBlc: wmsblc,
     colWmsMod: wmsmod,
