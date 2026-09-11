@@ -9,6 +9,8 @@ import '../../models/Separacao/separacao_model.dart';
 import '../../models/hsaida/lote_saida_model.dart';
 import '../../models/prevenda/prevenda_model.dart';
 import '../../app/routes.dart';
+import '../../services/prevenda/request_prevenda.dart';
+import '../../services/prevenda/response_prevenda.dart';
 import '../../services/separacao/request_separacao.dart';
 import '../widget/scanner_view.dart';
 import 'widgets/pvseparacao_item_card.dart';
@@ -180,6 +182,10 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       return;
     }
     final item = widget.prevenda.itens[index];
+    if (item.cancelado) {
+      AppSnackBar.erro(context, 'Item cancelado, não é possível separar.');
+      return;
+    }
     if (qtde > item.qtde) {
       _mostrarAlertaQtdeExcedida(item.produto.nome, item.qtde);
       return;
@@ -341,6 +347,26 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       return;
     }
 
+    if (itens[index].cancelado) {
+      showDialog<void>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Item cancelado'),
+          content: Text(
+            'O produto "${itens[index].produto.nome}" foi cancelado nesta '
+            'pré-venda e não pode ser separado.',
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     if (incrementar) {
       final decQtde = AppScope.of(
         context,
@@ -403,7 +429,96 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
     //    );
   }
 
-  void _confirmarFinalizarSeparacao() {
+  /// Busca a pré-venda atualizada no servidor e sincroniza o status dos itens
+  /// localmente, para detectar itens cancelados após a lista ter sido
+  /// carregada. Retorna `false` (e já mostra o aviso/erro ao usuário) quando
+  /// a finalização não deve prosseguir.
+  Future<bool> _atualizarECheckarItensCancelados(AppDependencies deps) async {
+    final ResponsePreVenda resposta;
+    try {
+      resposta = await deps.preVendaService.buscar(
+        baseUrl: deps.parametroController.parametro.url,
+        request: RequestPreVenda.empty().copyWith(
+          idFilial: widget.prevenda.idFilial,
+          numero: widget.prevenda.idPrevenda,
+          status: 9,
+          romaneio: 9,
+          entregue: 9,
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return false;
+      AppSnackBar.erro(
+        context,
+        'Não foi possível verificar itens cancelados. Tente novamente.',
+      );
+      return false;
+    }
+    if (!mounted) return false;
+
+    final pvAtualizada = resposta.itens.firstWhere(
+      (p) =>
+          p.idFilial == widget.prevenda.idFilial &&
+          p.idPrevenda == widget.prevenda.idPrevenda,
+      orElse: PreVendaModel.empty,
+    );
+    if (pvAtualizada.idPrevenda == 0) {
+      AppSnackBar.erro(
+        context,
+        'Pré-venda não encontrada. Atualize a lista e tente novamente.',
+      );
+      return false;
+    }
+    if (pvAtualizada.status == StatusPV.cancelado) {
+      AppSnackBar.erro(
+        context,
+        'Esta pré-venda foi cancelada. Não é possível finalizar a separação.',
+      );
+      return false;
+    }
+
+    final freshByKey = {
+      for (final it in pvAtualizada.itens) '${it.ordem}_${it.idProduto}': it,
+    };
+    final canceladosPendentes = <String>[];
+    for (var i = 0; i < widget.prevenda.itens.length; i++) {
+      final atual = widget.prevenda.itens[i];
+      final fresco = freshByKey['${atual.ordem}_${atual.idProduto}'];
+      if (fresco == null || fresco.status == atual.status) continue;
+      widget.prevenda.itens[i] = atual.copyWith(status: fresco.status);
+      if (!widget.prevenda.itens[i].cancelado) continue;
+      final qtdeDigitada = NumeroFormatar.tryParse(
+        _qtdeControllers[i].text.trim(),
+      );
+      if (qtdeDigitada != null && qtdeDigitada > 0) {
+        canceladosPendentes.add(widget.prevenda.itens[i].produto.nome);
+      }
+    }
+    setState(() {});
+
+    if (canceladosPendentes.isEmpty) return true;
+
+    await showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Itens cancelados'),
+        content: Text(
+          'Os itens abaixo foram cancelados nesta pré-venda e precisam ser '
+          'removidos da separação antes de finalizar:\n\n'
+          '${canceladosPendentes.map((n) => '• $n').join('\n')}',
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    return false;
+  }
+
+  Future<void> _confirmarFinalizarSeparacao() async {
     // Monta os itens conferidos (apenas os que possuem quantidade informada)
     final deps = AppScope.of(context);
     final idSeparador = deps.parametroController.parametro.idPda > 0
@@ -422,6 +537,15 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       return;
     }
 
+    setState(() => _finalizando = true);
+    final podeContinuar = await _atualizarECheckarItensCancelados(deps);
+    if (!mounted) return;
+    if (!podeContinuar) {
+      setState(() => _finalizando = false);
+      return;
+    }
+    setState(() => _finalizando = false);
+
     final itensConferidos = <RequestSeparacaoItem>[];
     final decQtde = deps.parametroController.parametro.decQtde;
     for (var i = 0; i < widget.prevenda.itens.length; i++) {
@@ -430,6 +554,7 @@ class _PvSeparacaoItensViewState extends State<PvSeparacaoItensView> {
       final qtde = NumeroFormatar.tryParse(texto);
       if (qtde == null || qtde <= 0) continue;
       final item = widget.prevenda.itens[i];
+      if (item.cancelado) continue;
 
       if (item.produto.controlelote == 1) {
         final localLotes = widget.pvseparacaoController.lotesDoProduto(

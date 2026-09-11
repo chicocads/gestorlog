@@ -184,6 +184,8 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
     return (digitado - salvo).abs() <= eps;
   }
 
+  bool get _bloqueado => widget.item.cancelado || widget.romaneio == 2;
+
   bool get _temWms {
     final p = widget.item.produto;
     return p.wmsrua > 0;
@@ -445,12 +447,19 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
 
   @override
   Widget build(BuildContext context) {
+    final cancelado = widget.item.cancelado;
     return Card(
       margin: EdgeInsets.zero,
-      color: _conferido ? const Color(0xFFE8F5E9) : null,
+      color: cancelado
+          ? null
+          : _conferido
+          ? const Color(0xFFE8F5E9)
+          : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        side: widget.highlighted
+        side: cancelado
+            ? const BorderSide(color: AppColors.error, width: 1)
+            : widget.highlighted
             ? const BorderSide(color: AppColors.success, width: 2)
             : _conferido
             ? const BorderSide(color: AppColors.success, width: 1)
@@ -461,13 +470,38 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.item.produto.nome,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.item.produto.nome,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+                if (cancelado)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.error,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
+                      'Cancelado',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 6),
             Row(
@@ -596,7 +630,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                         onPressed:
                             widget.isSalvando ||
                                 widget.onSalvar == null ||
-                                widget.romaneio == 2
+                                _bloqueado
                             ? null
                             : widget.onSalvar,
                         icon: widget.isSalvando
@@ -616,7 +650,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                               ),
                       ),
                     ),
-                    enabled: widget.romaneio != 2 && !widget.isSalvando,
+                    enabled: !_bloqueado && !widget.isSalvando,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -658,7 +692,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: IconButton(
-                        onPressed: widget.romaneio == 2 ? null : _adicionarLote,
+                        onPressed: _bloqueado ? null : _adicionarLote,
                         icon: const Icon(Icons.add),
                       ),
                     ),
@@ -712,7 +746,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                     border: OutlineInputBorder(),
                     isDense: true,
                   ),
-                  enabled: widget.romaneio != 2 && !saving,
+                  enabled: !_bloqueado && !saving,
                 ),
               ),
               const SizedBox(width: 10),
@@ -725,7 +759,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                     border: OutlineInputBorder(),
                     isDense: true,
                   ),
-                  enabled: widget.romaneio != 2 && !saving,
+                  enabled: !_bloqueado && !saving,
                   inputFormatters: [DateDdMmYyyyFormatter()],
                 ),
               ),
@@ -742,7 +776,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                     border: OutlineInputBorder(),
                     isDense: true,
                     prefixIcon: IconButton(
-                      onPressed: widget.romaneio == 2 || saving
+                      onPressed: _bloqueado || saving
                           ? null
                           : () => _salvarLote(index),
                       icon: saving
@@ -754,13 +788,13 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
                           : Icon(
                               Icons.save_rounded,
                               size: 24,
-                              color: widget.romaneio == 2
+                              color: _bloqueado
                                   ? Colors.grey
                                   : AppColors.primary,
                             ),
                     ),
                   ),
-                  enabled: widget.romaneio != 2 && !saving,
+                  enabled: !_bloqueado && !saving,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -777,7 +811,7 @@ class _PvSeparacaoItemCardState extends State<PvSeparacaoItemCard> {
               ),
               const SizedBox(width: 10),
               IconButton(
-                onPressed: widget.romaneio == 2 || saving
+                onPressed: _bloqueado || saving
                     ? null
                     : () => _deletarLote(index),
                 icon: const Icon(Icons.delete_outline),

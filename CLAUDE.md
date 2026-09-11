@@ -51,9 +51,15 @@ fvm flutter test test/widget_test.dart # run a single test file
 | `carga` | Truck load management and expenses |
 | `entrega` | Delivery confirmation (hsaida = histórico saída, prevenda) |
 | `inventario` | Stock count with barcode scanner — 4 tabs: coleta, coletados, produtos, total |
-| `auditoria` | Stock audit — 3 tabs: endereço, ficha, lotes; requests: alterar barra, endereço produto |
+| `auditoria` | Stock audit — 4 tabs: ficha, endereço, dados físicos (peso), lotes; requests: alterar barra, endereço produto, dado físico produto; inclui busca de produto por código (`auditoria_produto_search_bottom_sheet.dart`) |
 | `cadastro` | Master data: filial, produto, usuário (with `usu_flag01`–`usu_flag30` permissions) |
 | `parametro` | Device configuration (server URL, filial, PDA ID, frota, inventário, decimais) stored in SQLite |
+
+> **Nota sobre `entrega`**: nas camadas `controllers/`, `services/` e `models/` esse "módulo" é, na verdade, dois módulos separados — `hsaida/` e `prevenda/` — unificados apenas em `views/entrega/`. Ao procurar código de entrega, busque por `HSaidaController`/`HSaidaService` e `PreVendaController`/`PreVendaService`, não por `entrega_*`.
+>
+> **Serviços parciais**: `services/cadastro/cliente/` e `services/cadastro/colaborador/` só têm `request_*`/`response_*` (sem `*_service.dart` correspondente) — funcionalidade ainda em construção, não wire-ada em `AppDependencies`.
+>
+> **Itens cancelados na separação**: `PreVenda2Model.cancelado` deriva de `status == 1` (setado no backend por `CancelarItemWithTx`, `DELETE /prevenda/item/...`). `PvSeparacaoItensView` bloqueia a separação de itens já cancelados no carregamento e, ao finalizar (`_confirmarFinalizarSeparacao`), rebusca a pré-venda via `PreVendaService.buscar` para detectar cancelamentos ocorridos depois que a lista foi carregada, avisando o usuário antes de prosseguir. `PvSeparacaoItemCard` usa `_bloqueado` (`item.cancelado || romaneio == 2`) para desabilitar os campos do card.
 
 ## Rotas
 
@@ -86,7 +92,12 @@ Future<void> main() async {
 ## Environment
 
 The `.env` file (bundled as a Flutter asset) must be present at project root. It holds:
-- `AUTH_API_CADS1` — Basic auth credentials for the main REST API
-- Google Maps API keys (used by `geolocator`)
+- `AUTH_API_CADS1` — Basic auth credentials for the main REST API (used via `AuthHeaders.basicCads1()`)
+- `AUTH_API_CADS2` — present in `.env` but not referenced anywhere in code yet (reserved)
+- `ANDROID_MAPS_APIKEY`, `ANDROID_MAPS_ROUTE_APIKEY`, `IOS_MAPS_APIKEY` — Google Maps keys (used by `geolocator`)
 
 The server base URL is not hardcoded; it is stored in the local `Parametro` table and configured per-device via the Parâmetros screen.
+
+## Testing
+
+Only `test/widget_test.dart` exists (the default Flutter template smoke test). There is no domain-level test coverage (controllers, services, database) — don't assume existing tests when changing business logic.

@@ -116,6 +116,10 @@ class PreVenda2Model {
   final ProdutoModel produto;
   final List<LoteSaidaModel> lotesaida;
 
+  // `status` vem do backend (prevenda2.status); 1 = item cancelado via
+  // CancelarItemWithTx (endpoint DELETE /prevenda/item/...), 0 = ativo.
+  bool get cancelado => status == 1;
+
   factory PreVenda2Model.empty() => PreVenda2Model(
     idFilial: 0,
     idPrevenda: 0,
