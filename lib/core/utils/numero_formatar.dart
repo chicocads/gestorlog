@@ -48,13 +48,10 @@ class NumeroFormatar {
     if (value!.isEmpty) {
       return '0,00';
     } else {
-      double? valor = double.parse(value);
-      int? valor2 = valor.toInt();
-      late NumberFormat formatter;
+      double valor = double.parse(value);
+      NumberFormat formatter;
       if (casas == 0) {
-        if ((valor - valor2.toDouble()) == 0) {
-          formatter = NumberFormat('0');
-        }
+        formatter = NumberFormat('0');
       } else {
         String dec = '0.'.padRight((casas + 2), '0');
         formatter = NumberFormat(dec);
