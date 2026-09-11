@@ -4,6 +4,16 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/data_formatar.dart';
 import '../../../models/prevenda/prevenda_model.dart';
 
+enum RomaneioFiltro {
+  pendente(0, 'Pendentes'),
+  separada(2, 'Separadas'),
+  todas(9, 'Todas');
+
+  const RomaneioFiltro(this.value, this.label);
+  final int value;
+  final String label;
+}
+
 class PvSeparacaoFiltroBarra extends StatelessWidget {
   const PvSeparacaoFiltroBarra({
     super.key,
@@ -14,6 +24,8 @@ class PvSeparacaoFiltroBarra extends StatelessWidget {
     required this.onBuscar,
     required this.statusSelecionado,
     required this.onStatusChanged,
+    required this.romaneioSelecionado,
+    required this.onRomaneioChanged,
   });
 
   final DateTime? data1;
@@ -23,6 +35,8 @@ class PvSeparacaoFiltroBarra extends StatelessWidget {
   final VoidCallback onBuscar;
   final StatusPV statusSelecionado;
   final ValueChanged<StatusPV> onStatusChanged;
+  final RomaneioFiltro romaneioSelecionado;
+  final ValueChanged<RomaneioFiltro> onRomaneioChanged;
 
   static const _statusLabels = {
     StatusPV.orcamento: 'Orçamento',
@@ -166,6 +180,32 @@ class PvSeparacaoFiltroBarra extends StatelessWidget {
                   child: const Text('Buscar', style: TextStyle(fontSize: 13)),
                 ),
               ],
+            ),
+          ),
+          // Linha Separação (romaneio)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<RomaneioFiltro>(
+                segments: RomaneioFiltro.values
+                    .map(
+                      (r) => ButtonSegment(
+                        value: r,
+                        label: Text(r.label, style: const TextStyle(fontSize: 12)),
+                      ),
+                    )
+                    .toList(),
+                selected: {romaneioSelecionado},
+                onSelectionChanged: (s) => onRomaneioChanged(s.first),
+                style: SegmentedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  selectedBackgroundColor: AppColors.primary,
+                  selectedForegroundColor: Colors.white,
+                  foregroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                ),
+              ),
             ),
           ),
         ],

@@ -25,6 +25,7 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
   DateTime? _data1;
   DateTime? _data2;
   StatusPV _status = StatusPV.orcamento;
+  RomaneioFiltro _romaneio = RomaneioFiltro.pendente;
   final _scrollController = ScrollController();
   final _cargaController = TextEditingController();
 
@@ -66,10 +67,10 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
         carregamento: int.tryParse(_cargaController.text) ?? 0,
         natope: 0,
         status: _status.value,
+        romaneio: _romaneio.value,
         idSeparador: deps.parametroController.parametro.idPda == 0
             ? deps.usuarioController.usuario.idfuncionario
             : deps.parametroController.parametro.idPda,
-        romaneio: 0,
       ),
     );
   }
@@ -141,6 +142,8 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
             onBuscar: _buscar,
             statusSelecionado: _status,
             onStatusChanged: (s) => setState(() => _status = s),
+            romaneioSelecionado: _romaneio,
+            onRomaneioChanged: (r) => setState(() => _romaneio = r),
           ),
           Expanded(
             child: ListenableBuilder(
@@ -191,10 +194,14 @@ class _PvSeparacaoListViewState extends State<PvSeparacaoListView> {
                           );
                           if (!context.mounted) return;
                           if (finalizou == true) {
-                            widget.controller.removerDaLista(
-                              loja: pv.idFilial,
-                              numero: pv.idPrevenda,
-                            );
+                            if (_romaneio == RomaneioFiltro.pendente) {
+                              widget.controller.removerDaLista(
+                                loja: pv.idFilial,
+                                numero: pv.idPrevenda,
+                              );
+                            } else {
+                              _buscar();
+                            }
                             AppSnackBar.sucesso(
                               context,
                               'Separação finalizada com sucesso.',

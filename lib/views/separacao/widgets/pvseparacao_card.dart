@@ -11,6 +11,7 @@ class PvSeparacaoCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   bool get _temRomaneio => prevenda.romaneio == 1;
+  bool get _separada => prevenda.romaneio == 2;
 
   Color get _statusColor => switch (prevenda.status) {
     StatusPV.orcamento => AppColors.warning,
@@ -33,7 +34,11 @@ class PvSeparacaoCard extends StatelessWidget {
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        color: _temRomaneio ? const Color(0xFFE0F2F1) : null,
+        color: _separada
+            ? const Color(0xFFE8F5E9)
+            : _temRomaneio
+            ? const Color(0xFFE0F2F1)
+            : null,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -64,6 +69,13 @@ class PvSeparacaoCard extends StatelessWidget {
                           ),
                         ),
                         const Spacer(),
+                        if (_separada) ...[
+                          const StatusBadge(
+                            label: 'Separada',
+                            color: AppColors.success,
+                          ),
+                          const SizedBox(width: 4),
+                        ],
                         StatusBadge(label: _statusLabel, color: _statusColor),
                       ],
                     ),
